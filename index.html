@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facige · Acesso ao Painel RH</title>
+<title>Facige Master · Gestão de Empresas</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -17,219 +17,330 @@ tailwind.config = {
       },
       colors: {
         brand: {
-          50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe',
-          500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81'
+          50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 
+          600: '#4f46e5', 700: '#4338ca', 900: '#312e81'
         }
       },
       keyframes: {
         fadeUp: { from: {opacity:0, transform:'translateY(16px)'}, to: {opacity:1, transform:'translateY(0)'} },
         fadeIn: { from: {opacity:0}, to: {opacity:1} },
-        float: { '0%,100%': {transform:'translateY(0)'}, '50%': {transform:'translateY(-10px)'} },
-        shimmer: { '0%': {backgroundPosition:'-200% 0'}, '100%': {backgroundPosition:'200% 0'} },
+        shake: { '0%,100%':{transform:'translateX(0)'}, '25%':{transform:'translateX(-8px)'}, '75%':{transform:'translateX(8px)'} },
+        shimmer: { '0%':{backgroundPosition:'-200% 0'}, '100%':{backgroundPosition:'200% 0'} },
+        spin: { to: { transform: 'rotate(360deg)' } }
       },
       animation: {
-        'fade-up': 'fadeUp .6s ease both',
-        'fade-in': 'fadeIn .8s ease both',
-        'float': 'float 6s ease-in-out infinite',
+        'fade-up': 'fadeUp .5s ease both',
+        'fade-in': 'fadeIn .6s ease both',
+        'shake': 'shake .4s ease',
+        'shimmer': 'shimmer 3s infinite',
       }
     }
   }
 }
 </script>
 <style>
-  body{background:#0a0e1a}
-  .glass{background:rgba(255,255,255,.03);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08)}
-  .gradient-text{background:linear-gradient(135deg,#fff 0%,#c7d2fe 50%,#818cf8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .btn-gradient{background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%);transition:all .2s;box-shadow:0 4px 20px rgba(99,102,241,.4)}
-  .btn-gradient:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(99,102,241,.55)}
-  .btn-gradient:active{transform:translateY(0)}
-  .btn-gradient:disabled{opacity:.6;cursor:not-allowed;transform:none}
-  .input-field{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;transition:all .2s}
-  .input-field:focus{background:rgba(255,255,255,.06);border-color:#818cf8;box-shadow:0 0 0 3px rgba(129,140,248,.15)}
-  .input-field::placeholder{color:rgba(255,255,255,.3)}
-  .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.4;pointer-events:none}
-  .feature-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
-  .shine{position:relative;overflow:hidden}
-  .shine::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);background-size:200% 100%;animation:shimmer 3s infinite}
-  .shake{animation:shake .4s ease}
-  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-  .error-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
-  .success-box{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#86efac}
-  .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .dot-pattern{background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);background-size:24px 24px}
+  body { background: #0a0e1a; }
+  .glass { background: rgba(255,255,255,.03); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.08); }
+  .gradient-text { background: linear-gradient(135deg, #fff 0%, #c7d2fe 50%, #818cf8 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .btn-gradient { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); transition: all .2s; box-shadow: 0 4px 20px rgba(99,102,241,.4); }
+  .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(99,102,241,.55); }
+  .btn-gradient:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+  .input-field { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); color: #fff; transition: all .2s; }
+  .input-field:focus { background: rgba(255,255,255,.06); border-color: #818cf8; box-shadow: 0 0 0 3px rgba(129,140,248,.15); }
+  .input-field::placeholder { color: rgba(255,255,255,.3); }
+  .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .4; pointer-events: none; }
+  .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; }
+  .success-box { background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3); color: #86efac; }
+  .shine { position: relative; overflow: hidden; }
+  .shine::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent); background-size: 200% 100%; animation: shimmer 3s infinite; }
+  .table-row { transition: background .15s; }
+  .table-row:hover { background: rgba(99,102,241,.08); }
+  .badge-active { background: rgba(34,197,94,.15); color: #86efac; border: 1px solid rgba(34,197,94,.3); }
+  .badge-inactive { background: rgba(239,68,68,.15); color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
+  .badge-trial { background: rgba(99,102,241,.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,.3); }
 </style>
 </head>
-<body class="font-sans antialiased min-h-screen">
+<body class="font-sans antialiased min-h-screen text-slate-200">
 
-<div class="min-h-screen flex">
-
-  <!-- ═══════════════════════════════════════════
-       LADO ESQUERDO — BRANDING (desktop)
-       ═══════════════════════════════════════════ -->
-  <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-between p-12 xl:p-16" 
-       style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#4c1d95 100%)">
-    
-    <!-- Orbs decorativos -->
-    <div class="orb w-96 h-96 bg-indigo-500 -top-20 -left-20"></div>
-    <div class="orb w-80 h-80 bg-purple-600 bottom-20 right-0"></div>
-    <div class="dot-pattern absolute inset-0 opacity-30"></div>
-
-    <!-- Logo -->
-    <div class="relative z-10 animate-fade-in">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
-        </div>
-        <div>
-          <h1 class="font-display text-2xl font-bold text-white">Facige</h1>
-          <p class="text-indigo-200 text-xs tracking-widest uppercase">Gestão de RH</p>
-        </div>
+<!-- ═══════════════════════════════════════════
+     LOGIN SUPER ADMIN
+     ═══════════════════════════════════════════ -->
+<div id="loginScreen" class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+  <div class="orb w-96 h-96 bg-indigo-500 -top-20 -left-20"></div>
+  <div class="orb w-80 h-80 bg-purple-600 bottom-20 right-0"></div>
+  
+  <div class="glass rounded-3xl p-8 sm:p-10 max-w-md w-full relative z-10 animate-fade-up shine">
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-4">
+        <span class="text-3xl">👑</span>
       </div>
+      <h1 class="font-display text-3xl font-bold gradient-text">Facige Master</h1>
+      <p class="text-slate-400 text-sm mt-2">Gestão de Empresas · Acesso Restrito</p>
     </div>
 
-    <!-- Conteúdo central -->
-    <div class="relative z-10 max-w-lg animate-fade-up">
-      <h2 class="font-display text-4xl xl:text-5xl font-bold gradient-text leading-tight mb-6">
-        Gestão de pessoas, simplificada.
-      </h2>
-      <p class="text-indigo-100 text-lg leading-relaxed mb-10">
-        Ponto eletrônico, recrutamento com IA, folha, benefícios e comunicados. Tudo em uma única plataforma.
-      </p>
+    <div id="loginMsg" class="hidden mb-6 px-4 py-3 rounded-xl text-sm"></div>
 
-      <!-- Features rápidos -->
-      <div class="grid grid-cols-2 gap-4">
-        <div class="glass rounded-xl p-4">
-          <div class="feature-icon mb-3">
-            <svg class="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </div>
-          <p class="text-white font-semibold text-sm">Ponto Eletrônico</p>
-          <p class="text-indigo-200 text-xs mt-1">Controle em tempo real</p>
-        </div>
-        <div class="glass rounded-xl p-4">
-          <div class="feature-icon mb-3">
-            <svg class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          </div>
-          <p class="text-white font-semibold text-sm">Recrutamento IA</p>
-          <p class="text-indigo-200 text-xs mt-1">Triagem automatizada</p>
-        </div>
-        <div class="glass rounded-xl p-4">
-          <div class="feature-icon mb-3">
-            <svg class="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-          </div>
-          <p class="text-white font-semibold text-sm">Dashboards</p>
-          <p class="text-indigo-200 text-xs mt-1">Analytics completos</p>
-        </div>
-        <div class="glass rounded-xl p-4">
-          <div class="feature-icon mb-3">
-            <svg class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-          </div>
-          <p class="text-white font-semibold text-sm">Segurança</p>
-          <p class="text-indigo-200 text-xs mt-1">Dados protegidos</p>
-        </div>
+    <form id="loginForm" class="space-y-5">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">📧 Email</label>
+        <input type="email" id="loginEmail" class="input-field w-full px-4 py-3.5 rounded-xl text-sm" placeholder="admin@facige.com" required value="admin@facige.com">
       </div>
-    </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">🔒 Senha</label>
+        <input type="password" id="loginSenha" class="input-field w-full px-4 py-3.5 rounded-xl text-sm" placeholder="Sua senha master" required>
+      </div>
+      <button type="submit" id="loginBtn" class="btn-gradient w-full py-4 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2">
+        <span id="loginBtnTexto">Acessar Painel Master</span>
+      </button>
+    </form>
 
-    <!-- Rodapé do branding -->
-    <div class="relative z-10 animate-fade-in">
-      <p class="text-indigo-300 text-sm">
-        © 2025 Facige · Todos os direitos reservados
+    <div class="mt-6 pt-6 border-t border-white/10 text-center">
+      <p class="text-xs text-slate-500">
+        ⚠️ Acesso restrito à equipe Facige
       </p>
     </div>
   </div>
+</div>
 
-  <!-- ═══════════════════════════════════════════
-       LADO DIREITO — LOGIN
-       ═══════════════════════════════════════════ -->
-  <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative overflow-hidden">
-    
-    <!-- Orbs para mobile -->
-    <div class="orb w-72 h-72 bg-indigo-600 -top-20 -right-20 lg:hidden"></div>
-    <div class="orb w-60 h-60 bg-purple-700 bottom-0 -left-20 lg:hidden"></div>
+<!-- ═══════════════════════════════════════════
+     PAINEL MASTER
+     ═══════════════════════════════════════════ -->
+<div id="appShell" class="hidden min-h-screen">
 
-    <div class="w-full max-w-md relative z-10">
-
-      <!-- Logo mobile -->
-      <div class="lg:hidden flex items-center justify-center gap-3 mb-10 animate-fade-in">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
+  <!-- HEADER -->
+  <header class="border-b border-white/10 bg-[#0a0e1a]/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+          <span class="text-xl">👑</span>
         </div>
         <div>
-          <h1 class="font-display text-xl font-bold text-white">Facige</h1>
-          <p class="text-slate-400 text-xs tracking-widest uppercase">Gestão de RH</p>
+          <h1 class="font-display font-bold gradient-text text-lg">Facige Master</h1>
+          <p class="text-[10px] uppercase tracking-wider text-amber-400">Painel de Gestão</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-sm text-slate-300 hidden sm:block" id="masterNome">Master</span>
+        <button onclick="logout()" class="btn-gradient px-4 py-2 rounded-lg text-xs font-semibold">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- MÉTRICAS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="glass rounded-2xl p-5 animate-fade-up">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total de Empresas</p>
+          <span class="text-2xl">🏢</span>
+        </div>
+        <p class="font-display text-3xl font-bold gradient-text" id="kpiTotal">0</p>
+      </div>
+      <div class="glass rounded-2xl p-5 animate-fade-up" style="animation-delay:.1s">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Empresas Ativas</p>
+          <span class="text-2xl">✅</span>
+        </div>
+        <p class="font-display text-3xl font-bold text-emerald-400" id="kpiAtivas">0</p>
+      </div>
+      <div class="glass rounded-2xl p-5 animate-fade-up" style="animation-delay:.2s">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Em Trial</p>
+          <span class="text-2xl">🎁</span>
+        </div>
+        <p class="font-display text-3xl font-bold text-indigo-300" id="kpiTrial">0</p>
+      </div>
+      <div class="glass rounded-2xl p-5 animate-fade-up" style="animation-delay:.3s">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Admins Criados</p>
+          <span class="text-2xl">👥</span>
+        </div>
+        <p class="font-display text-3xl font-bold gradient-text" id="kpiAdmins">0</p>
+      </div>
+    </div>
+
+    <!-- BUSCA E NOVA EMPRESA -->
+    <div class="flex flex-col sm:flex-row gap-3 mb-6">
+      <div class="flex-1">
+        <input type="text" id="searchInput" class="input-field w-full px-4 py-3 rounded-xl text-sm" placeholder="🔍 Buscar por nome, CNPJ ou email...">
+      </div>
+      <button onclick="abrirModalNovaEmpresa()" class="btn-gradient px-6 py-3 rounded-xl text-sm font-semibold whitespace-nowrap flex items-center gap-2">
+        <span>✨</span>
+        <span>Nova Empresa</span>
+      </button>
+    </div>
+
+    <!-- TABELA DE EMPRESAS -->
+    <div class="glass rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-white/5 border-b border-white/10">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Empresa</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">CNPJ</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Admin</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Plano</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Criado em</th>
+              <th class="px-6 py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="empresasBody" class="divide-y divide-white/5"></tbody>
+        </table>
+      </div>
+
+      <!-- Empty state -->
+      <div id="emptyState" class="hidden p-12 text-center">
+        <p class="text-5xl mb-4">🏢</p>
+        <p class="text-slate-300 font-semibold mb-2">Nenhuma empresa cadastrada ainda</p>
+        <p class="text-sm text-slate-500 mb-6">Comece cadastrando a primeira empresa cliente</p>
+        <button onclick="abrirModalNovaEmpresa()" class="btn-gradient px-6 py-3 rounded-xl text-sm font-semibold">
+          ✨ Cadastrar primeira empresa
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: NOVA EMPRESA
+     ═══════════════════════════════════════════ -->
+<div id="modalNovaEmpresa" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="glass rounded-3xl p-6 sm:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto animate-fade-up">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="font-display font-bold text-xl gradient-text">🏢 Nova Empresa</h2>
+        <p class="text-sm text-slate-400 mt-1">Cadastre uma nova empresa cliente</p>
+      </div>
+      <button onclick="fecharModal('modalNovaEmpresa')" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+    </div>
+
+    <div id="modalMsg" class="hidden mb-4 px-4 py-3 rounded-xl text-sm"></div>
+
+    <form id="formNovaEmpresa" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">Nome da Empresa *</label>
+        <input type="text" id="empNome" class="input-field w-full px-4 py-3 rounded-xl text-sm" placeholder="Ex: Vetorlog Transportes" required>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">CNPJ</label>
+          <input type="text" id="empCnpj" class="input-field w-full px-4 py-3 rounded-xl text-sm" placeholder="00.000.000/0001-00" maxlength="18">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">Telefone</label>
+          <input type="text" id="empTelefone" class="input-field w-full px-4 py-3 rounded-xl text-sm" placeholder="(11) 99999-9999">
         </div>
       </div>
 
-      <!-- Card de login -->
-      <div class="glass rounded-3xl p-8 sm:p-10 animate-fade-up shine">
-        
-        <div class="mb-8">
-          <h2 class="font-display text-3xl font-bold text-white mb-2">Acessar painel</h2>
-          <p class="text-slate-400 text-sm">Entre com sua chave de acesso e email corporativo.</p>
-        </div>
-
-        <!-- Mensagens de erro/sucesso -->
-        <div id="msgBox" class="hidden mb-6 px-4 py-3 rounded-xl text-sm"></div>
-
-        <form id="loginForm" class="space-y-5">
-          
-          <!-- Chave de Acesso -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">
-              🔑 Chave de Acesso
-            </label>
-            <input 
-              type="text" 
-              id="inputChave" 
-              class="input-field w-full px-4 py-3.5 rounded-xl text-sm font-mono"
-              placeholder="SUA-EMPRESA-2024"
-              autocomplete="off"
-              required>
-          </div>
-
-          <!-- Email -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">
-              📧 Email
-            </label>
-            <input 
-              type="email" 
-              id="inputEmail" 
-              class="input-field w-full px-4 py-3.5 rounded-xl text-sm"
-              placeholder="seu.nome@suaempresa.com"
-              autocomplete="email"
-              required>
-          </div>
-
-          <!-- Botão -->
-          <button 
-            type="submit" 
-            id="btnEntrar"
-            class="btn-gradient w-full py-4 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2">
-            <span id="btnTexto">Entrar no painel</span>
-            <svg id="btnIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-          </button>
-        </form>
-
-        <!-- Info demo -->
-        <div class="mt-8 pt-6 border-t border-white/10">
-          <p class="text-xs text-slate-500 text-center">
-            Não tem acesso? 
-            <a href="#" class="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">Solicite ao administrador</a>
-          </p>
-        </div>
+      <div class="pt-4 border-t border-white/10">
+        <p class="text-xs font-bold text-slate-300 mb-3 uppercase tracking-wider">👤 Admin da Empresa</p>
       </div>
 
-      <!-- Ajuda -->
-      <div class="mt-6 text-center animate-fade-in">
-        <p class="text-slate-500 text-xs">
-          🔒 Conexão segura · Dados criptografados
-        </p>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">Nome do Admin *</label>
+        <input type="text" id="adminNome" class="input-field w-full px-4 py-3 rounded-xl text-sm" placeholder="Ex: Helena Silva" required>
       </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">Email do Admin *</label>
+        <input type="email" id="adminEmail" class="input-field w-full px-4 py-3 rounded-xl text-sm" placeholder="admin@empresa.com" required>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">Senha *</label>
+        <div class="flex gap-2">
+          <input type="text" id="adminSenha" class="input-field flex-1 px-4 py-3 rounded-xl text-sm font-mono" required>
+          <button type="button" onclick="gerarSenha()" class="btn-gradient px-4 py-3 rounded-xl text-xs font-semibold whitespace-nowrap">🎲 Gerar</button>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-1">Clique em 🎲 para gerar uma senha forte</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">Plano</label>
+        <select id="empPlano" class="input-field w-full px-4 py-3 rounded-xl text-sm">
+          <option value="trial">Trial (14 dias grátis)</option>
+          <option value="basico">Básico</option>
+          <option value="pro">Pro</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+      </div>
+
+      <div class="flex gap-3 pt-4">
+        <button type="button" onclick="fecharModal('modalNovaEmpresa')" class="glass flex-1 px-4 py-3 rounded-xl text-sm font-semibold text-slate-300 hover:bg-white/5">Cancelar</button>
+        <button type="submit" id="btnCriarEmpresa" class="btn-gradient flex-1 px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2">
+          <span id="btnCriarTexto">Criar Empresa</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: CREDENCIAIS CRIADAS
+     ═══════════════════════════════════════════ -->
+<div id="modalCredenciais" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="glass rounded-3xl p-6 sm:p-8 max-w-md w-full animate-fade-up">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 grid place-items-center mb-3">
+        <span class="text-3xl">✅</span>
+      </div>
+      <h2 class="font-display font-bold text-xl gradient-text">Empresa Criada!</h2>
+      <p class="text-slate-400 text-sm mt-1">Copie as credenciais e envie para o cliente</p>
+    </div>
+
+    <div class="space-y-3 mb-6">
+      <div class="glass rounded-xl p-4">
+        <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Empresa</p>
+        <p class="text-sm text-slate-200" id="credEmpresa">—</p>
+      </div>
+      <div class="glass rounded-xl p-4">
+        <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Email de Acesso</p>
+        <p class="text-sm text-slate-200 font-mono" id="credEmail">—</p>
+      </div>
+      <div class="glass rounded-xl p-4">
+        <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Senha</p>
+        <p class="text-sm text-slate-200 font-mono" id="credSenha">—</p>
+      </div>
+      <div class="glass rounded-xl p-4">
+        <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Link de Acesso</p>
+        <p class="text-xs text-indigo-300 font-mono break-all" id="credLink">—</p>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button onclick="copiarCredenciais()" class="btn-gradient flex-1 px-4 py-3 rounded-xl text-sm font-semibold">📋 Copiar Tudo</button>
+      <button onclick="fecharModal('modalCredenciais')" class="glass flex-1 px-4 py-3 rounded-xl text-sm font-semibold text-slate-300 hover:bg-white/5">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: CONFIRMAR EXCLUSÃO
+     ═══════════════════════════════════════════ -->
+<div id="modalExcluir" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="glass rounded-3xl p-6 sm:p-8 max-w-md w-full animate-fade-up">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 mx-auto rounded-full bg-rose-500/20 grid place-items-center mb-3">
+        <span class="text-3xl">🗑️</span>
+      </div>
+      <h2 class="font-display font-bold text-xl text-white">Excluir Empresa?</h2>
+      <p class="text-slate-400 text-sm mt-2">Esta ação <strong class="text-rose-400">não pode ser desfeita</strong>. Todos os dados da empresa serão removidos permanentemente.</p>
+    </div>
+
+    <div class="glass rounded-xl p-4 mb-6">
+      <p class="text-sm text-slate-300" id="excluirNome">—</p>
+    </div>
+
+    <div class="flex gap-3">
+      <button onclick="fecharModal('modalExcluir')" class="glass flex-1 px-4 py-3 rounded-xl text-sm font-semibold text-slate-300 hover:bg-white/5">Cancelar</button>
+      <button onclick="confirmarExcluir()" class="bg-rose-500 hover:bg-rose-600 flex-1 px-4 py-3 rounded-xl text-sm font-semibold text-white">Excluir</button>
     </div>
   </div>
 </div>
@@ -244,157 +355,424 @@ const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
 const $ = s => document.querySelector(s);
 
-// ═══════════════════════════════════════════
-// REDIRECIONAMENTO (ajuste conforme sua estrutura)
-// ═══════════════════════════════════════════
-const DASHBOARD_URL = 'dashboard.html'; // ← Mude para a URL da sua dashboard
+// Credenciais master (em produção, usar hash!)
+const MASTER_EMAIL = 'admin@facige.com';
+const MASTER_SENHA = 'Facige@Master2024';
+
+// Estado
+let empresas = [];
+let admins = [];
+let empresaParaExcluir = null;
 
 // ═══════════════════════════════════════════
-// MENSAGENS
+// LOGIN
 // ═══════════════════════════════════════════
-function mostrarMsg(texto, tipo = 'erro') {
-  const box = $('#msgBox');
-  box.textContent = texto;
-  box.className = `mb-6 px-4 py-3 rounded-xl text-sm ${tipo === 'erro' ? 'error-box' : 'success-box'}`;
-  box.classList.remove('hidden');
-  
-  if (tipo === 'erro') {
-    const card = box.closest('.glass');
-    card.classList.add('shake');
-    setTimeout(() => card.classList.remove('shake'), 400);
-  }
-}
-
-function setLoading(loading) {
-  const btn = $('#btnEntrar');
-  const texto = $('#btnTexto');
-  const icon = $('#btnIcon');
-  
-  btn.disabled = loading;
-  
-  if (loading) {
-    texto.textContent = 'Verificando acesso...';
-    icon.outerHTML = '<div id="btnIcon" class="spinner"></div>';
-  } else {
-    texto.textContent = 'Entrar no painel';
-    icon.outerHTML = '<svg id="btnIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>';
-  }
-}
-
-// ═══════════════════════════════════════════
-// VALIDAÇÃO DE CHAVE (formato)
-// ═══════════════════════════════════════════
-function formatarChave(input) {
-  input.value = input.value.toUpperCase();
-}
-
-// ═══════════════════════════════════════════
-// LOGIN — CHAVE + EMAIL
-// ═══════════════════════════════════════════
-$('#inputChave').addEventListener('input', (e) => formatarChave(e.target));
-
 $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   
-  const chave = $('#inputChave').value.trim().toUpperCase();
-  const email = $('#inputEmail').value.trim().toLowerCase();
+  const email = $('#loginEmail').value.trim().toLowerCase();
+  const senha = $('#loginSenha').value;
+  const btn = $('#loginBtn');
+  const btnTexto = $('#loginBtnTexto');
+  const msgBox = $('#loginMsg');
   
-  $('#msgBox').classList.add('hidden');
+  msgBox.classList.add('hidden');
+  btn.disabled = true;
+  btnTexto.innerHTML = '<div class="spinner"></div>';
   
-  if (!chave || !email) {
-    mostrarMsg('Preencha a chave de acesso e o email.');
+  try {
+    // Primeiro verifica se é o super admin hardcoded
+    if (email === MASTER_EMAIL && senha === MASTER_SENHA) {
+      console.log('✅ Super admin autenticado');
+      sessionStorage.setItem('facige_master', JSON.stringify({
+        id: 'master-user',
+        nome: 'NeoGe Master',
+        email: MASTER_EMAIL,
+        role: 'super_admin'
+      }));
+      $('#masterNome').textContent = 'NeoGe Master';
+      entrarApp();
+      return;
+    }
+    
+    // Senão, tenta buscar no banco
+    const { data: user, error } = await sb
+      .from('admin_users')
+      .select('*')
+      .eq('email', email)
+      .eq('role', 'super_admin')
+      .maybeSingle();
+    
+    if (error || !user || user.senha !== senha) {
+      throw new Error('Credenciais inválidas');
+    }
+    
+    sessionStorage.setItem('facige_master', JSON.stringify(user));
+    $('#masterNome').textContent = user.nome;
+    entrarApp();
+    
+  } catch (err) {
+    console.error('❌ Erro login:', err);
+    msgBox.textContent = err.message;
+    msgBox.className = 'mb-6 px-4 py-3 rounded-xl text-sm error-box';
+    msgBox.classList.remove('hidden');
+    btn.disabled = false;
+    btnTexto.textContent = 'Acessar Painel Master';
+  }
+});
+
+function entrarApp() {
+  $('#loginScreen').classList.add('hidden');
+  $('#appShell').classList.remove('hidden');
+  carregarDados();
+}
+
+function logout() {
+  sessionStorage.removeItem('facige_master');
+  location.reload();
+}
+
+// ═══════════════════════════════════════════
+// CARREGAR DADOS
+// ═══════════════════════════════════════════
+async function carregarDados() {
+  console.log('📊 Carregando empresas...');
+  
+  const [empRes, admRes] = await Promise.all([
+    sb.from('empresas').select('*').order('criado_em', { ascending: false }),
+    sb.from('admin_users').select('*').neq('role', 'super_admin')
+  ]);
+  
+  empresas = empRes.data || [];
+  admins = admRes.data || [];
+  
+  console.log(`✅ ${empresas.length} empresas, ${admins.length} admins`);
+  
+  atualizarKPIs();
+  renderEmpresas(empresas);
+}
+
+function atualizarKPIs() {
+  $('#kpiTotal').textContent = empresas.length;
+  $('#kpiAtivas').textContent = empresas.filter(e => e.conta_ativa).length;
+  $('#kpiTrial').textContent = empresas.filter(e => e.plano === 'trial').length;
+  $('#kpiAdmins').textContent = admins.length;
+}
+
+// ═══════════════════════════════════════════
+// BUSCA
+// ═══════════════════════════════════════════
+$('#searchInput').addEventListener('input', e => {
+  const termo = e.target.value.toLowerCase().trim();
+  
+  if (!termo) {
+    renderEmpresas(empresas);
     return;
   }
   
-  setLoading(true);
+  const filtradas = empresas.filter(emp => {
+    const admin = admins.find(a => a.empresa_id === emp.id);
+    return (
+      emp.nome.toLowerCase().includes(termo) ||
+      (emp.cnpj || '').includes(termo) ||
+      (emp.email_contato || '').toLowerCase().includes(termo) ||
+      (admin && admin.email.toLowerCase().includes(termo)) ||
+      (admin && admin.nome.toLowerCase().includes(termo))
+    );
+  });
+  
+  renderEmpresas(filtradas);
+});
+
+// ═══════════════════════════════════════════
+// RENDERIZAR TABELA
+// ═══════════════════════════════════════════
+function renderEmpresas(lista) {
+  const body = $('#empresasBody');
+  const empty = $('#emptyState');
+  
+  if (!lista.length) {
+    body.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  
+  empty.classList.add('hidden');
+  
+  body.innerHTML = lista.map(emp => {
+    const admin = admins.find(a => a.empresa_id === emp.id);
+    const dataCriacao = new Date(emp.criado_em).toLocaleDateString('pt-BR');
+    
+    const badgeStatus = emp.conta_ativa 
+      ? '<span class="inline-flex px-3 py-1 rounded-full text-[11px] font-bold badge-active">Ativa</span>'
+      : '<span class="inline-flex px-3 py-1 rounded-full text-[11px] font-bold badge-inactive">Inativa</span>';
+    
+    const badgePlano = `<span class="inline-flex px-3 py-1 rounded-full text-[11px] font-bold badge-trial">${emp.plano}</span>`;
+    
+    return `
+      <tr class="table-row">
+        <td class="px-6 py-4">
+          <p class="font-semibold text-slate-100">${emp.nome}</p>
+          ${emp.email_contato ? `<p class="text-xs text-slate-500">${emp.email_contato}</p>` : ''}
+        </td>
+        <td class="px-6 py-4 text-slate-400 font-mono text-xs">${emp.cnpj || '—'}</td>
+        <td class="px-6 py-4">
+          ${admin 
+            ? `<p class="text-sm text-slate-200">${admin.nome}</p><p class="text-xs text-slate-500">${admin.email}</p>`
+            : '<span class="text-slate-600 text-xs italic">Sem admin</span>'}
+        </td>
+        <td class="px-6 py-4">${badgePlano}</td>
+        <td class="px-6 py-4">${badgeStatus}</td>
+        <td class="px-6 py-4 text-slate-400 text-xs">${dataCriacao}</td>
+        <td class="px-6 py-4 text-right">
+          <div class="flex gap-1 justify-end">
+            <button onclick="toggleEmpresa('${emp.id}')" class="glass px-3 py-1.5 rounded-lg text-xs hover:bg-white/10" title="${emp.conta_ativa ? 'Desativar' : 'Ativar'}">
+              ${emp.conta_ativa ? '🔒' : '🔓'}
+            </button>
+            <button onclick="copiarCredenciaisEmpresa('${emp.id}')" class="glass px-3 py-1.5 rounded-lg text-xs hover:bg-white/10" title="Copiar credenciais">
+              📋
+            </button>
+            <button onclick="pedirExcluir('${emp.id}')" class="glass px-3 py-1.5 rounded-lg text-xs hover:bg-rose-500/20 hover:text-rose-300" title="Excluir">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// MODAIS
+// ═══════════════════════════════════════════
+function abrirModalNovaEmpresa() {
+  $('#formNovaEmpresa').reset();
+  gerarSenha();
+  $('#modalMsg').classList.add('hidden');
+  $('#modalNovaEmpresa').classList.remove('hidden');
+}
+
+function fecharModal(id) {
+  $('#' + id).classList.add('hidden');
+}
+
+function gerarSenha() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%';
+  let senha = '';
+  senha += 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random() * 24)];
+  senha += 'abcdefghijkmnpqrstuvwxyz'[Math.floor(Math.random() * 24)];
+  senha += '23456789'[Math.floor(Math.random() * 8)];
+  senha += '!@#$%'[Math.floor(Math.random() * 5)];
+  for (let i = 0; i < 8; i++) {
+    senha += chars[Math.floor(Math.random() * chars.length)];
+  }
+  senha = senha.split('').sort(() => Math.random() - 0.5).join('');
+  $('#adminSenha').value = senha;
+}
+
+// ═══════════════════════════════════════════
+// CRIAR EMPRESA
+// ═══════════════════════════════════════════
+$('#formNovaEmpresa').addEventListener('submit', async e => {
+  e.preventDefault();
+  
+  const btn = $('#btnCriarEmpresa');
+  const btnTexto = $('#btnCriarTexto');
+  const msgBox = $('#modalMsg');
+  
+  btn.disabled = true;
+  btnTexto.innerHTML = '<div class="spinner"></div>';
+  msgBox.classList.add('hidden');
+  
+  const nome = $('#empNome').value.trim();
+  const cnpj = $('#empCnpj').value.trim();
+  const telefone = $('#empTelefone').value.trim();
+  const adminNome = $('#adminNome').value.trim();
+  const adminEmail = $('#adminEmail').value.trim().toLowerCase();
+  const adminSenha = $('#adminSenha').value;
+  const plano = $('#empPlano').value;
   
   try {
-    console.log('🔐 Tentando acesso:', chave, '|', email);
-    
-    // 1. Buscar empresa pela chave
-    const { data: empresa, error: errEmpresa } = await sb
-      .from('empresas')
-      .select('*')
-      .eq('chave_acesso', chave)
+    // Verificar email duplicado
+    const { data: emailExiste } = await sb
+      .from('admin_users')
+      .select('id')
+      .eq('email', adminEmail)
       .maybeSingle();
+    
+    if (emailExiste) {
+      throw new Error('Este email já está em uso por outro admin.');
+    }
+    
+    // Verificar CNPJ duplicado
+    if (cnpj) {
+      const { data: cnpjExiste } = await sb
+        .from('empresas')
+        .select('id')
+        .eq('cnpj', cnpj)
+        .maybeSingle();
+      
+      if (cnpjExiste) {
+        throw new Error('Este CNPJ já está cadastrado.');
+      }
+    }
+    
+    // 1. Criar empresa
+    const { data: novaEmpresa, error: errEmpresa } = await sb
+      .from('empresas')
+      .insert({
+        nome: nome,
+        cnpj: cnpj || null,
+        email_contato: adminEmail,
+        telefone: telefone || null,
+        plano: plano,
+        conta_ativa: true
+      })
+      .select()
+      .single();
     
     if (errEmpresa) {
-      console.error('Erro Supabase:', errEmpresa);
-      throw new Error('Erro ao verificar acesso. Tente novamente.');
+      throw new Error('Erro ao criar empresa: ' + errEmpresa.message);
     }
     
-    if (!empresa) {
-      mostrarMsg('Chave de acesso inválida. Verifique com sua empresa.');
-      setLoading(false);
-      return;
-    }
-    
-    if (empresa.conta_ativa === false) {
-      mostrarMsg('Esta conta está desativada. Contate o suporte.');
-      setLoading(false);
-      return;
-    }
-    
-    console.log('✅ Empresa encontrada:', empresa.nome);
-    
-    // 2. Verificar se o email pertence a esta empresa
-    const { data: admin, error: errAdmin } = await sb
+    // 2. Criar admin
+    const { data: novoAdmin, error: errAdmin } = await sb
       .from('admin_users')
-      .select('*')
-      .eq('empresa_id', empresa.id)
-      .eq('email', email)
-      .eq('ativo', true)
-      .maybeSingle();
+      .insert({
+        empresa_id: novaEmpresa.id,
+        nome: adminNome,
+        email: adminEmail,
+        senha: adminSenha,
+        role: 'admin',
+        ativo: true
+      })
+      .select()
+      .single();
     
     if (errAdmin) {
-      console.error('Erro admin:', errAdmin);
-      throw new Error('Erro ao verificar email. Tente novamente.');
+      await sb.from('empresas').delete().eq('id', novaEmpresa.id);
+      throw new Error('Erro ao criar admin: ' + errAdmin.message);
     }
     
-    if (!admin) {
-      mostrarMsg('Email não autorizado para esta empresa.');
-      setLoading(false);
-      return;
-    }
+    fecharModal('modalNovaEmpresa');
+    mostrarCredenciais(novaEmpresa, adminEmail, adminSenha);
     
-    console.log('✅ Acesso liberado para:', admin.nome);
-    
-    // 3. Criar sessão
-    const sessao = {
-      user: { id: admin.id, nome: admin.nome, email: admin.email },
-      empresa: { id: empresa.id, nome: empresa.nome, chave_acesso: chave }
-    };
-    
-    sessionStorage.setItem('facige_session', JSON.stringify(sessao));
-    
-    mostrarMsg('Acesso liberado! Redirecionando...', 'sucesso');
-    
-    // 4. Redirecionar após pequeno delay
-    setTimeout(() => {
-      window.location.href = DASHBOARD_URL;
-    }, 900);
+    await carregarDados();
     
   } catch (err) {
-    console.error('❌ Erro:', err);
-    mostrarMsg(err.message || 'Erro inesperado. Tente novamente.');
-    setLoading(false);
+    msgBox.textContent = err.message;
+    msgBox.className = 'mb-4 px-4 py-3 rounded-xl text-sm error-box';
+    msgBox.classList.remove('hidden');
+  } finally {
+    btn.disabled = false;
+    btnTexto.textContent = 'Criar Empresa';
   }
 });
 
 // ═══════════════════════════════════════════
-// RECUPERAR SESSÃO (se já logado, vai direto)
+// CREDENCIAIS
 // ═══════════════════════════════════════════
-(function recuperarSessao() {
-  const salvo = sessionStorage.getItem('facige_session');
+function mostrarCredenciais(empresa, email, senha) {
+  $('#credEmpresa').textContent = empresa.nome;
+  $('#credEmail').textContent = email;
+  $('#credSenha').textContent = senha;
+  $('#credLink').textContent = `${window.location.origin}/index.html`;
+  $('#modalCredenciais').classList.remove('hidden');
+}
+
+function copiarCredenciais() {
+  const texto = `🏢 EMPRESA: ${$('#credEmpresa').textContent}
+📧 EMAIL: ${$('#credEmail').textContent}
+🔒 SENHA: ${$('#credSenha').textContent}
+🔗 ACESSO: ${$('#credLink').textContent}
+
+Envie estas credenciais para o cliente.`;
+  
+  navigator.clipboard.writeText(texto).then(() => {
+    alert('✅ Credenciais copiadas!');
+  });
+}
+
+function copiarCredenciaisEmpresa(empId) {
+  const emp = empresas.find(e => e.id === empId);
+  const admin = admins.find(a => a.empresa_id === empId);
+  
+  if (!admin) {
+    alert('⚠️ Esta empresa não tem admin cadastrado.');
+    return;
+  }
+  
+  const texto = `🏢 EMPRESA: ${emp.nome}
+📧 EMAIL: ${admin.email}
+🔒 SENHA: ${admin.senha}
+🔗 ACESSO: ${window.location.origin}/index.html`;
+  
+  navigator.clipboard.writeText(texto).then(() => {
+    alert('✅ Credenciais copiadas!');
+  });
+}
+
+// ═══════════════════════════════════════════
+// AÇÕES NA TABELA
+// ═══════════════════════════════════════════
+async function toggleEmpresa(empId) {
+  const emp = empresas.find(e => e.id === empId);
+  const novoStatus = !emp.conta_ativa;
+  
+  const { error } = await sb
+    .from('empresas')
+    .update({ conta_ativa: novoStatus })
+    .eq('id', empId);
+  
+  if (error) {
+    alert('❌ Erro: ' + error.message);
+    return;
+  }
+  
+  emp.conta_ativa = novoStatus;
+  atualizarKPIs();
+  renderEmpresas(empresas);
+  
+  alert(novoStatus ? '🔓 Empresa ativada' : '🔒 Empresa desativada');
+}
+
+function pedirExcluir(empId) {
+  empresaParaExcluir = empId;
+  const emp = empresas.find(e => e.id === empId);
+  $('#excluirNome').textContent = emp.nome;
+  $('#modalExcluir').classList.remove('hidden');
+}
+
+async function confirmarExcluir() {
+  if (!empresaParaExcluir) return;
+  
+  const { error } = await sb
+    .from('empresas')
+    .delete()
+    .eq('id', empresaParaExcluir);
+  
+  if (error) {
+    alert('❌ Erro: ' + error.message);
+    return;
+  }
+  
+  fecharModal('modalExcluir');
+  empresaParaExcluir = null;
+  await carregarDados();
+  alert('✅ Empresa excluída');
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+(function init() {
+  const salvo = sessionStorage.getItem('facige_master');
   if (salvo) {
     try {
-      const sessao = JSON.parse(salvo);
-      if (sessao.user && sessao.empresa) {
-        console.log('🔓 Sessão existente, redirecionando...');
-        window.location.href = DASHBOARD_URL;
-      }
+      const user = JSON.parse(salvo);
+      $('#masterNome').textContent = user.nome;
+      entrarApp();
     } catch(e) {
-      sessionStorage.removeItem('facige_session');
+      sessionStorage.removeItem('facige_master');
     }
   }
 })();
