@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>NeoGe · Trabalhe Conosco</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+tailwind.config={theme:{extend:{fontFamily:{sans:['"IBM Plex Sans"','sans-serif'],display:['Sora','sans-serif']}}}}
+</script>
+<style>
+  body{background:#070d19;background-image:radial-gradient(900px 480px at 82% -10%,rgba(37,99,235,.2),transparent 60%),radial-gradient(700px 420px at -8% 35%,rgba(14,165,233,.09),transparent 55%),radial-gradient(rgba(148,163,184,.07) 1px,transparent 1px);background-size:auto,auto,22px 22px;color:#cbd5e1;min-height:100vh}
+  .panel{background:linear-gradient(180deg,rgba(24,36,62,.92),rgba(12,20,37,.96));border:1px solid rgba(82,106,150,.35);box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);border-radius:.85rem}
+  .chrome-text{background:linear-gradient(180deg,#fff,#e6edf5 34%,#93a5bd 58%,#e2e9f2 78%,#64748b);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn-primary{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 50%,#ec4899 100%);color:#fff;font-weight:700;border:none;box-shadow:0 4px 14px rgba(79,70,229,.4);transition:all .2s}
+  .btn-primary:hover{filter:brightness(1.1);transform:translateY(-2px)}
+  .btn-ghost{border:1px solid rgba(125,145,180,.4);color:#cbd5e1;background:rgba(255,255,255,.03);transition:all .2s}
+  .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(125,211,252,.5)}
+  .inp{background:#0e1830;border:1px solid rgba(82,106,150,.45);color:#e2e8f0;border-radius:.5rem;padding:.75rem;font-size:.9rem;outline:none;width:100%;transition:all .2s}
+  .inp:focus{border-color:#7dd3fc;box-shadow:0 0 0 3px rgba(56,189,248,.15)}
+  .inp::placeholder{color:#46587a}
+  select.inp option{background:#0e1830;color:#e2e8f0}
+  textarea.inp{resize:vertical;min-height:70px}
+  .lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5c7295;margin-bottom:8px}
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .badge-aberta{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.3)}
+  .badge-indigo{background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.3)}
+  .card-vaga{transition:all .3s;cursor:pointer}
+  .card-vaga:hover{transform:translateY(-4px);border-color:rgba(125,211,252,.5);box-shadow:0 12px 30px rgba(0,0,0,.5)}
+  .fade-in{animation:fadeIn .4s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .spinner{width:48px;height:48px;border:4px solid rgba(99,102,241,.3);border-top-color:#6366f1;border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .ficha-section{background:rgba(30,41,59,.5);border:1px solid rgba(82,106,150,.3);border-radius:.75rem;margin-bottom:12px;overflow:hidden}
+  .ficha-section-header{padding:16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:background .2s;background:rgba(15,23,42,.5)}
+  .ficha-section-header:hover{background:rgba(56,189,248,.05)}
+  .ficha-section-header.open{background:rgba(99,102,241,.1);border-bottom:1px solid rgba(99,102,241,.2)}
+  .ficha-section-content{padding:20px;border-top:1px solid rgba(82,106,150,.2);display:none}
+  .ficha-section-content.open{display:block;animation:fadeIn .3s ease}
+  .ficha-arrow{transition:transform .3s}
+  .ficha-arrow.open{transform:rotate(180deg)}
+  .sear-container{display:flex;flex-direction:column;height:calc(100vh - 180px);max-width:900px;margin:0 auto;background:rgba(15,23,42,.5);border:1px solid rgba(82,106,150,.35);border-radius:1rem;overflow:hidden}
+  .sear-header{background:linear-gradient(135deg,#0a1830,#1e293b);color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(82,106,150,.3)}
+  .sear-header-left{display:flex;align-items:center;gap:14px}
+  .sear-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#ec4899);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(99,102,241,.4)}
+  .sear-header-info h3{font-size:17px;font-weight:700;margin:0}
+  .sear-header-info p{font-size:12px;color:#a5b4fc;margin:0;margin-top:2px}
+  .sear-export-btn{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.2);padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600}
+  .sear-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;background:linear-gradient(180deg,rgba(15,23,42,.3),rgba(30,41,59,.3))}
+  .sear-msg{max-width:85%;animation:fadeIn .3s ease}
+  .sear-msg.bot{align-self:flex-start}
+  .sear-msg.user{align-self:flex-end}
+  .sear-bubble{padding:14px 18px;border-radius:20px;font-size:15px;line-height:1.5;word-wrap:break-word}
+  .sear-msg.bot .sear-bubble{background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(139,92,246,.1));border:1px solid rgba(139,92,246,.3);border-bottom-left-radius:6px;color:#e2e8f0}
+  .sear-msg.user .sear-bubble{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;border-bottom-right-radius:6px}
+  .sear-typing{align-self:flex-start;max-width:85%}
+  .sear-typing-bubble{background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(139,92,246,.1));border:1px solid rgba(139,92,246,.3);border-radius:20px;border-bottom-left-radius:6px;padding:14px 18px;display:flex;align-items:center;gap:10px}
+  .sear-dots{display:flex;gap:4px}
+  .sear-dot{width:8px;height:8px;border-radius:50%;background:#a5b4fc;animation:searBounce 1.4s infinite ease-in-out}
+  .sear-dot:nth-child(2){animation-delay:.2s}
+  .sear-dot:nth-child(3){animation-delay:.4s}
+  @keyframes searBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+  .sear-typing-label{font-size:13px;color:#94a3b8;font-weight:500}
+  .sear-input-wrap{display:flex;gap:10px;padding:16px 20px;background:rgba(10,18,33,.8);border-top:1px solid rgba(82,106,150,.3)}
+  #sear-input{flex:1;border:1px solid rgba(125,145,180,.4);background:#0e1830;color:#e2e8f0;border-radius:24px;padding:14px 20px;font-size:15px;outline:none}
+  #sear-input:focus{border-color:#7dd3fc;box-shadow:0 0 0 3px rgba(56,189,248,.15)}
+  #sear-send{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#ec4899);color:white;border:none;font-size:20px;cursor:pointer;font-weight:700}
+  #sear-send:disabled{opacity:.5;cursor:not-allowed}
+  .sear-progress{background:rgba(15,23,42,.5);border-top:1px solid rgba(82,106,150,.3);padding:12px 20px;display:flex;align-items:center;gap:12px}
+  .sear-progress-bar{flex:1;height:6px;background:rgba(82,106,150,.3);border-radius:3px;overflow:hidden}
+  .sear-progress-fill{height:100%;background:linear-gradient(90deg,#6366f1,#ec4899);transition:width .5s ease;border-radius:3px}
+  .sear-progress-text{font-size:12px;color:#94a3b8;font-weight:600;min-width:50px;text-align:right}
+</style>
+</head>
+<body class="font-sans antialiased">
+
+<header class="border-b border-slate-800/60 bg-[#0a1224]/80 backdrop-blur sticky top-0 z-40">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-center sm:justify-start gap-3">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 grid place-items-center shadow-lg">
+      <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    </div>
+    <div>
+      <div class="font-display font-bold text-lg chrome-text">NeoGe</div>
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Trabalhe Conosco</div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-8">
+
+  <section id="viewLoading"><div class="max-w-md mx-auto text-center py-24"><div class="spinner mx-auto mb-5"></div><p class="text-slate-400">Verificando disponibilidade...</p></div></section>
+
+  <section id="viewBloqueio" class="hidden">
+    <div class="max-w-md mx-auto text-center py-16 fade-in">
+      <div class="panel p-8">
+        <div class="w-20 h-20 mx-auto mb-5 rounded-full bg-slate-700/30 border border-slate-600/30 grid place-items-center">
+          <svg class="w-10 h-10 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h2 class="font-display text-2xl font-bold chrome-text mb-3">Página indisponível</h2>
+        <p class="text-slate-400 mb-6" id="bloqueioMsg">Não há vagas disponíveis.</p>
+        <button onclick="verificarAcesso()" class="btn-ghost px-6 py-3 rounded-lg text-sm">🔄 Verificar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- VAGAS -->
+  <section id="viewVagas" class="hidden">
+    <section class="text-center mb-12 fade-in">
+      <h1 class="font-display text-4xl sm:text-5xl font-bold chrome-text mb-4">Faça parte do nosso time</h1>
+      <p class="text-slate-400 text-lg max-w-2xl mx-auto">Descubra oportunidades de carreira.</p>
+    </section>
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="font-display text-2xl font-bold text-slate-100">Vagas Disponíveis</h2>
+      <span id="vagasCount" class="badge badge-aberta">0 vagas</span>
+    </div>
+    <div id="vagasList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </section>
+
+  <!-- SEAR — ABRE DIRETO AO CLICAR EM CANDIDATAR-SE -->
+  <section id="viewPreEntrevista" class="hidden fade-in">
+    <div class="panel p-6 mb-6 text-center">
+      <span class="badge badge-indigo mb-3">Pré-Entrevista Automática</span>
+      <h2 class="font-display text-2xl font-bold text-slate-100 mb-2">🤖 Converse com a SEAR</h2>
+      <p class="text-slate-400 text-sm max-w-2xl mx-auto">A SEAR vai coletar seus dados e fazer algumas perguntas. Responda com naturalidade — leve cerca de 10 minutos.</p>
+      <p class="text-slate-500 text-xs mt-2">Vaga: <span id="searVagaTitulo" class="text-indigo-300 font-semibold">—</span></p>
+    </div>
+
+    <div class="sear-container">
+      <header class="sear-header">
+        <div class="sear-header-left">
+          <div class="sear-avatar">🤖</div>
+          <div class="sear-header-info">
+            <h3>SEAR — Recrutadora IA</h3>
+            <p id="searStatus">Online agora</p>
+          </div>
+        </div>
+        <button class="sear-export-btn" onclick="exportarEntrevista()">📤 Exportar</button>
+      </header>
+      <div class="sear-messages" id="sear-messages"></div>
+      <div class="sear-progress">
+        <div class="sear-progress-bar"><div class="sear-progress-fill" id="searProgressFill" style="width:0%"></div></div>
+        <span class="sear-progress-text" id="searProgressText">0%</span>
+      </div>
+      <div class="sear-input-wrap">
+        <input type="text" id="sear-input" placeholder="Digite sua resposta..." autocomplete="off" onkeydown="searCaptureEnter(event)">
+        <button id="sear-send" onclick="searSubmit()">➜</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="viewAguardando" class="hidden fade-in">
+    <div class="panel p-8 max-w-2xl mx-auto mb-8 text-center">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-amber-500/10 border border-amber-500/30 grid place-items-center">
+        <svg class="w-10 h-10 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h2 class="font-display text-2xl font-bold text-slate-100 mb-2">Pré-entrevista concluída! 🎉</h2>
+      <p class="text-slate-400 mb-6">Suas respostas foram enviadas ao RH.</p>
+      <div class="panel p-4 bg-amber-500/5 border-amber-500/20 text-left mb-4">
+        <p class="text-xs uppercase tracking-wider text-amber-400 font-bold mb-1">Status atual</p>
+        <p class="text-slate-200 font-semibold">⏳ Aguardando análise do RH</p>
+      </div>
+      <button onclick="atualizarStatus()" class="btn-ghost px-6 py-3 rounded-lg text-sm">🔄 Verificar</button>
+    </div>
+    <div class="max-w-6xl mx-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="font-display text-2xl font-bold text-slate-100">Outras Vagas</h2>
+        <span id="vagasCountAguardando" class="badge badge-aberta">0</span>
+      </div>
+      <div id="vagasListAguardando" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+  </section>
+
+  <section id="viewAprovadoPre" class="hidden fade-in">
+    <div class="panel p-8 max-w-2xl mx-auto mb-8 text-center">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-emerald-500/10 border border-emerald-500/30 grid place-items-center">
+        <svg class="w-10 h-10 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <h2 class="font-display text-2xl font-bold text-slate-100 mb-2">🎉 Parabéns! Você foi aprovado!</h2>
+      <p class="text-slate-400 mb-6">Sua candidatura foi aprovada na pré-seleção.</p>
+      <div class="panel p-4 bg-emerald-500/5 border-emerald-500/20 text-left mb-4">
+        <p class="text-xs uppercase tracking-wider text-emerald-400 font-bold mb-1">Status atual</p>
+        <p class="text-slate-200 font-semibold">✅ Aprovado na pré-seleção</p>
+      </div>
+      <div id="aprovadoMsg" class="panel p-4 bg-sky-500/5 border-sky-500/20 text-left mb-4 hidden">
+        <p class="text-xs uppercase tracking-wider text-sky-400 font-bold mb-2">📝 Mensagem do RH</p>
+        <p class="text-sm text-slate-200 whitespace-pre-line" id="aprovadoMsgText"></p>
+      </div>
+    </div>
+    <button onclick="atualizarStatus()" class="btn-ghost w-full max-w-2xl mx-auto block py-3 rounded-lg text-sm">🔄 Atualizar status</button>
+  </section>
+
+  <section id="viewEntrevista" class="hidden fade-in">
+    <div class="panel p-8 max-w-2xl mx-auto mb-8 text-center">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-indigo-500/10 border border-indigo-500/30 grid place-items-center">
+        <svg class="w-10 h-10 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <h2 class="font-display text-2xl font-bold text-slate-100 mb-2">🎉 Entrevista Agendada!</h2>
+      <div class="panel p-6 bg-indigo-500/5 border-indigo-500/20 text-left mb-4">
+        <p class="text-xs uppercase tracking-wider text-indigo-400 font-bold mb-3">📅 Data e Hora</p>
+        <p class="font-display text-3xl font-bold chrome-text mb-2" id="entrevistaData">—</p>
+      </div>
+      <div id="entrevistaObs" class="panel p-4 bg-slate-800/40 text-left mb-4 hidden">
+        <p class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-2">📝 Instruções</p>
+        <p class="text-sm text-slate-200 whitespace-pre-line" id="entrevistaObsText"></p>
+      </div>
+    </div>
+    <button onclick="atualizarStatus()" class="btn-ghost w-full max-w-2xl mx-auto block py-3 rounded-lg text-sm">🔄 Atualizar</button>
+  </section>
+
+  <!-- FICHA CADASTRAL -->
+  <section id="viewFicha" class="hidden fade-in">
+    <div class="max-w-4xl mx-auto">
+      <div class="panel p-6 mb-6 text-center">
+        <span class="badge badge-indigo mb-3">Etapa Obrigatória</span>
+        <h2 class="font-display text-2xl font-bold text-slate-100 mb-2">📋 Formulário de Cadastro</h2>
+        <p class="text-slate-400 text-sm">Preencha todos os dados com atenção.</p>
+      </div>
+      <form id="formFicha" class="space-y-3">
+        <div class="ficha-section">
+          <div class="ficha-section-header open" onclick="toggleFichaSection(this, 'sec1')"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 grid place-items-center font-bold text-sm">1</span><span class="font-display font-bold text-slate-100">Dados Pessoais</span></div><span class="ficha-arrow open text-slate-400">▼</span></div>
+          <div class="ficha-section-content open" id="sec1">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2"><label class="lbl">Nome Completo *</label><input type="text" id="f_nome" class="inp" required></div>
+              <div><label class="lbl">Nascimento *</label><input type="date" id="f_data_nascimento" class="inp" required></div>
+              <div><label class="lbl">Gênero *</label><select id="f_genero" class="inp" required><option value="">Selecione...</option><option>Masculino</option><option>Feminino</option><option>Não-binário</option><option>Outro</option></select></div>
+              <div><label class="lbl">Estado Civil *</label><select id="f_estado_civil" class="inp" required><option value="">Selecione...</option><option>Solteiro(a)</option><option>Casado(a)</option><option>União Estável</option><option>Divorciado(a)</option><option>Viúvo(a)</option></select></div>
+              <div><label class="lbl">Nacionalidade *</label><input type="text" id="f_nacionalidade" class="inp" required></div>
+              <div class="sm:col-span-2"><label class="lbl">Nome da Mãe *</label><input type="text" id="f_nome_mae" class="inp" required></div>
+              <div class="sm:col-span-2"><label class="lbl">Nome do Pai</label><input type="text" id="f_nome_pai" class="inp"></div>
+              <div class="sm:col-span-2"><label class="lbl">PCD?</label><textarea id="f_pcd" class="inp" rows="2"></textarea></div>
+            </div>
+          </div>
+        </div>
+        <div class="ficha-section">
+          <div class="ficha-section-header" onclick="toggleFichaSection(this, 'sec2')"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 grid place-items-center font-bold text-sm">2</span><span class="font-display font-bold text-slate-100">Documentação</span></div><span class="ficha-arrow text-slate-400">▼</span></div>
+          <div class="ficha-section-content" id="sec2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div><label class="lbl">CPF *</label><input type="text" id="f_cpf" class="inp" maxlength="14" required></div>
+              <div><label class="lbl">RG *</label><input type="text" id="f_rg_orgao" class="inp" required></div>
+              <div><label class="lbl">PIS/PASEP</label><input type="text" id="f_pis_pasep" class="inp"></div>
+              <div><label class="lbl">CTPS</label><input type="text" id="f_ctps" class="inp"></div>
+              <div><label class="lbl">Título Eleitor</label><input type="text" id="f_titulo_eleitor" class="inp"></div>
+              <div><label class="lbl">Reservista</label><input type="text" id="f_certificado_reservista" class="inp"></div>
+              <div class="sm:col-span-2"><label class="lbl">CNH</label><input type="text" id="f_cnh" class="inp"></div>
+            </div>
+          </div>
+        </div>
+        <div class="ficha-section">
+          <div class="ficha-section-header" onclick="toggleFichaSection(this, 'sec3')"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 grid place-items-center font-bold text-sm">3</span><span class="font-display font-bold text-slate-100">Contato e Endereço</span></div><span class="ficha-arrow text-slate-400">▼</span></div>
+          <div class="ficha-section-content" id="sec3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2"><label class="lbl">Endereço *</label><input type="text" id="f_endereco" class="inp" required></div>
+              <div><label class="lbl">Bairro *</label><input type="text" id="f_bairro" class="inp" required></div>
+              <div><label class="lbl">Cidade/UF *</label><input type="text" id="f_cidade_estado" class="inp" required></div>
+              <div><label class="lbl">CEP *</label><input type="text" id="f_cep" class="inp" maxlength="9" required></div>
+              <div><label class="lbl">Celular *</label><input type="tel" id="f_telefone_celular" class="inp" maxlength="15" required></div>
+              <div><label class="lbl">Fixo</label><input type="tel" id="f_telefone_fixo" class="inp"></div>
+              <div class="sm:col-span-2"><label class="lbl">E-mail *</label><input type="email" id="f_email" class="inp" required></div>
+            </div>
+          </div>
+        </div>
+        <div class="ficha-section">
+          <div class="ficha-section-header" onclick="toggleFichaSection(this, 'sec4')"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 grid place-items-center font-bold text-sm">4</span><span class="font-display font-bold text-slate-100">Vaga e Disponibilidade</span></div><span class="ficha-arrow text-slate-400">▼</span></div>
+          <div class="ficha-section-content" id="sec4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div><label class="lbl">Cargo *</label><input type="text" id="f_cargo_interesse" class="inp" required></div>
+              <div><label class="lbl">Pretensão</label><input type="text" id="f_pretensao_salarial" class="inp"></div>
+              <div class="sm:col-span-2"><label class="lbl">Disponibilidade</label><textarea id="f_disponibilidade_horario" class="inp" rows="2"></textarea></div>
+              <div class="sm:col-span-2"><label class="lbl">Viagens/Mudança</label><textarea id="f_disponibilidade_viagem" class="inp" rows="2"></textarea></div>
+            </div>
+          </div>
+        </div>
+        <div class="ficha-section">
+          <div class="ficha-section-header" onclick="toggleFichaSection(this, 'sec5')"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 grid place-items-center font-bold text-sm">5</span><span class="font-display font-bold text-slate-100">Escolaridade</span></div><span class="ficha-arrow text-slate-400">▼</span></div>
+          <div class="ficha-section-content" id="sec5">
+            <div class="space-y-4">
+              <div><label class="lbl">Nível *</label><select id="f_escolaridade" class="inp" required><option value="">Selecione...</option><option>Ensino Fundamental</option><option>Ensino Médio</option><option>Técnico</option><option>Superior</option><option>Pós-graduação</option><option>Mestrado</option><option>Doutorado</option></select></div>
+              <div><label class="lbl">Detalhes</label><textarea id="f_detalhes_formacao" class="inp" rows="3"></textarea></div>
+            </div>
+          </div>
+        </div>
+        <div class="ficha-section">
+          <div class="ficha-section-header" onclick="toggleFichaSection(this, 'sec6')"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 grid place-items-center font-bold text-sm">6</span><span class="font-display font-bold text-slate-100">Histórico Profissional</span></div><span class="ficha-arrow text-slate-400">▼</span></div>
+          <div class="ficha-section-content" id="sec6">
+            <div class="space-y-5">
+              <div class="panel p-4 !bg-slate-800/30"><p class="font-bold text-indigo-300 text-sm mb-3">Empresa 1</p><div class="space-y-3"><div><label class="lbl">Empresa, Período, Salário</label><input type="text" id="f_empresa1" class="inp"></div><div><label class="lbl">Cargo e Atividades</label><textarea id="f_empresa1_cargo" class="inp" rows="2"></textarea></div><div><label class="lbl">Motivo da Saída</label><input type="text" id="f_empresa1_motivo" class="inp"></div></div></div>
+              <div class="panel p-4 !bg-slate-800/30"><p class="font-bold text-indigo-300 text-sm mb-3">Empresa 2</p><div class="space-y-3"><div><label class="lbl">Empresa, Período, Salário</label><input type="text" id="f_empresa2" class="inp"></div><div><label class="lbl">Cargo e Atividades</label><textarea id="f_empresa2_cargo" class="inp" rows="2"></textarea></div><div><label class="lbl">Motivo da Saída</label><input type="text" id="f_empresa2_motivo" class="inp"></div></div></div>
+              <div class="panel p-4 !bg-slate-800/30"><p class="font-bold text-indigo-300 text-sm mb-3">Empresa 3</p><div class="space-y-3"><div><label class="lbl">Empresa, Período, Salário</label><input type="text" id="f_empresa3" class="inp"></div><div><label class="lbl">Cargo e Atividades</label><textarea id="f_empresa3_cargo" class="inp" rows="2"></textarea></div><div><label class="lbl">Motivo da Saída</label><input type="text" id="f_empresa3_motivo" class="inp"></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ficha-section">
+          <div class="ficha-section-header" onclick="toggleFichaSection(this, 'sec7')"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 grid place-items-center font-bold text-sm">7</span><span class="font-display font-bold text-slate-100">Cursos e Competências</span></div><span class="ficha-arrow text-slate-400">▼</span></div>
+          <div class="ficha-section-content" id="sec7">
+            <div class="space-y-4">
+              <div><label class="lbl">Idiomas</label><textarea id="f_idiomas" class="inp" rows="2"></textarea></div>
+              <div><label class="lbl">Tecnologias</label><textarea id="f_conhecimentos_tech" class="inp" rows="2"></textarea></div>
+              <div><label class="lbl">Outros Cursos</label><textarea id="f_outros_cursos" class="inp" rows="2"></textarea></div>
+            </div>
+          </div>
+        </div>
+        <div class="ficha-section">
+          <div class="ficha-section-header" onclick="toggleFichaSection(this, 'sec8')"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 grid place-items-center font-bold text-sm">8</span><span class="font-display font-bold text-slate-100">Referências</span></div><span class="ficha-arrow text-slate-400">▼</span></div>
+          <div class="ficha-section-content" id="sec8"><div><label class="lbl">Referências Profissionais</label><textarea id="f_referencias" class="inp" rows="4"></textarea></div></div>
+        </div>
+        <div class="ficha-section">
+          <div class="ficha-section-header" onclick="toggleFichaSection(this, 'sec9')"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 grid place-items-center font-bold text-sm">9</span><span class="font-display font-bold text-slate-100">Termo de Veracidade</span></div><span class="ficha-arrow text-slate-400">▼</span></div>
+          <div class="ficha-section-content" id="sec9">
+            <div class="panel p-4 !bg-slate-800/30 mb-4"><p class="text-sm text-slate-300">Declaro que todas as informações prestadas são verdadeiras.</p></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div><label class="lbl">Assinatura *</label><input type="text" id="f_declaracao_veracidade" class="inp" required></div>
+              <div><label class="lbl">Data *</label><input type="date" id="f_data_declaracao" class="inp" required></div>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary w-full py-4 rounded-lg text-base font-bold">✓ Enviar Ficha</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="viewFichaEnviada" class="hidden fade-in">
+    <div class="panel p-8 max-w-md mx-auto text-center">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-violet-500/10 border border-violet-500/30 grid place-items-center">
+        <svg class="w-10 h-10 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <h2 class="font-display text-2xl font-bold text-slate-100 mb-2">📋 Ficha Enviada!</h2>
+      <p class="text-slate-400 mb-6">Aguardando análise do RH.</p>
+      <button onclick="atualizarStatus()" class="btn-ghost w-full py-3 rounded-lg text-sm">🔄 Verificar</button>
+    </div>
+  </section>
+
+  <section id="viewIntegracao" class="hidden fade-in">
+    <div class="panel p-8 max-w-2xl mx-auto text-center">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-cyan-500/10 border border-cyan-500/30 grid place-items-center">
+        <svg class="w-10 h-10 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <h2 class="font-display text-3xl font-bold chrome-text mb-2">🎉 Bem-vindo!</h2>
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="panel p-4 bg-cyan-500/5 border-cyan-500/20"><p class="text-xs text-cyan-400 font-bold mb-1">🎯 Integração</p><p class="font-bold chrome-text" id="integracaoData">—</p></div>
+        <div class="panel p-4 bg-emerald-500/5 border-emerald-500/20"><p class="text-xs text-emerald-400 font-bold mb-1">🚀 Início</p><p class="font-bold chrome-text" id="inicioData">—</p></div>
+      </div>
+      <div id="integracaoObs" class="panel p-4 bg-slate-800/40 text-left mb-4 hidden"><p class="text-sm text-slate-200 whitespace-pre-line" id="integracaoObsText"></p></div>
+    </div>
+  </section>
+
+  <section id="viewReprovado" class="hidden fade-in">
+    <div class="panel p-8 max-w-md mx-auto text-center">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-rose-500/10 border border-rose-500/30 grid place-items-center">
+        <svg class="w-10 h-10 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      </div>
+      <h2 class="font-display text-2xl font-bold text-slate-100 mb-2">Processo encerrado</h2>
+      <div class="panel p-4 bg-rose-500/5 border-rose-500/20 text-left mb-4">
+        <p class="text-xs text-rose-400 font-bold mb-1">Feedback</p>
+        <p class="text-slate-300 text-sm" id="reprovadoMotivo">—</p>
+      </div>
+      <button onclick="limparSessao()" class="btn-ghost w-full py-3 rounded-lg text-sm mt-4">Voltar</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="border-t border-slate-800/60 mt-12 py-6 text-center text-xs text-slate-600">NeoGe · Portal de Recrutamento</footer>
+<div id="toastRoot" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 w-[min(380px,calc(100vw-40px))]"></div>
+
+<script>
+// ═══ CONFIGURAÇÕES ═══
+const SUPA_URL = 'https://ippykisvjqmigobagzjt.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwcHlraXN2anFtaWdvYmFnemp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU5NDUsImV4cCI6MjEwMzM0MTk0NX0.m0TuMyIxW_UaW1H9HUiKVn_711PFrxIk8y-kFw-OhKc';
+const EMPRESA_ID = 'a0000000-0000-0000-0000-000000000001';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+const MISTRAL_API_KEY = "rJVOawTuuplG1F24FC4NW2zNtjV499Iy";
+const MISTRAL_MODEL = "mistral-small-latest";
+const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
+
+const $ = s => document.querySelector(s);
+const VIEWS = ['viewLoading','viewBloqueio','viewVagas','viewPreEntrevista','viewAguardando','viewAprovadoPre','viewEntrevista','viewFicha','viewFichaEnviada','viewIntegracao','viewReprovado'];
+
+let vagas = [], vagaSelecionada = null, candidaturaAtual = null;
+let realtimeAtivo = false, pollingInterval = null, channel = null;
+let searMensagens = [], searHistoricoExportar = [], searPerguntasFeitas = 0;
+const SEAR_TOTAL_PERGUNTAS = 12; // 4 dados + 8 perguntas
+let searFinalizada = false;
+
+// ═══ FUNÇÕES AUXILIARES ═══
+function validarCPF(cpf){
+  cpf = cpf.replace(/\D/g, '');
+  if(cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+  let soma = 0;
+  for(let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
+  let resto = (soma * 10) % 11;
+  if(resto === 10) resto = 0;
+  if(resto !== parseInt(cpf[9])) return false;
+  soma = 0;
+  for(let i = 0; i < 10; i++) soma += parseInt(cpf[i]) * (11 - i);
+  resto = (soma * 10) % 11;
+  if(resto === 10) resto = 0;
+  return resto === parseInt(cpf[10]);
+}
+
+function validarEmail(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function mascaraTelefone(e){
+  let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+  if(v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+  else if(v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+  e.target.value = v;
+}
+function mascaraCPF(e){
+  let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+  if(v.length > 9) v = `${v.slice(0,3)}.${v.slice(3,6)}.${v.slice(6,9)}-${v.slice(9)}`;
+  else if(v.length > 6) v = `${v.slice(0,3)}.${v.slice(3,6)}.${v.slice(6)}`;
+  else if(v.length > 3) v = `${v.slice(0,3)}.${v.slice(3)}`;
+  e.target.value = v;
+}
+function mascaraCEP(e){
+  let v = e.target.value.replace(/\D/g, '').slice(0, 8);
+  if(v.length > 5) v = `${v.slice(0,5)}-${v.slice(5)}`;
+  e.target.value = v;
+}
+
+function toast(msg, tipo='info'){
+  const root = document.getElementById('toastRoot');
+  if(!root) return;
+  const colors = {success:'border-emerald-400',error:'border-rose-400',info:'border-sky-400',warn:'border-amber-400'};
+  const el = document.createElement('div');
+  el.className = `panel !rounded-xl border-l-4 ${colors[tipo]} p-4 fade-in`;
+  el.innerHTML = `<p class="text-sm font-semibold text-slate-100">${msg}</p>`;
+  root.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.remove(); }, 5000);
+}
+
+function showView(id){
+  console.log('👁 showView:', id);
+  VIEWS.forEach(v => {
+    const el = document.getElementById(v);
+    if(el) el.classList.toggle('hidden', v !== id);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function toggleFichaSection(h, id){
+  const c = document.getElementById(id);
+  const a = h.querySelector('.ficha-arrow');
+  c.classList.toggle('open');
+  h.classList.toggle('open');
+  a.classList.toggle('open');
+}
+
+function limparSessao(){
+  sessionStorage.removeItem('neoge_candidatura');
+  sessionStorage.removeItem('neoge_email');
+  candidaturaAtual = null;
+  vagaSelecionada = null;
+  pararPolling();
+  if(channel) { sb.removeChannel(channel); channel = null; }
+  verificarAcesso();
+}
+
+function renderVagasEm(elementId, countId) {
+  const el = document.getElementById(elementId);
+  const count = document.getElementById(countId);
+  if (!el) return;
+  if (!vagas.length) {
+    el.innerHTML = '<div class="col-span-full text-center text-slate-500 py-10">Nenhuma vaga.</div>';
+    if (count) count.textContent = '0';
+    return;
+  }
+  if (count) count.textContent = `${vagas.length} vaga${vagas.length!==1?'s':''}`;
+  el.innerHTML = vagas.map(v => `
+    <div class="panel p-5 card-vaga" onclick="selecionarVaga('${v.id}')">
+      <div class="flex items-start justify-between mb-3">
+        <span class="badge badge-aberta">Aberta</span>
+        <span class="text-xs text-slate-500">${v.modalidade||'Presencial'}</span>
+      </div>
+      <h3 class="font-display font-bold text-lg text-slate-100 mb-2">${v.titulo}</h3>
+      <p class="text-sm text-slate-400 line-clamp-2 mb-3">${v.descricao||''}</p>
+      <div class="flex flex-wrap gap-2 text-xs text-slate-500 mb-4">
+        <span>💰 ${v.salario||'A combinar'}</span>
+        <span>📍 ${v.local||'—'}</span>
+      </div>
+      <button class="btn-primary w-full py-2.5 rounded-lg text-sm">Candidatar-se →</button>
+    </div>`).join('');
+}
+
+function renderVagasAguardando(){ renderVagasEm('vagasListAguardando', 'vagasCountAguardando'); }
+
+async function verificarAcesso(){
+  showView('viewLoading');
+  try {
+    const [configRes, vagasRes] = await Promise.all([
+      sb.from('recrutamento_config').select('*').eq('empresa_id', EMPRESA_ID).maybeSingle(),
+      sb.from('vagas').select('*').eq('empresa_id', EMPRESA_ID).eq('status', 'aberta')
+    ]);
+    const config = configRes.data;
+    const paginaAtiva = config?.pagina_ativa !== false;
+    const temVagas = (vagasRes.data?.length || 0) > 0;
+    if(!paginaAtiva || !temVagas){
+      $('#bloqueioMsg').textContent = 'Não há vagas disponíveis no momento.';
+      showView('viewBloqueio');
+      return false;
+    }
+    return true;
+  } catch(err){
+    console.error('❌ verificarAcesso:', err);
+    showView('viewBloqueio');
+    return false;
+  }
+}
+
+async function carregarVagas(){
+  const { data } = await sb.from('vagas').select('*').eq('empresa_id', EMPRESA_ID).eq('status','aberta').order('criado_em',{ascending:false});
+  vagas = data || [];
+  $('#vagasCount').textContent = `${vagas.length} vaga${vagas.length!==1?'s':''}`;
+  if(!vagas.length){
+    $('#vagasList').innerHTML = '<div class="col-span-full panel p-10 text-center text-slate-500">Nenhuma vaga.</div>';
+    return;
+  }
+  $('#vagasList').innerHTML = vagas.map(v => `
+    <div class="panel p-5 card-vaga" onclick="selecionarVaga('${v.id}')">
+      <div class="flex items-start justify-between mb-3">
+        <span class="badge badge-aberta">Aberta</span>
+        <span class="text-xs text-slate-500">${v.modalidade||'Presencial'}</span>
+      </div>
+      <h3 class="font-display font-bold text-lg text-slate-100 mb-2">${v.titulo}</h3>
+      <p class="text-sm text-slate-400 line-clamp-2 mb-3">${v.descricao||''}</p>
+      <div class="flex flex-wrap gap-2 text-xs text-slate-500 mb-4">
+        <span>💰 ${v.salario||'A combinar'}</span>
+        <span>📍 ${v.local||'—'}</span>
+      </div>
+      <button class="btn-primary w-full py-2.5 rounded-lg text-sm">Candidatar-se →</button>
+    </div>`).join('');
+}
+
+function showVagas(){
+  candidaturaAtual = null;
+  sessionStorage.removeItem('neoge_candidatura');
+  pararPolling();
+  if(channel) { sb.removeChannel(channel); channel = null; }
+  showView('viewVagas');
+}
+
+// ✅ NOVO FLUXO: Clicar em "Candidatar-se" abre DIRETO a SEAR
+function selecionarVaga(id){
+  vagaSelecionada = vagas.find(v => v.id === id);
+  if(!vagaSelecionada) return;
+  console.log('🎯 Vaga selecionada:', vagaSelecionada.titulo);
+  
+  // Verificar se já tem sessão ativa
+  const saved = sessionStorage.getItem('neoge_candidatura');
+  if(saved){
+    try {
+      const sessao = JSON.parse(saved);
+      if(sessao.vagas?.id === vagaSelecionada.id){
+        candidaturaAtual = sessao;
+        subscribeCandidatura();
+        iniciarPolling();
+        atualizarStatus();
+        return;
+      }
+    } catch(e){}
+  }
+  
+  // Abrir direto a SEAR
+  iniciarSear();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 🤖 SEAR — COLETA DADOS + PRÉ-ENTREVISTA
+// ═══════════════════════════════════════════════════════════════
+function iniciarSear(){
+  console.log('🤖 Iniciando SEAR para vaga:', vagaSelecionada?.titulo);
+  
+  searMensagens = [];
+  searHistoricoExportar = [];
+  searPerguntasFeitas = 0;
+  searFinalizada = false;
+  
+  document.getElementById('sear-messages').innerHTML = '';
+  $('#searVagaTitulo').textContent = vagaSelecionada?.titulo || '—';
+  
+  const vagaTitulo = vagaSelecionada?.titulo || 'a vaga';
+  const vagaLocal = vagaSelecionada?.local || '';
+  const vagaDescricao = vagaSelecionada?.descricao || '';
+  
+  searMensagens = [{
+    role: "system",
+    content: `===== VOCÊ É A SEAR — Recrutadora IA da NeoGe =====
+
+VAGA: ${vagaTitulo}
+LOCAL: ${vagaLocal}
+DESCRIÇÃO: ${vagaDescricao}
+
+===== SUA MISSÃO EM 3 FASES =====
+
+FASE 1 — COLETA DE DADOS (pergunte UM de cada vez, nesta ordem):
+1. Peça o NOME COMPLETO do candidato
+2. Peça o E-MAIL (valide o formato. Se inválido, diga "E-mail inválido, tente novamente" e peça de novo)
+3. Peça o TELEFONE com DDD (valide. Se inválido, peça de novo)
+4. Peça o CPF no formato 000.000.000-00 (valide os dígitos. Se inválido, diga "CPF inválido, verifique e tente novamente" e peça de novo)
+
+IMPORTANTE: Só avance para a próxima pergunta quando o dado atual estiver VÁLIDO.
+Após coletar o nome, chame o candidato pelo primeiro nome.
+
+FASE 2 — PRÉ-ENTREVISTA (faça estas 8 perguntas, uma de cada vez):
+1. Experiência profissional na área da vaga
+2. Um desafio que superou no trabalho e como resolveu
+3. Competências técnicas relevantes para a vaga
+4. Motivação para essa vaga/empresa
+5. Um ponto forte e algo que está buscando desenvolver
+6. Disponibilidade de horário e data de início
+7. Pretensão salarial
+8. Algo mais que gostaria de compartilhar
+
+FASE 3 — FINALIZAÇÃO:
+Quando terminar tudo, agradeça ao candidato e finalize a mensagem com a tag [ENTREVISTA_CONCLUIDA]
+IMEDIATAMENTE APÓS (na mesma resposta), inclua EXATAMENTE neste formato, substituindo pelos dados coletados:
+
+[DADOS_CANDIDATO]
+{"nome":"Nome Completo","email":"email@exemplo.com","telefone":"(11) 99999-9999","cpf":"000.000.000-00"}
+[/DADOS_CANDIDATO]
+
+===== REGRAS DE COMPORTAMENTO =====
+- SEMPRE comente a resposta anterior antes de fazer a próxima pergunta
+- UMA pergunta por vez
+- Respostas curtas (2-4 frases)
+- Tom caloroso, profissional e moderno
+- Use 1-2 emojis no máximo por mensagem
+- NUNCA repita perguntas já respondidas
+- NUNCA invente dados que o candidato não forneceu`
+  }];
+  
+  showView('viewPreEntrevista');
+  atualizarProgressoSear();
+  
+  setTimeout(() => {
+    console.log('🤖 Chamando IA pela primeira vez...');
+    chamarMistralSear("Inicie a conversa se apresentando como SEAR, recrutadora da NeoGe. Mencione a vaga e comece pedindo o nome completo do candidato.");
+  }, 600);
+}
+
+function searSubmit() {
+  if(searFinalizada) return;
+  const input = document.getElementById('sear-input');
+  const texto = input.value.trim();
+  if (!texto) return;
+
+  searAdicionarMensagem(texto, 'user');
+  searHistoricoExportar.push(`Candidato: ${texto}`);
+  searMensagens.push({ role: "user", content: texto });
+  searPerguntasFeitas++;
+  atualizarProgressoSear();
+  input.value = '';
+
+  chamarMistralSear();
+}
+
+function searCaptureEnter(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    searSubmit();
+  }
+}
+
+async function chamarMistralSear(primeiraMensagem = null) {
+  if(searFinalizada) return;
+  
+  const btn = document.getElementById('sear-send');
+  const input = document.getElementById('sear-input');
+  btn.disabled = true;
+  input.disabled = true;
+  document.getElementById('searStatus').textContent = 'Digitando...';
+  
+  searMostrarDigitando();
+
+  const msgsEnvio = primeiraMensagem 
+    ? [...searMensagens, { role: "user", content: primeiraMensagem }]
+    : [...searMensagens];
+
+  try {
+    console.log('🌐 Chamando Mistral API...');
+    const resposta = await fetch(MISTRAL_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${MISTRAL_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: MISTRAL_MODEL,
+        messages: msgsEnvio,
+        temperature: 0.7,
+        max_tokens: 800
+      })
+    });
+
+    if (!resposta.ok) {
+      const erroTexto = await resposta.text();
+      throw new Error(`API ${resposta.status}: ${erroTexto.substring(0, 100)}`);
+    }
+
+    const dados = await resposta.json();
+    let textoResposta = dados.choices[0].message.content.trim();
+    console.log('✅ Resposta recebida:', textoResposta.substring(0, 80));
+
+    searEsconderDigitando();
+    
+    // Detectar finalização
+    const finalizada = textoResposta.includes('[ENTREVISTA_CONCLUIDA]');
+    
+    // Extrair dados do candidato (JSON)
+    let dadosCandidato = null;
+    const matchDados = textoResposta.match(/\[DADOS_CANDIDATO\]([\s\S]*?)\[\/DADOS_CANDIDATO\]/);
+    if(matchDados){
+      try {
+        dadosCandidato = JSON.parse(matchDados[1].trim());
+        console.log('📋 Dados extraídos:', dadosCandidato);
+      } catch(e){
+        console.error('❌ Erro ao parsear JSON:', e);
+      }
+    }
+    
+    // Limpar tags da mensagem exibida
+    let mensagemLimpa = textoResposta
+      .replace(/\[ENTREVISTA_CONCLUIDA\]/g, '')
+      .replace(/\[DADOS_CANDIDATO\][\s\S]*?\[\/DADOS_CANDIDATO\]/g, '')
+      .trim();
+    
+    searAdicionarMensagem(mensagemLimpa, 'bot');
+    searHistoricoExportar.push(`SEAR: ${mensagemLimpa}`);
+    
+    if (!primeiraMensagem) {
+      searMensagens.push({ role: "assistant", content: mensagemLimpa });
+    }
+    
+    document.getElementById('searStatus').textContent = 'Online agora';
+    
+    if(finalizada){
+      searFinalizada = true;
+      atualizarProgressoSear(100);
+      setTimeout(() => finalizarEntrevistaSear(dadosCandidato), 2000);
+    }
+    
+  } catch (erro) {
+    console.error("❌ Erro SEAR:", erro);
+    searEsconderDigitando();
+    
+    let msgErro = 'Ops! Tive um problema técnico. ';
+    if(erro.message.includes('Failed to fetch')) msgErro += 'Verifique sua conexão.';
+    else msgErro += erro.message.substring(0, 100);
+    
+    searAdicionarMensagem(msgErro, 'bot');
+    document.getElementById('searStatus').textContent = 'Com erro';
+    mostrarBotaoPular();
+    
+  } finally {
+    btn.disabled = false;
+    input.disabled = false;
+    if(!searFinalizada) input.focus();
+  }
+}
+
+function pularEntrevista(){
+  toast('Entrevista cancelada.','warn');
+  showView('viewVagas');
+}
+
+function tentarNovamenteSear(){
+  const painel = document.getElementById('sear-messages');
+  const msgs = painel.querySelectorAll('.sear-msg');
+  if(msgs.length > 0) msgs[msgs.length - 1].remove();
+  chamarMistralSear();
+}
+
+function mostrarBotaoPular(){
+  const painel = document.getElementById('sear-messages');
+  const el = document.createElement('div');
+  el.className = 'sear-msg bot';
+  el.innerHTML = `
+    <div class="sear-bubble" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3)">
+      <p class="mb-3">A IA não está respondendo. Você pode:</p>
+      <div class="flex gap-2 flex-wrap">
+        <button onclick="tentarNovamenteSear()" class="btn-ghost px-3 py-2 rounded-lg text-xs">🔄 Tentar novamente</button>
+        <button onclick="pularEntrevista()" class="btn-primary px-3 py-2 rounded-lg text-xs">← Voltar às vagas</button>
+      </div>
+    </div>`;
+  painel.appendChild(el);
+  searRolarFim();
+}
+
+function searMostrarDigitando() {
+  const painel = document.getElementById('sear-messages');
+  const el = document.createElement('div');
+  el.className = 'sear-typing';
+  el.id = 'searDigitando';
+  el.innerHTML = `<div class="sear-typing-bubble"><div class="sear-dots"><div class="sear-dot"></div><div class="sear-dot"></div><div class="sear-dot"></div></div><span class="sear-typing-label">SEAR está digitando...</span></div>`;
+  painel.appendChild(el);
+  searRolarFim();
+}
+
+function searEsconderDigitando() {
+  const el = document.getElementById('searDigitando');
+  if (el) el.remove();
+}
+
+function searAdicionarMensagem(texto, tipo) {
+  const painel = document.getElementById('sear-messages');
+  const el = document.createElement('div');
+  el.className = `sear-msg ${tipo}`;
+  el.innerHTML = `<div class="sear-bubble">${searEscaparHTML(texto)}</div>`;
+  painel.appendChild(el);
+  searRolarFim();
+}
+
+function searRolarFim() {
+  const painel = document.getElementById('sear-messages');
+  setTimeout(() => painel.scrollTop = painel.scrollHeight, 50);
+}
+
+function searEscaparHTML(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto;
+  return div.innerHTML.replace(/\n/g, '<br>');
+}
+
+function atualizarProgressoSear(forcar = null) {
+  const pct = forcar !== null ? forcar : Math.min(100, Math.round((searPerguntasFeitas / SEAR_TOTAL_PERGUNTAS) * 100));
+  document.getElementById('searProgressFill').style.width = pct + '%';
+  document.getElementById('searProgressText').textContent = pct + '%';
+}
+
+function exportarEntrevista() {
+  if (!searHistoricoExportar.length) return toast('Sem conversa.','warn');
+  const data = new Date().toLocaleString('pt-BR');
+  let conteudo = `PRÉ-ENTREVISTA SEAR — NeoGe\nData: ${data}\nVaga: ${vagaSelecionada?.titulo||''}\n${'='.repeat(40)}\n\n`;
+  searHistoricoExportar.forEach(l => conteudo += `${l}\n\n`);
+  const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `PreEntrevista_SEAR_${(vagaSelecionada?.titulo||'vaga').replace(/\s+/g,'_')}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📤 Exportado!','success');
+}
+
+// ═══ FINALIZAR — CRIA CANDIDATO + CANDIDATURA E ENVIA AO RH ═══
+async function finalizarEntrevistaSear(dadosCandidato){
+  console.log('💾 Finalizando entrevista...');
+  toast('💾 Salvando dados...','info');
+  
+  // Validar dados extraídos
+  if(!dadosCandidato || !dadosCandidato.nome || !dadosCandidato.email){
+    console.error('❌ Dados incompletos:', dadosCandidato);
+    toast('Erro: dados incompletos. Tente novamente.','error');
+    searFinalizada = false;
+    atualizarProgressoSear();
+    return;
+  }
+  
+  if(!validarEmail(dadosCandidato.email)){
+    toast('E-mail inválido coletado.','error');
+    searFinalizada = false;
+    return;
+  }
+  
+  if(dadosCandidato.cpf && !validarCPF(dadosCandidato.cpf)){
+    toast('CPF inválido coletado.','error');
+    searFinalizada = false;
+    return;
+  }
+  
+  try {
+    // 1. Buscar ou criar candidato
+    console.log('🔍 Buscando candidato:', dadosCandidato.email);
+    let { data: cand } = await sb.from('candidatos').select('*').eq('email', dadosCandidato.email).maybeSingle();
+    
+    if(!cand){
+      console.log('➕ Criando candidato...');
+      const ins = await sb.from('candidatos').insert({
+        nome: dadosCandidato.nome,
+        email: dadosCandidato.email,
+        telefone: dadosCandidato.telefone || '',
+        cpf: dadosCandidato.cpf || ''
+      }).select().single();
+      
+      if(ins.error){
+        console.error('❌ Erro ao criar candidato:', ins.error);
+        toast('Erro: ' + ins.error.message, 'error');
+        return;
+      }
+      cand = ins.data;
+      console.log('✅ Candidato criado:', cand.id);
+    } else {
+      console.log('✅ Candidato existente:', cand.id);
+    }
+    
+    // 2. Verificar candidatura existente
+    const { data: existente } = await sb.from('candidaturas')
+      .select('*')
+      .eq('vaga_id', vagaSelecionada.id)
+      .eq('candidato_id', cand.id)
+      .maybeSingle();
+    
+    if(existente){
+      console.log('⚠️ Candidatura já existe');
+      candidaturaAtual = existente;
+      candidaturaAtual.candidatos = cand;
+      candidaturaAtual.vagas = vagaSelecionada;
+      sessionStorage.setItem('neoge_candidatura', JSON.stringify(candidaturaAtual));
+      sessionStorage.setItem('neoge_email', dadosCandidato.email);
+      subscribeCandidatura();
+      iniciarPolling();
+      atualizarStatus();
+      return;
+    }
+    
+    // 3. Preparar dados da entrevista
+    const entrevistaChat = searMensagens.filter(m => m.role !== 'system').map(m => ({
+      role: m.role,
+      texto: m.content,
+      timestamp: new Date().toISOString()
+    }));
+    
+    const respostasPre = searMensagens
+      .filter(m => m.role === 'user')
+      .map(m => m.content);
+    
+    const notaPre = Math.min(100, respostasPre.length * 8);
+    
+    // 4. Criar candidatura com todos os dados
+    console.log('➕ Criando candidatura...');
+    const { data: novaCand, error } = await sb.from('candidaturas').insert({
+      vaga_id: vagaSelecionada.id,
+      candidato_id: cand.id,
+      empresa_id: EMPRESA_ID,
+      status: 'pre_entrevista',
+      entrevista_chat: entrevistaChat,
+      respostas_pre: respostasPre,
+      nota_pre: notaPre,
+      atualizado_em: new Date().toISOString()
+    }).select().single();
+    
+    if(error){
+      console.error('❌ Erro ao criar candidatura:', error);
+      toast('Erro: ' + error.message, 'error');
+      return;
+    }
+    
+    console.log('✅ Candidatura criada e enviada ao RH:', novaCand.id);
+    
+    candidaturaAtual = novaCand;
+    candidaturaAtual.candidatos = cand;
+    candidaturaAtual.vagas = vagaSelecionada;
+    sessionStorage.setItem('neoge_candidatura', JSON.stringify(candidaturaAtual));
+    sessionStorage.setItem('neoge_email', dadosCandidato.email);
+    
+    subscribeCandidatura();
+    iniciarPolling();
+    
+    toast('✅ Dados enviados ao RH!','success');
+    renderVagasAguardando();
+    showView('viewAguardando');
+    
+  } catch(err){
+    console.error('❌ Erro geral:', err);
+    toast('Erro: ' + err.message, 'error');
+  }
+}
+
+// ═══ ATUALIZAR STATUS ═══
+async function atualizarStatus(){
+  if(!candidaturaAtual) return;
+  
+  const { data, error } = await sb.from('candidaturas').select('*, vagas(*), candidatos(*)').eq('id', candidaturaAtual.id).single();
+  if(error) return;
+  
+  if(data){
+    const statusAnterior = candidaturaAtual.status;
+    candidaturaAtual = data;
+    sessionStorage.setItem('neoge_candidatura', JSON.stringify(candidaturaAtual));
+    
+    if(statusAnterior && statusAnterior !== data.status){
+      const statusLabels = {
+        aguardando_rh: '⏳ Aguardando RH',
+        pre_entrevista: '✅ Pré-entrevista concluída',
+        aprovado_pre: '🎉 Aprovado!',
+        entrevista_agendada: '📅 Entrevista agendada',
+        ficha_preenchida: '📝 Ficha enviada',
+        ficha_aprovada: '📋 Ficha aprovada',
+        integracao_marcada: '🎯 Integração marcada',
+        contratado: '🎉 Contratado!',
+        reprovado: '❌ Encerrado'
+      };
+      toast(`📢 ${statusLabels[data.status] || 'Atualizado'}`, 'info');
+    }
+  }
+
+  const st = candidaturaAtual.status;
+  
+  if(st==='contratado'||st==='integracao_marcada'){
+    pararPolling();
+    $('#integracaoData').textContent = candidaturaAtual.data_integracao ? new Date(candidaturaAtual.data_integracao+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}) : '—';
+    $('#inicioData').textContent = candidaturaAtual.data_inicio ? new Date(candidaturaAtual.data_inicio+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}) : '—';
+    if(candidaturaAtual.observacao_rh){
+      $('#integracaoObs').classList.remove('hidden');
+      $('#integracaoObsText').textContent = candidaturaAtual.observacao_rh;
+    }
+    showView('viewIntegracao');
+    return;
+  }
+  
+  if(st==='reprovado'){
+    pararPolling();
+    $('#reprovadoMotivo').textContent = candidaturaAtual.observacao_rh || 'Sem feedback.';
+    showView('viewReprovado');
+    return;
+  }
+  
+  if(st==='aguardando_rh'||st==='pre_entrevista'){
+    renderVagasAguardando();
+    showView('viewAguardando');
+    return;
+  }
+  
+  if(st==='aprovado_pre'){
+    if(candidaturaAtual.observacao_rh){
+      $('#aprovadoMsg').classList.remove('hidden');
+      $('#aprovadoMsgText').textContent = candidaturaAtual.observacao_rh;
+    } else {
+      $('#aprovadoMsg').classList.add('hidden');
+    }
+    showView('viewAprovadoPre');
+    return;
+  }
+  
+  if(st==='entrevista_agendada'){
+    if(candidaturaAtual.data_entrevista){
+      const d = new Date(candidaturaAtual.data_entrevista);
+      $('#entrevistaData').textContent = d.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}) + ' às ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    }
+    if(candidaturaAtual.observacao_rh){
+      $('#entrevistaObs').classList.remove('hidden');
+      $('#entrevistaObsText').textContent = candidaturaAtual.observacao_rh;
+    }
+    showView('viewEntrevista');
+    return;
+  }
+  
+  if(st==='ficha_preenchida'){
+    if(!candidaturaAtual.ficha_cadastro){
+      $('#f_nome').value = candidaturaAtual.candidatos?.nome || '';
+      $('#f_email').value = sessionStorage.getItem('neoge_email') || '';
+      $('#f_cpf').value = candidaturaAtual.candidatos?.cpf || '';
+      $('#f_telefone_celular').value = candidaturaAtual.candidatos?.telefone || '';
+      $('#f_cargo_interesse').value = candidaturaAtual.vagas?.titulo || '';
+      $('#f_data_declaracao').value = new Date().toISOString().split('T')[0];
+      showView('viewFicha');
+    } else {
+      showView('viewFichaEnviada');
+    }
+    return;
+  }
+  
+  if(st==='ficha_aprovada'){
+    showView('viewFichaEnviada');
+    return;
+  }
+}
+
+// ═══ ENVIO DA FICHA ═══
+$('#formFicha').addEventListener('submit', async e => {
+  e.preventDefault();
+  
+  const campos = [
+    'nome','data_nascimento','genero','estado_civil','nacionalidade','nome_mae','nome_pai','pcd',
+    'cpf','rg_orgao','pis_pasep','ctps','titulo_eleitor','certificado_reservista','cnh',
+    'endereco','bairro','cidade_estado','cep','telefone_celular','telefone_fixo','email',
+    'cargo_interesse','pretensao_salarial','disponibilidade_horario','disponibilidade_viagem',
+    'escolaridade','detalhes_formacao',
+    'empresa1','empresa1_cargo','empresa1_motivo','empresa2','empresa2_cargo','empresa2_motivo',
+    'empresa3','empresa3_cargo','empresa3_motivo',
+    'idiomas','conhecimentos_tech','outros_cursos','referencias','declaracao_veracidade','data_declaracao'
+  ];
+  
+  const ficha = {};
+  campos.forEach(c => {
+    const el = document.getElementById('f_'+c);
+    if(el && el.value) ficha[c] = el.value.trim();
+  });
+
+  if(!validarCPF(ficha.cpf)) return toast('CPF inválido','error');
+  
+  const obrigatorios = ['nome','data_nascimento','genero','estado_civil','nacionalidade','nome_mae','cpf','rg_orgao','endereco','bairro','cidade_estado','cep','telefone_celular','email','cargo_interesse','escolaridade','declaracao_veracidade','data_declaracao'];
+  for(const c of obrigatorios){
+    if(!ficha[c]){
+      toast(`Campo obrigatório: ${c.replace(/_/g,' ')}`,'error');
+      return;
+    }
+  }
+  
+  const { error } = await sb.from('candidaturas').update({
+    status:'ficha_preenchida', 
+    ficha_cadastro:ficha, 
+    atualizado_em:new Date().toISOString()
+  }).eq('id', candidaturaAtual.id);
+  
+  if(error) return toast('Erro: ' + error.message,'error');
+  
+  candidaturaAtual.status = 'ficha_preenchida';
+  candidaturaAtual.ficha_cadastro = ficha;
+  sessionStorage.setItem('neoge_candidatura', JSON.stringify(candidaturaAtual));
+  toast('✅ Ficha enviada!','success');
+  showView('viewFichaEnviada');
+});
+
+// ═══ REALTIME + POLLING ═══
+function subscribeCandidatura(){
+  if(!candidaturaAtual?.id || realtimeAtivo) return;
+  if(channel) sb.removeChannel(channel);
+  
+  channel = sb.channel('cand-' + candidaturaAtual.id)
+    .on('postgres_changes', {
+      event:'UPDATE', 
+      schema:'public', 
+      table:'candidaturas',
+      filter:`id=eq.${candidaturaAtual.id}`
+    }, (payload) => {
+      console.log('📡 Atualização do RH:', payload.new.status);
+      candidaturaAtual = {...candidaturaAtual, ...payload.new};
+      sessionStorage.setItem('neoge_candidatura', JSON.stringify(candidaturaAtual));
+      atualizarStatus();
+    })
+    .subscribe((status) => {
+      if(status === 'SUBSCRIBED') realtimeAtivo = true;
+    });
+}
+
+function iniciarPolling(){
+  if(pollingInterval) return;
+  pollingInterval = setInterval(async () => {
+    if(candidaturaAtual?.id) await atualizarStatus();
+  }, 10000);
+}
+
+function pararPolling(){
+  if(pollingInterval){
+    clearInterval(pollingInterval);
+    pollingInterval = null;
+  }
+}
+
+// ═══ INIT ═══
+async function init(){
+  console.log('🚀 Iniciando Portal...');
+  
+  document.querySelectorAll('input[type="tel"]').forEach(t => t.addEventListener('input', mascaraTelefone));
+  document.querySelectorAll('input[id*="cpf"]').forEach(c => c.addEventListener('input', mascaraCPF));
+  const cep = document.getElementById('f_cep');
+  if(cep) cep.addEventListener('input', mascaraCEP);
+
+  const acesso = await verificarAcesso();
+  if(!acesso) return;
+  await carregarVagas();
+  
+  const saved = sessionStorage.getItem('neoge_candidatura');
+  if(saved){
+    try {
+      candidaturaAtual = JSON.parse(saved);
+      const { data } = await sb.from('candidaturas').select('*, vagas(*), candidatos(*)').eq('id', candidaturaAtual.id).single();
+      if(data){ 
+        candidaturaAtual = data;
+        subscribeCandidatura();
+        iniciarPolling();
+        atualizarStatus(); 
+        return; 
+      }
+    } catch(e){ 
+      sessionStorage.removeItem('neoge_candidatura'); 
+    }
+  }
+  showView('viewVagas');
+}
+
+init();
+</script>
+</body>
+</html>
