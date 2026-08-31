@@ -3,582 +3,1148 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facige Master</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="color-scheme" content="dark">
+<title>Facige · Painel Administrativo de RH</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+tailwind.config={theme:{extend:{
+  fontFamily:{sans:['"IBM Plex Sans"','sans-serif'],display:['Sora','sans-serif'],mono:['"IBM Plex Mono"','monospace']},
+  keyframes:{fadeUp:{from:{opacity:0,transform:'translateY(10px)'},to:{opacity:1,transform:'translateY(0)'}},
+    toastIn:{from:{opacity:0,transform:'translateX(26px)'},to:{opacity:1,transform:'translateX(0)'}},
+    bar:{from:{width:'100%'},to:{width:'0%'}}},
+  animation:{'fade-up':'fadeUp .35s ease both','toast-in':'toastIn .25s ease both'}
+}}}
+</script>
 <style>
-  body { background: #0a0e1a; font-family: 'Inter', sans-serif; }
-  .font-display { font-family: 'Sora', sans-serif; }
-  .glass { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); }
-  .gradient-text { background: linear-gradient(135deg, #fff, #818cf8); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .btn-gradient { background: linear-gradient(135deg, #6366f1, #8b5cf6); transition: all .2s; cursor: pointer; }
-  .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(99,102,241,.55); }
-  .btn-gradient:disabled { opacity: .6; cursor: not-allowed; transform: none; }
-  .input-field { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); color: #fff; }
-  .input-field:focus { border-color: #818cf8; outline: none; }
-  .input-field::placeholder { color: rgba(255,255,255,.3); }
-  .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .table-row:hover { background: rgba(99,102,241,.08); }
-  .badge-active { background: rgba(34,197,94,.15); color: #86efac; }
-  .badge-inactive { background: rgba(239,68,68,.15); color: #fca5a5; }
-  .badge-trial { background: rgba(99,102,241,.15); color: #a5b4fc; }
-  .action-btn { cursor: pointer; transition: all .15s; }
-  .action-btn:hover { transform: scale(1.1); }
+  body{background:#070d19;background-image:radial-gradient(900px 480px at 82% -10%,rgba(37,99,235,.2),transparent 60%),radial-gradient(700px 420px at -8% 35%,rgba(14,165,233,.09),transparent 55%),radial-gradient(rgba(148,163,184,.07) 1px,transparent 1px);background-size:auto,auto,22px 22px;color:#cbd5e1}
+  .view-in{animation:fadeUp .35s ease both}
+  .chrome-text{background:linear-gradient(180deg,#fff,#e6edf5 34%,#93a5bd 58%,#e2e9f2 78%,#64748b);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .panel{background:linear-gradient(180deg,rgba(24,36,62,.92),rgba(12,20,37,.96));border:1px solid rgba(82,106,150,.35);box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);border-radius:.85rem}
+  .card-hover{transition:all .2s}.card-hover:hover{transform:translateY(-2px);border-color:rgba(125,211,252,.45)}
+  .kpi-clickable{cursor:pointer;transition:all .2s ease;text-align:left;width:100%}
+  .kpi-clickable:hover{transform:translateY(-3px);border-color:rgba(125,211,252,.5);box-shadow:0 12px 28px rgba(0,0,0,.45)}
+  .panel-head-btn{display:flex;align-items:center;justify-content:space-between;width:100%;transition:color .2s}
+  .panel-head-btn:hover{color:#7dd3fc}
+  .panel-head-btn:hover .panel-head-arrow{transform:translateX(3px);opacity:1}
+  .panel-head-arrow{transition:all .2s;opacity:.5}
+  .btn-chrome{background:linear-gradient(180deg,#fff,#dbe3ee 38%,#9fb0c6 52%,#e8eef5);color:#0b1322;font-weight:700;border:1px solid rgba(255,255,255,.7);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 4px 14px rgba(2,6,23,.55);transition:all .15s}
+  .btn-chrome:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-primary{background:linear-gradient(135deg,#4f46e5,#7c3aed,#ec4899);color:#fff;font-weight:700;box-shadow:0 4px 14px rgba(79,70,229,.4);transition:all .2s}
+  .btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+  .btn-ghost{border:1px solid rgba(125,145,180,.4);color:#cbd5e1;background:rgba(255,255,255,.03)}
+  .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(125,211,252,.5)}
+  .btn-danger{border:1px solid rgba(244,63,94,.4);color:#fda4af;background:rgba(244,63,94,.05)}
+  .btn-danger:hover{background:rgba(244,63,94,.15)}
+  .btn-success{border:1px solid rgba(16,185,129,.4);color:#6ee7b7;background:rgba(16,185,129,.05)}
+  .btn-success:hover{background:rgba(16,185,129,.15)}
+  .inp{background:#0e1830;border:1px solid rgba(82,106,150,.45);color:#e2e8f0;border-radius:.5rem;padding:.6rem .75rem;font-size:.875rem;outline:none;width:100%}
+  .inp:focus{border-color:#7dd3fc;box-shadow:0 0 0 3px rgba(56,189,248,.15)}
+  .inp::placeholder{color:#46587a}
+  select.inp option{background:#0e1830;color:#e2e8f0}
+  .lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5c7295;margin-bottom:6px}
+  .tbl{width:100%;font-size:.875rem}
+  .tbl thead tr{border-bottom:1px solid rgba(82,106,150,.35);background:rgba(255,255,255,.02)}
+  .tbl th{padding:.75rem 1rem;text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#5c7295;font-weight:700;white-space:nowrap}
+  .tbl td{padding:.8rem 1rem;border-bottom:1px solid rgba(82,106,150,.12);vertical-align:middle}
+  .tbl tbody tr:hover{background:rgba(56,189,248,.05)}
+  .toast-bar{animation:bar 4s linear forwards}
+  .tnum{font-variant-numeric:tabular-nums}
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .badge-sm{padding:3px 8px;font-size:10px}
+  .cand-row-aguardando{background:rgba(245,158,11,.05) !important;border-left:3px solid #f59e0b}
+  .cand-row-aguardando:hover{background:rgba(245,158,11,.1) !important}
+  ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:#2c3d5f;border-radius:8px}
 </style>
 </head>
-<body class="text-slate-200 min-h-screen">
+<body class="font-sans antialiased">
 
-<!-- LOGIN -->
-<div id="loginScreen" class="min-h-screen flex items-center justify-center p-6">
-  <div class="glass rounded-3xl p-8 max-w-md w-full">
-    <div class="text-center mb-8">
-      <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-4">
-        <span class="text-3xl">👑</span>
+<!-- ═══════════════════════════════════════════
+     APP SHELL (tela principal)
+     ═══════════════════════════════════════════ -->
+<div id="appShell" class="hidden">
+  <div id="sidebarBackdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden lg:hidden" onclick="toggleSidebar(false)"></div>
+
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out bg-[#060b16] text-slate-300 flex flex-col border-r border-slate-800/60">
+    <div class="flex items-center gap-3 px-5 h-16 border-b border-slate-800/70">
+      <div class="w-9 h-9 rounded-lg btn-chrome grid place-items-center"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+      <div class="flex-1 min-w-0">
+        <div class="font-display font-bold text-[17px] chrome-text">Facige</div>
+        <div class="text-[10px] uppercase tracking-[0.18em] text-sky-400/70 mt-1">Console de RH</div>
       </div>
-      <h1 class="font-display text-3xl font-bold gradient-text">Facige Master</h1>
-      <p class="text-slate-400 text-sm mt-2">Gestão de Empresas</p>
+      <button onclick="toggleSidebar(false)" class="lg:hidden p-1.5 rounded-lg hover:bg-white/5 text-slate-400"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div id="loginMsg" class="hidden mb-4 px-4 py-3 rounded-xl text-sm"></div>
-    <form id="loginForm" class="space-y-5">
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-2">📧 Email</label>
-        <input type="email" id="loginEmail" class="input-field w-full px-4 py-3 rounded-xl text-sm" value="admin@facige.com" required>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-2">🔒 Senha</label>
-        <input type="password" id="loginSenha" class="input-field w-full px-4 py-3 rounded-xl text-sm" required>
-      </div>
-      <button type="submit" id="loginBtn" class="btn-gradient w-full py-4 rounded-xl text-white font-semibold text-sm">
-        Acessar Painel Master
-      </button>
-    </form>
-  </div>
-</div>
-
-<!-- PAINEL -->
-<div id="appShell" class="hidden min-h-screen">
-  <header class="border-b border-white/10 sticky top-0 z-40" style="background:rgba(10,14,26,.8);backdrop-filter:blur(12px)">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-          <span class="text-xl">👑</span>
+    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+      <button data-view="dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">📊 Dashboard</button>
+      <button data-view="solicitacoes" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">📥 Solicitações <span id="badgeSolic" class="ml-auto hidden px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold"></span></button>
+      <button data-view="colaboradores" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">👥 Colaboradores</button>
+      <button data-view="comunicados" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">📢 Comunicados</button>
+      <button data-view="espelho" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">📄 Espelhos</button>
+      <button data-view="vrvt" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">💳 VR · VA · VT</button>
+      <button data-view="feriados" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">🎌 Feriados</button>
+      <button data-view="recrutamento" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">🎯 Recrutamento <span id="badgeRecrut" class="ml-auto hidden px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold"></span></button>
+    </nav>
+    <div class="p-4 border-t border-slate-800/70">
+      <div class="rounded-xl bg-white/[.03] border border-slate-700/40 p-3.5">
+        <div class="flex items-center gap-2 text-[11px] text-sky-400 mb-2">
+          <span class="relative flex w-2 h-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-60"></span>
+            <span class="relative inline-flex rounded-full w-2 h-2 bg-sky-400"></span>
+          </span>
+          Supabase Realtime ativo
         </div>
-        <div>
-          <h1 class="font-display font-bold gradient-text text-lg">Facige Master</h1>
-          <p class="text-[10px] uppercase tracking-wider text-amber-400">Painel de Gestão</p>
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0" id="userInit">--</div>
+          <div class="min-w-0">
+            <p class="text-[13px] font-semibold text-slate-100 truncate" id="userName">—</p>
+            <p class="text-[11px] text-slate-500 truncate" id="userEmpresa">—</p>
+          </div>
         </div>
       </div>
-      <button id="btnLogout" class="btn-gradient px-4 py-2 rounded-lg text-xs font-semibold">Sair</button>
+      <button onclick="logout()" class="w-full mt-3 text-xs text-slate-500 hover:text-rose-400 transition-colors">Sair</button>
     </div>
-  </header>
+  </aside>
 
-  <main class="max-w-7xl mx-auto px-4 py-8">
-    <!-- KPIs -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div class="glass rounded-2xl p-5">
-        <p class="text-xs text-slate-400 font-semibold uppercase mb-2">Total de Empresas</p>
-        <p class="font-display text-3xl font-bold gradient-text" id="kpiTotal">0</p>
-      </div>
-      <div class="glass rounded-2xl p-5">
-        <p class="text-xs text-slate-400 font-semibold uppercase mb-2">Ativas</p>
-        <p class="font-display text-3xl font-bold text-emerald-400" id="kpiAtivas">0</p>
-      </div>
-      <div class="glass rounded-2xl p-5">
-        <p class="text-xs text-slate-400 font-semibold uppercase mb-2">Em Trial</p>
-        <p class="font-display text-3xl font-bold text-indigo-300" id="kpiTrial">0</p>
-      </div>
-      <div class="glass rounded-2xl p-5">
-        <p class="text-xs text-slate-400 font-semibold uppercase mb-2">Admins</p>
-        <p class="font-display text-3xl font-bold gradient-text" id="kpiAdmins">0</p>
-      </div>
-    </div>
-
-    <!-- Busca e Nova Empresa -->
-    <div class="flex flex-col sm:flex-row gap-3 mb-6">
-      <input type="text" id="searchInput" class="input-field flex-1 px-4 py-3 rounded-xl text-sm" placeholder="🔍 Buscar empresa...">
-      <button id="btnNovaEmpresa" class="btn-gradient px-6 py-3 rounded-xl text-sm font-semibold whitespace-nowrap">
-        ✨ Nova Empresa
+  <main class="min-h-screen lg:ml-72 transition-all duration-300 ease-in-out">
+    <header class="sticky top-0 z-20 h-14 bg-[#0a1224]/85 backdrop-blur border-b border-slate-700/40 flex items-center px-4 sm:px-6 gap-3">
+      <button onclick="toggleSidebar(true)" class="lg:hidden btn-ghost p-2 rounded-lg" aria-label="Abrir menu">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
       </button>
-    </div>
+      <h2 id="pageTitle" class="font-display font-bold chrome-text text-sm sm:text-base truncate">Dashboard</h2>
+      <div class="flex-1"></div>
+      <span id="clock" class="font-mono text-sm chrome-text tnum hidden sm:block">--:--:--</span>
+      <button onclick="refresh()" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">↻ Atualizar</button>
+    </header>
 
-    <!-- Tabela -->
-    <div class="glass rounded-2xl overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-white/5 border-b border-white/10">
-            <tr>
-              <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase">Empresa</th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase">CNPJ</th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase">Admin</th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase">Plano</th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase">Status</th>
-              <th class="px-6 py-4 text-right text-xs font-bold text-slate-400 uppercase">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="empresasBody" class="divide-y divide-white/5"></tbody>
-        </table>
-      </div>
-      <div id="emptyState" class="hidden p-12 text-center">
-        <p class="text-5xl mb-4">🏢</p>
-        <p class="text-slate-300 font-semibold mb-2">Nenhuma empresa cadastrada</p>
-        <button id="btnNovaEmpresaEmpty" class="btn-gradient px-6 py-3 rounded-xl text-sm font-semibold mt-4">
-          ✨ Cadastrar primeira empresa
-        </button>
-      </div>
+    <div class="p-4 sm:p-6 max-w-[1500px] mx-auto">
+
+      <section id="view-dashboard" class="view-in">
+        <div id="kpiGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-6"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="panel p-5">
+            <button onclick="go('solicitacoes');solicitFilter='pendente';renderSolic()" class="panel-head-btn mb-4">
+              <h3 class="font-display font-bold text-slate-100 text-sm sm:text-base flex items-center gap-2">📥 Solicitações Pendentes <span id="dashSolicCount" class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/30 hidden"></span></h3>
+              <span class="panel-head-arrow text-slate-400 text-xs">Ver todas →</span>
+            </button>
+            <div id="dashSolic" class="space-y-2 max-h-[400px] overflow-y-auto"></div>
+          </div>
+          <div class="panel p-5">
+            <button onclick="go('espelho')" class="panel-head-btn mb-4">
+              <h3 class="font-display font-bold text-slate-100 text-sm sm:text-base flex items-center gap-2">⏱ Últimos Pontos Registrados</h3>
+              <span class="panel-head-arrow text-slate-400 text-xs">Ver espelhos →</span>
+            </button>
+            <div id="dashPontos" class="space-y-2 max-h-[400px] overflow-y-auto"></div>
+          </div>
+        </div>
+        <div class="panel p-5 mt-4">
+          <h3 class="font-display font-bold text-slate-100 text-sm sm:text-base flex items-center gap-2 mb-4">😊 Humor da Equipe Hoje</h3>
+          <div id="dashHumor" class="flex flex-wrap gap-2 sm:gap-3"></div>
+        </div>
+      </section>
+
+      <section id="view-solicitacoes" class="hidden view-in">
+        <div class="flex gap-2 mb-4 flex-wrap">
+          <button onclick="filterSolic('todos')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Todos</button>
+          <button onclick="filterSolic('pendente')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Pendentes</button>
+          <button onclick="filterSolic('aprovado')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Aprovados</button>
+          <button onclick="filterSolic('rejeitado')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Rejeitados</button>
+        </div>
+        <div class="panel overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="tbl min-w-[720px]">
+              <thead><tr><th>Colaborador</th><th>Tipo</th><th>Data</th><th>Motivo</th><th>Status</th><th class="!text-right">Ações</th></tr></thead>
+              <tbody id="solicBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-colaboradores" class="hidden view-in">
+        <div class="flex justify-between mb-4 gap-3 flex-wrap">
+          <input type="text" id="searchCol" class="inp !w-full sm:!w-64" placeholder="Buscar colaborador...">
+          <button onclick="openColabModal()" class="btn-chrome px-4 py-2 rounded-lg text-sm">+ Cadastrar</button>
+        </div>
+        <div class="panel overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="tbl min-w-[720px]">
+              <thead><tr><th>Colaborador</th><th>Cargo</th><th>Dept</th><th>Matrícula</th><th>VR/VA/VT</th><th>Status</th></tr></thead>
+              <tbody id="colabBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-comunicados" class="hidden view-in">
+        <div class="flex justify-end mb-4">
+          <button onclick="openComModal()" class="btn-chrome px-4 py-2 rounded-lg text-sm">+ Novo Comunicado</button>
+        </div>
+        <div id="comList" class="space-y-3"></div>
+      </section>
+
+      <section id="view-espelho" class="hidden view-in">
+        <div class="panel p-4 mb-4 flex flex-wrap gap-3 items-end">
+          <div><label class="lbl">Colaborador</label><select id="espColab" class="inp !w-full sm:!w-64"></select></div>
+          <div><label class="lbl">Mês de referência</label><input type="month" id="espMes" class="inp !w-full sm:!w-48"></div>
+          <button onclick="enviarEspelho()" class="btn-chrome px-4 py-2.5 rounded-lg text-sm">📲 Enviar para o App</button>
+          <button onclick="enviarTodos()" class="btn-ghost px-4 py-2.5 rounded-lg text-sm">Enviar para todos</button>
+        </div>
+        <div class="panel overflow-hidden">
+          <div class="px-5 py-3 border-b border-slate-700/40"><h3 class="font-display font-bold text-slate-100">Histórico de Envios</h3></div>
+          <div class="overflow-x-auto">
+            <table class="tbl min-w-[720px]">
+              <thead><tr><th>Colaborador</th><th>Mês</th><th>Enviado em</th><th>Status</th><th>Hash</th></tr></thead>
+              <tbody id="espBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-vrvt" class="hidden view-in">
+        <div id="vrvtResumo" class="panel p-4 mb-4 flex flex-wrap gap-6 items-center text-sm"></div>
+        <div class="panel overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="tbl min-w-[720px]">
+              <thead><tr><th>Colaborador</th><th>🍽️ VR/dia</th><th>🛒 VA/dia</th><th>🚌 VT/dia</th><th class="!text-right">Ações</th></tr></thead>
+              <tbody id="vrvtBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-feriados" class="hidden view-in">
+        <div class="flex justify-end mb-4">
+          <button onclick="openFerModal()" class="btn-chrome px-4 py-2 rounded-lg text-sm">+ Novo Feriado</button>
+        </div>
+        <div class="panel overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="tbl min-w-[600px]">
+              <thead><tr><th>Data</th><th>Feriado</th><th>Tipo</th><th>Recorrente</th><th class="!text-right">Ações</th></tr></thead>
+              <tbody id="ferBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-recrutamento" class="hidden view-in">
+        <div class="panel p-5 mb-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="font-display font-bold text-slate-100 text-base">🔗 Página de Candidatos</h3>
+              <p class="text-sm text-slate-400 mt-1">Controle o acesso público à página de recrutamento.</p>
+            </div>
+            <div class="flex items-center gap-4 shrink-0">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <span class="text-sm text-slate-300 font-semibold">Página ativa</span>
+                <div class="relative">
+                  <input type="checkbox" id="togglePaginaCand" class="peer sr-only" onchange="togglePaginaCandidatos()">
+                  <div class="w-11 h-6 bg-slate-600 rounded-full transition-colors peer-checked:bg-emerald-500"></div>
+                  <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5"></div>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div class="mt-4 p-3 rounded-lg bg-slate-800/40 border border-slate-700/40">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+              <div class="flex items-center gap-4 text-sm">
+                <div class="text-center"><span id="vagasAbertasCount" class="font-display text-2xl font-bold chrome-text block">0</span><span class="text-slate-500 text-xs">vagas abertas</span></div>
+                <div class="w-px h-8 bg-slate-700"></div>
+                <div class="text-center"><span id="totalCandidaturas" class="font-display text-2xl font-bold chrome-text block">0</span><span class="text-slate-500 text-xs">candidaturas</span></div>
+                <div class="w-px h-8 bg-slate-700"></div>
+                <div class="text-center"><span id="candAguardando" class="font-display text-2xl font-bold chrome-text block">0</span><span class="text-slate-500 text-xs">aguardando RH</span></div>
+              </div>
+              <button onclick="openVagaModal()" class="btn-chrome px-4 py-2 rounded-lg text-sm">+ Nova Vaga</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 mb-4 flex-wrap">
+          <button onclick="setRecrutTab('vagas')" id="tabRecVagas" class="btn-chrome px-4 py-2 rounded-lg text-sm">📋 Vagas</button>
+          <button onclick="setRecrutTab('candidatos')" id="tabRecCandidatos" class="btn-ghost px-4 py-2 rounded-lg text-sm">👤 Candidatos <span id="badgeCandPend" class="ml-1 px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-bold hidden"></span></button>
+        </div>
+
+        <div id="recrutTabVagas">
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="vagasAdminList"></div>
+        </div>
+
+        <div id="recrutTabCandidatos" class="hidden">
+          <div class="flex flex-wrap gap-2 mb-4 justify-between">
+            <div class="flex flex-wrap gap-2">
+              <button onclick="filterRecrut('todos')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Todos</button>
+              <button onclick="filterRecrut('aguardando_rh')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold !border-amber-400/40 text-amber-300">⏳ Aguardando RH</button>
+              <button onclick="filterRecrut('aprovado_pre')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">✅ Aprovados</button>
+              <button onclick="filterRecrut('entrevista_agendada')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">📅 Entrevista</button>
+              <button onclick="filterRecrut('contratado')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">🎉 Contratados</button>
+              <button onclick="filterRecrut('reprovado')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">❌ Reprovados</button>
+            </div>
+            <button onclick="exportarCandidatosCSV()" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">📥 CSV</button>
+          </div>
+          <div class="panel overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="tbl min-w-[900px]">
+                <thead><tr><th>Candidato</th><th>Vaga</th><th>Status</th><th>Entrevista</th><th class="!text-right">Ações</th></tr></thead>
+                <tbody id="recrutBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
 </div>
 
-<!-- MODAL NOVA EMPRESA -->
-<div id="modalNovaEmpresa" class="fixed inset-0 z-50 hidden bg-black/70 flex items-center justify-center p-4">
-  <div class="glass rounded-3xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="font-display font-bold text-xl gradient-text">🏢 Nova Empresa</h2>
-      <button id="btnFecharModal" class="text-slate-400 hover:text-white text-2xl">&times;</button>
-    </div>
-    <div id="modalMsg" class="hidden mb-4 px-4 py-3 rounded-xl text-sm"></div>
-    <form id="formNovaEmpresa" class="space-y-4">
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-2">Nome da Empresa *</label>
-        <input type="text" id="empNome" class="input-field w-full px-4 py-3 rounded-xl text-sm" required>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-2">CNPJ</label>
-          <input type="text" id="empCnpj" class="input-field w-full px-4 py-3 rounded-xl text-sm" maxlength="18">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-2">Telefone</label>
-          <input type="text" id="empTelefone" class="input-field w-full px-4 py-3 rounded-xl text-sm">
-        </div>
-      </div>
-      <div class="pt-4 border-t border-white/10">
-        <p class="text-xs font-bold text-slate-300 mb-3 uppercase">👤 Admin da Empresa</p>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-2">Nome do Admin *</label>
-        <input type="text" id="adminNome" class="input-field w-full px-4 py-3 rounded-xl text-sm" required>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-2">Email do Admin *</label>
-        <input type="email" id="adminEmail" class="input-field w-full px-4 py-3 rounded-xl text-sm" required>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-2">Senha *</label>
-        <div class="flex gap-2">
-          <input type="text" id="adminSenha" class="input-field flex-1 px-4 py-3 rounded-xl text-sm font-mono" required>
-          <button type="button" id="btnGerarSenha" class="btn-gradient px-4 py-3 rounded-xl text-xs font-semibold">🎲 Gerar</button>
-        </div>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-2">Plano</label>
-        <select id="empPlano" class="input-field w-full px-4 py-3 rounded-xl text-sm">
-          <option value="trial">Trial (14 dias)</option>
-          <option value="basico">Básico</option>
-          <option value="pro">Pro</option>
-          <option value="enterprise">Enterprise</option>
-        </select>
-      </div>
-      <div class="flex gap-3 pt-4">
-        <button type="button" id="btnCancelarModal" class="glass flex-1 px-4 py-3 rounded-xl text-sm font-semibold">Cancelar</button>
-        <button type="submit" id="btnCriarEmpresa" class="btn-gradient flex-1 px-4 py-3 rounded-xl text-sm font-semibold">Criar Empresa</button>
-      </div>
-    </form>
-  </div>
+<div id="modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="modalContent" class="panel !rounded-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"></div>
 </div>
 
-<!-- MODAL CREDENCIAIS -->
-<div id="modalCredenciais" class="fixed inset-0 z-50 hidden bg-black/70 flex items-center justify-center p-4">
-  <div class="glass rounded-3xl p-6 max-w-md w-full">
-    <div class="text-center mb-6">
-      <div class="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 flex items-center justify-center mb-3">
-        <span class="text-3xl">✅</span>
-      </div>
-      <h2 class="font-display font-bold text-xl gradient-text">Empresa Criada!</h2>
-    </div>
-    <div class="space-y-3 mb-6">
-      <div class="glass rounded-xl p-4">
-        <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Empresa</p>
-        <p class="text-sm" id="credEmpresa">—</p>
-      </div>
-      <div class="glass rounded-xl p-4">
-        <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Email</p>
-        <p class="text-sm font-mono" id="credEmail">—</p>
-      </div>
-      <div class="glass rounded-xl p-4">
-        <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Senha</p>
-        <p class="text-sm font-mono" id="credSenha">—</p>
-      </div>
-    </div>
-    <div class="flex gap-3">
-      <button id="btnCopiarCred" class="btn-gradient flex-1 px-4 py-3 rounded-xl text-sm font-semibold">📋 Copiar</button>
-      <button id="btnFecharCred" class="glass flex-1 px-4 py-3 rounded-xl text-sm font-semibold">Fechar</button>
-    </div>
-  </div>
-</div>
+<div id="toastRoot" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2.5 w-[min(380px,calc(100vw-40px))]"></div>
 
 <script>
 // ═══════════════════════════════════════════
-// CONFIG
+// CONFIGURAÇÃO SUPABASE
 // ═══════════════════════════════════════════
 const SUPA_URL = 'https://ippykisvjqmigobagzjt.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwcHlraXN2anFtaWdvYmFnemp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU5NDUsImV4cCI6MjEwMzM0MTk0NX0.m0TuMyIxW_UaW1H9HUiKVn_711PFrxIk8y-kFw-OhKc';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-const MASTER_EMAIL = 'admin@facige.com';
-const MASTER_SENHA = 'Facige@Master2024';
+// URL do login (ajuste se necessário)
+const LOGIN_URL = 'index.html';
 
-let empresas = [];
-let admins = [];
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const pad = n => String(n).padStart(2,'0');
+const hoje = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const iniciais = n => (n||'?').split(' ').filter(Boolean).map(p=>p[0]).slice(0,2).join('').toUpperCase();
+const fmtISO = iso => { if(!iso) return '—'; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; };
+const fmtDataHora = iso => { if(!iso) return '—'; const d = new Date(iso); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); };
+const fmtMoeda = v => (+v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const mesAtual = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; };
 
-console.log('🚀 Facige Master iniciado');
+let session = null;
+let state = { cols:[], solic:[], pontos:[], coms:[], leituras:[], espelhos:[], humor:[], fer:[] };
+let solicitFilter = 'todos';
+let recrutFilter = 'todos';
+let recrutTab = 'vagas';
+let vagas = [];
+let candidaturas = [];
+let recrutConfig = { pagina_ativa: true };
 
 // ═══════════════════════════════════════════
-// LOGIN
+// 🔐 VERIFICAÇÃO DE SESSÃO (do index.html)
 // ═══════════════════════════════════════════
-document.getElementById('loginForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  console.log('🔐 Tentando login...');
+function verificarSessao() {
+  console.log('🔐 Verificando sessão...');
   
-  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-  const senha = document.getElementById('loginSenha').value;
-  const btn = document.getElementById('loginBtn');
-  const msgBox = document.getElementById('loginMsg');
+  const salvo = sessionStorage.getItem('facige_session');
   
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
-  msgBox.classList.add('hidden');
+  if (!salvo) {
+    console.warn('⚠️ Sem sessão, redirecionando para login');
+    window.location.href = LOGIN_URL;
+    return false;
+  }
   
   try {
-    if (email === MASTER_EMAIL && senha === MASTER_SENHA) {
-      console.log('✅ Super admin autenticado');
-      sessionStorage.setItem('facige_master', JSON.stringify({ nome: 'NeoGe Master', email }));
-      entrarApp();
-      return;
+    const dados = JSON.parse(salvo);
+    
+    // Validar estrutura da sessão
+    if (!dados.user || !dados.empresa || !dados.empresa.id) {
+      console.warn('⚠️ Sessão inválida');
+      sessionStorage.removeItem('facige_session');
+      window.location.href = LOGIN_URL;
+      return false;
     }
     
-    const { data: user, error } = await sb
-      .from('admin_users')
-      .select('*')
-      .eq('email', email)
-      .eq('role', 'super_admin')
-      .maybeSingle();
+    // Sessão válida!
+    session = dados;
+    console.log('✅ Sessão válida:', session.user.nome, '|', session.empresa.nome);
+    return true;
     
-    if (error || !user || user.senha !== senha) {
-      throw new Error('Credenciais inválidas');
-    }
-    
-    sessionStorage.setItem('facige_master', JSON.stringify(user));
-    entrarApp();
-    
-  } catch (err) {
-    console.error('❌ Erro:', err);
-    msgBox.textContent = err.message;
-    msgBox.className = 'mb-4 px-4 py-3 rounded-xl text-sm';
-    msgBox.style.background = 'rgba(239,68,68,.1)';
-    msgBox.style.color = '#fca5a5';
-    msgBox.classList.remove('hidden');
-    btn.disabled = false;
-    btn.textContent = 'Acessar Painel Master';
+  } catch(e) {
+    console.error('❌ Erro ao parsear sessão:', e);
+    sessionStorage.removeItem('facige_session');
+    window.location.href = LOGIN_URL;
+    return false;
   }
-});
-
-function entrarApp() {
-  console.log('📱 Entrando no app...');
-  document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('appShell').classList.remove('hidden');
-  carregarDados();
 }
 
-document.getElementById('btnLogout').addEventListener('click', function() {
-  sessionStorage.removeItem('facige_master');
-  location.reload();
+// ═══════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════
+function toggleSidebar(open){
+  $('#sidebar').classList.toggle('-translate-x-full', !open);
+  $('#sidebarBackdrop').classList.toggle('hidden', !open);
+}
+document.addEventListener('click', e => {
+  if(window.innerWidth >= 1024) return;
+  if(e.target.closest('.nav-btn')) toggleSidebar(false);
 });
 
+function toast(titulo, msg, tipo='info'){
+  const colors = {success:'border-emerald-400 bg-emerald-400',error:'border-rose-400 bg-rose-400',info:'border-sky-400 bg-sky-400',warn:'border-amber-400 bg-amber-400'};
+  const el = document.createElement('div');
+  el.className = `animate-toast-in panel !rounded-xl border-l-4 ${colors[tipo].split(' ')[0]} overflow-hidden`;
+  el.innerHTML = `<div class="flex items-start gap-3 px-4 py-3"><div class="flex-1 min-w-0"><p class="text-sm font-bold text-slate-100">${titulo}</p><p class="text-xs text-slate-400 mt-0.5">${msg}</p></div><button onclick="this.closest('div').parentElement.remove()" class="text-slate-600 hover:text-slate-300">×</button></div><div class="h-0.5 ${colors[tipo].split(' ')[1]} toast-bar"></div>`;
+  $('#toastRoot').appendChild(el);
+  setTimeout(()=>el.remove(), 4000);
+}
+
 // ═══════════════════════════════════════════
-// CARREGAR DADOS
+// ENTRAR NO APP (após validação de sessão)
 // ═══════════════════════════════════════════
-async function carregarDados() {
-  console.log('📊 Carregando dados...');
+function enterApp(){
+  $('#appShell').classList.remove('hidden');
   
-  try {
-    const [empRes, admRes] = await Promise.all([
-      sb.from('empresas').select('*').order('criado_em', { ascending: false }),
-      sb.from('admin_users').select('*').neq('role', 'super_admin')
-    ]);
-    
-    empresas = empRes.data || [];
-    admins = admRes.data || [];
-    
-    console.log(`✅ ${empresas.length} empresas, ${admins.length} admins`);
-    
-    atualizarKPIs();
-    renderEmpresas(empresas);
-  } catch (err) {
-    console.error('❌ Erro ao carregar:', err);
-  }
+  // Preencher dados do usuário na sidebar
+  $('#userName').textContent = session.user.nome || '—';
+  $('#userEmpresa').textContent = session.empresa.nome || '—';
+  $('#userInit').textContent = iniciais(session.user.nome || 'US');
+  
+  // Carregar dados e ativar realtime
+  refresh();
+  subscribeRealtime();
 }
 
-function atualizarKPIs() {
-  document.getElementById('kpiTotal').textContent = empresas.length;
-  document.getElementById('kpiAtivas').textContent = empresas.filter(e => e.conta_ativa).length;
-  document.getElementById('kpiTrial').textContent = empresas.filter(e => e.plano === 'trial').length;
-  document.getElementById('kpiAdmins').textContent = admins.length;
+function logout(){
+  console.log('🚪 Fazendo logout...');
+  sessionStorage.removeItem('facige_session');
+  window.location.href = LOGIN_URL;
 }
 
 // ═══════════════════════════════════════════
-// BUSCA
+// NAVEGAÇÃO
 // ═══════════════════════════════════════════
-document.getElementById('searchInput').addEventListener('input', function(e) {
-  const termo = e.target.value.toLowerCase().trim();
-  if (!termo) {
-    renderEmpresas(empresas);
-    return;
-  }
-  const filtradas = empresas.filter(emp => {
-    const admin = admins.find(a => a.empresa_id === emp.id);
-    return (
-      emp.nome.toLowerCase().includes(termo) ||
-      (emp.cnpj || '').includes(termo) ||
-      (admin && admin.email.toLowerCase().includes(termo))
-    );
+const VIEWS = ['dashboard','solicitacoes','colaboradores','comunicados','espelho','vrvt','feriados','recrutamento'];
+$$('.nav-btn').forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
+
+function go(view){
+  VIEWS.forEach(v => $('#view-'+v).classList.toggle('hidden', v!==view));
+  $$('.nav-btn').forEach(b => {
+    b.className = 'nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ' +
+      (b.dataset.view===view ? 'bg-sky-400/15 text-white ring-1 ring-inset ring-sky-400/25' : 'text-slate-400 hover:text-slate-100 hover:bg-white/5');
   });
-  renderEmpresas(filtradas);
-});
+  const titles = {dashboard:'Dashboard',solicitacoes:'Solicitações',colaboradores:'Colaboradores',comunicados:'Comunicados',espelho:'Espelho de Ponto',vrvt:'VR · VA · VT',feriados:'Feriados',recrutamento:'Recrutamento'};
+  $('#pageTitle').textContent = titles[view] || view;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
 
 // ═══════════════════════════════════════════
-// RENDERIZAR TABELA
+// CARREGAR DADOS DA EMPRESA (filtrado por empresa_id)
 // ═══════════════════════════════════════════
-function renderEmpresas(lista) {
-  const body = document.getElementById('empresasBody');
-  const empty = document.getElementById('emptyState');
-  
-  if (!lista.length) {
-    body.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
-  
-  empty.classList.add('hidden');
-  
-  body.innerHTML = lista.map(emp => {
-    const admin = admins.find(a => a.empresa_id === emp.id);
-    const badgeStatus = emp.conta_ativa 
-      ? '<span class="inline-flex px-3 py-1 rounded-full text-[11px] font-bold badge-active">Ativa</span>'
-      : '<span class="inline-flex px-3 py-1 rounded-full text-[11px] font-bold badge-inactive">Inativa</span>';
-    
-    return `
-      <tr class="table-row">
-        <td class="px-6 py-4">
-          <p class="font-semibold text-slate-100">${emp.nome}</p>
-          <p class="text-xs text-slate-500">${emp.email_contato || ''}</p>
-        </td>
-        <td class="px-6 py-4 text-slate-400 font-mono text-xs">${emp.cnpj || '—'}</td>
-        <td class="px-6 py-4">
-          ${admin ? `<p class="text-sm">${admin.nome}</p><p class="text-xs text-slate-500">${admin.email}</p>` : '<span class="text-slate-600 text-xs italic">Sem admin</span>'}
-        </td>
-        <td class="px-6 py-4"><span class="inline-flex px-3 py-1 rounded-full text-[11px] font-bold badge-trial">${emp.plano}</span></td>
-        <td class="px-6 py-4">${badgeStatus}</td>
-        <td class="px-6 py-4 text-right">
-          <div class="flex gap-2 justify-end">
-            <button class="action-btn glass px-3 py-1.5 rounded-lg text-xs" data-action="toggle" data-id="${emp.id}" title="${emp.conta_ativa ? 'Desativar' : 'Ativar'}">
-              ${emp.conta_ativa ? '🔒' : '🔓'}
-            </button>
-            <button class="action-btn glass px-3 py-1.5 rounded-lg text-xs" data-action="copiar" data-id="${emp.id}" title="Copiar credenciais">
-              📋
-            </button>
-            <button class="action-btn glass px-3 py-1.5 rounded-lg text-xs" data-action="excluir" data-id="${emp.id}" title="Excluir">
-              🗑️
-            </button>
+async function refresh(){
+  if(!session || !session.empresa?.id) return;
+  const eid = session.empresa.id;
+
+  const [cols, solic, pontos, coms, leituras, espelhos, humor, fer] = await Promise.all([
+    sb.from('colaboradores').select('*').eq('empresa_id', eid).order('nome'),
+    sb.from('solicitacoes').select('*, colaboradores(nome,matricula)').eq('empresa_id', eid).order('criado_em',{ascending:false}),
+    sb.from('pontos').select('*, colaboradores(nome,matricula)').eq('empresa_id', eid).order('criado_em',{ascending:false}).limit(100),
+    sb.from('comunicados').select('*').eq('empresa_id', eid).order('criado_em',{ascending:false}),
+    sb.from('leituras_comunicado').select('*'),
+    sb.from('espelhos').select('*, colaboradores(nome)').eq('empresa_id', eid).order('enviado_em',{ascending:false}),
+    sb.from('humor').select('*, colaboradores(nome)').eq('data', hoje()),
+    sb.from('feriados').select('*').eq('empresa_id', eid).order('data')
+  ]);
+  state.cols = cols.data || [];
+  state.solic = solic.data || [];
+  state.pontos = pontos.data || [];
+  state.coms = coms.data || [];
+  state.leituras = leituras.data || [];
+  state.espelhos = espelhos.data || [];
+  state.humor = humor.data || [];
+  state.fer = fer.data || [];
+  render();
+  await carregarRecrutamento();
+}
+
+function render(){
+  renderDashboard(); renderSolic(); renderColab(); renderCom(); renderEsp(); renderVrvt(); renderFer();
+}
+
+function renderDashboard(){
+  const colsAtivos = state.cols.filter(c => c.status==='ativo');
+  const pend = state.solic.filter(s => s.status==='pendente').length;
+  const pontosHoje = state.pontos.filter(p => p.data===hoje()).length;
+  const humorHoje = state.humor.length;
+  const candPend = candidaturas.filter(c => c.status==='aguardando_rh').length;
+
+  const kpis = [
+    {lbl:'Colaboradores', v:colsAtivos.length, ico:'👥', tile:'bg-indigo-400/10 text-indigo-300', go:'colaboradores'},
+    {lbl:'Solicitações', v:pend, ico:'📥', tile:'bg-amber-400/10 text-amber-300', go:'solicitacoes'},
+    {lbl:'Pontos Hoje', v:pontosHoje, ico:'⏱', tile:'bg-emerald-400/10 text-emerald-300', go:'espelho'},
+    {lbl:'Humor Hoje', v:humorHoje, ico:'😊', tile:'bg-violet-400/10 text-violet-300', go:null},
+    {lbl:'Espelhos Pend.', v:0, ico:'📄', tile:'bg-sky-400/10 text-sky-300', go:'espelho'},
+    {lbl:'Candidatos (RH)', v:candPend, ico:'🎯', tile:'bg-rose-400/10 text-rose-300', go:'recrutamento'}
+  ];
+
+  $('#kpiGrid').innerHTML = kpis.map(k => `
+    <button onclick="${k.go ? `go('${k.go}')` : ''}" class="panel card-hover kpi-clickable p-3 sm:p-5 ${!k.go?'cursor-default':''}">
+      <span class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${k.tile} grid place-items-center text-base sm:text-xl mb-2 sm:mb-3">${k.ico}</span>
+      <p class="font-display text-[22px] sm:text-[32px] leading-none font-bold tnum chrome-text">${k.v}</p>
+      <p class="text-[11px] sm:text-sm text-slate-300 mt-1 sm:mt-1.5 truncate">${k.lbl}</p>
+    </button>`).join('');
+
+  $('#badgeSolic').textContent = pend;
+  $('#badgeSolic').classList.toggle('hidden', !pend);
+  $('#badgeRecrut').textContent = candPend;
+  $('#badgeRecrut').classList.toggle('hidden', !candPend);
+
+  if(pend){ $('#dashSolicCount').textContent = pend; $('#dashSolicCount').classList.remove('hidden'); }
+  else $('#dashSolicCount').classList.add('hidden');
+
+  const pendS = state.solic.filter(s => s.status==='pendente').slice(0, 10);
+  $('#dashSolic').innerHTML = pendS.length ? pendS.map(s => `
+    <div class="flex items-center gap-3 p-2.5 rounded-lg border border-slate-700/40 hover:border-sky-400/40">
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(s.colaboradores?.nome || 'NC')}</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-[13px] font-semibold text-slate-200 truncate">${s.colaboradores?.nome || 'Não encontrado'}</p>
+        <p class="text-[11px] text-slate-500 truncate">${s.tipo} · ${fmtISO(s.data_ausencia || hoje())}</p>
+      </div>
+      <div class="flex gap-1 shrink-0">
+        <button onclick="event.stopPropagation();aprovarSolic('${s.id}')" class="w-7 h-7 rounded bg-emerald-500 text-white grid place-items-center hover:bg-emerald-400">✓</button>
+        <button onclick="event.stopPropagation();openRejeitar('${s.id}')" class="w-7 h-7 rounded bg-rose-500 text-white grid place-items-center hover:bg-rose-400">×</button>
+      </div>
+    </div>`).join('') : '<p class="text-sm text-slate-500 text-center py-8">Nenhuma pendência 🎉</p>';
+
+  $('#dashPontos').innerHTML = state.pontos.slice(0,15).map(p => `
+    <div class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-white/5">
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(p.colaboradores?.nome || 'NC')}</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-[13px] font-semibold text-slate-200 truncate">${p.colaboradores?.nome || 'Não encontrado'}</p>
+        <p class="text-[11px] text-slate-500 truncate">${p.tipo} · ${fmtISO(p.data)}</p>
+      </div>
+      <span class="font-mono text-xs text-slate-400 tnum shrink-0">${p.hora ? p.hora.substring(0,5) : '--:--'}</span>
+    </div>`).join('');
+
+  $('#dashHumor').innerHTML = state.humor.length ? state.humor.map(h => `
+    <div class="flex flex-col items-center gap-1 p-2 rounded-lg bg-white/[.03]">
+      <span class="text-xl sm:text-2xl">${h.voto}</span>
+      <span class="text-[10px] text-slate-400 truncate max-w-[80px]">${h.colaboradores?.nome?.split(' ')[0] || 'Anônimo'}</span>
+    </div>`).join('') : '<p class="text-sm text-slate-500">Ninguém registrou humor hoje ainda.</p>';
+}
+
+function renderSolic(){
+  const list = state.solic.filter(s => solicitFilter==='todos' || s.status===solicitFilter);
+  $('#solicBody').innerHTML = list.length ? list.map(s => {
+    const badges = {pendente:'bg-amber-400/10 text-amber-300 border-amber-400/30',aprovado:'bg-emerald-400/10 text-emerald-300 border-emerald-400/30',rejeitado:'bg-rose-400/10 text-rose-300 border-rose-400/30'};
+    return `<tr>
+      <td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(s.colaboradores?.nome || 'NC')}</div><div class="min-w-0"><p class="font-semibold text-slate-200 truncate">${s.colaboradores?.nome || 'Não encontrado'}</p><p class="text-[11px] text-slate-500">${s.colaboradores?.matricula || '—'}</p></div></div></td>
+      <td class="text-slate-300">${s.tipo}</td>
+      <td class="text-slate-300 whitespace-nowrap">${fmtISO(s.data_ausencia || s.criado_em?.slice(0,10) || '')}</td>
+      <td class="text-slate-400 max-w-[200px] truncate">${s.motivo||'—'}</td>
+      <td><span class="inline-flex px-2 py-0.5 rounded-full border text-[11px] font-bold ${badges[s.status] || ''}">${s.status}</span></td>
+      <td class="text-right whitespace-nowrap">${s.status==='pendente'?`<button onclick="aprovarSolic('${s.id}')" class="btn-ghost px-3 py-1 rounded text-xs font-bold !border-emerald-400/40 text-emerald-300">Aprovar</button> <button onclick="openRejeitar('${s.id}')" class="btn-ghost px-3 py-1 rounded text-xs font-bold !border-rose-400/40 text-rose-300">Rejeitar</button>`:'<span class="text-slate-600">—</span>'}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="6" class="text-center py-10 text-slate-500">Nenhuma solicitação</td></tr>';
+}
+function filterSolic(f){ solicitFilter = f; renderSolic(); }
+
+async function aprovarSolic(id){
+  const { error } = await sb.from('solicitacoes').update({status:'aprovado', decidido_por:session.user.nome, resposta_rh:'Aprovado pelo RH'}).eq('id', id);
+  if(error) return toast('Erro','Falha ao aprovar','error');
+  toast('✓ Aprovado','Solicitação aprovada','success');
+  refresh();
+}
+
+function openRejeitar(id){
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-3">Rejeitar solicitação</h3>
+    <label class="lbl">Motivo da recusa *</label>
+    <textarea id="motivoRej" class="inp" rows="3" placeholder="Explique o motivo..."></textarea>
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
+      <button onclick="rejeitarSolic('${id}')" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">Rejeitar</button>
+    </div>`);
+}
+async function rejeitarSolic(id){
+  const motivo = $('#motivoRej').value.trim();
+  if(motivo.length < 3) return toast('Motivo obrigatório','Descreva o motivo','error');
+  const { error } = await sb.from('solicitacoes').update({status:'rejeitado', decidido_por:session.user.nome, resposta_rh:motivo}).eq('id', id);
+  if(error) return toast('Erro','Falha ao rejeitar','error');
+  closeModal(); toast('Rejeitada','O colaborador será notificado','warn'); refresh();
+}
+
+function renderColab(){
+  const q = ($('#searchCol')?.value || '').toLowerCase();
+  const list = state.cols.filter(c => !q || c.nome.toLowerCase().includes(q) || (c.matricula||'').toLowerCase().includes(q));
+  $('#colabBody').innerHTML = list.length ? list.map(c => {
+    const b = c.beneficios || {};
+    const chip = (on, ico, v) => on ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-400/10 border border-emerald-400/30 text-[10px] font-bold text-emerald-300">${ico} ${fmtMoeda(v)}</span>` : `<span class="inline-flex px-1.5 py-0.5 rounded bg-slate-400/5 border border-slate-600/40 text-[10px] text-slate-600">${ico} —</span>`;
+    const statusBadge = c.status==='ativo' ? '<span class="inline-flex px-2 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/30 text-emerald-300 text-[11px] font-bold">Ativo</span>' : `<span class="inline-flex px-2 py-0.5 rounded-full bg-slate-400/10 border border-slate-500/30 text-slate-400 text-[11px] font-bold">${c.status}</span>`;
+    return `<tr>
+      <td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(c.nome)}</div><p class="font-semibold text-slate-200 truncate">${c.nome}</p></div></td>
+      <td class="text-slate-400">${c.cargo||'—'}</td>
+      <td class="text-slate-400">${c.dept||'—'}</td>
+      <td class="font-mono text-xs text-slate-300">${c.matricula}</td>
+      <td><div class="flex flex-wrap gap-1">${chip(b.vr?.on,'🍽️',b.vr?.valor)}${chip(b.va?.on,'🛒',b.va?.valor)}${chip(b.vt?.on,'🚌',b.vt?.valor)}</div></td>
+      <td>${statusBadge}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="6" class="text-center py-10 text-slate-500">Nenhum colaborador</td></tr>';
+  if($('#searchCol')) $('#searchCol').oninput = renderColab;
+}
+
+function openColabModal(){
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-4">Cadastrar Colaborador</h3>
+    <div class="space-y-3">
+      <div><label class="lbl">Nome completo *</label><input id="cNome" class="inp"></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="lbl">Matrícula *</label><input id="cMat" class="inp" placeholder="VL-0999"></div>
+        <div><label class="lbl">Senha *</label><input id="cSenha" class="inp" placeholder="123456"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="lbl">Cargo</label><input id="cCargo" class="inp"></div>
+        <div><label class="lbl">Departamento</label><input id="cDept" class="inp"></div>
+      </div>
+      <div><label class="lbl">Admissão</label><input id="cAdm" type="date" class="inp" value="${hoje()}"></div>
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
+      <button onclick="salvarColab()" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">Cadastrar</button>
+    </div>`);
+}
+async function salvarColab(){
+  const nome = $('#cNome').value.trim(), mat = $('#cMat').value.trim(), senha = $('#cSenha').value;
+  if(!nome || !mat || !senha) return toast('Campos obrigatórios','Preencha nome, matrícula e senha','error');
+  const { error } = await sb.from('colaboradores').insert({empresa_id:session.empresa.id, nome, matricula:mat, senha, cargo:$('#cCargo').value, dept:$('#cDept').value, admissao:$('#cAdm').value, status:'ativo'});
+  if(error) return toast('Erro', error.message.includes('duplicate')?'Matrícula já existe':'Falha ao cadastrar','error');
+  closeModal(); toast('✓ Cadastrado', `${nome} agora pode logar no app`,'success'); refresh();
+}
+
+function renderCom(){
+  $('#comList').innerHTML = state.coms.length ? state.coms.map(c => {
+    const leit = state.leituras.filter(l => l.comunicado_id===c.id).length;
+    const totalCols = state.cols.filter(co => co.status==='ativo').length;
+    const pct = totalCols ? Math.round(leit/totalCols*100) : 0;
+    return `<div class="panel p-5 card-hover">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <h3 class="font-display font-bold text-slate-100 truncate">${c.titulo}</h3>
+            ${c.urgente?'<span class="px-2 py-0.5 rounded-full bg-rose-400/10 border border-rose-400/30 text-rose-300 text-[10px] font-bold shrink-0">🔥 Urgente</span>':''}
+            <span class="text-[11px] text-slate-500 shrink-0">${c.categoria} · ${fmtISO(c.criado_em?.slice(0,10))}</span>
           </div>
-        </td>
-      </tr>`;
+          <p class="text-sm text-slate-400 leading-relaxed">${c.mensagem}</p>
+          <div class="mt-3 max-w-sm">
+            <div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Leituras</span><span class="tnum text-slate-300">${leit}/${totalCols} · ${pct}%</span></div>
+            <div class="h-1.5 rounded-full bg-slate-500/15 overflow-hidden"><div class="h-full bg-gradient-to-r from-sky-400 to-indigo-400" style="width:${pct}%"></div></div>
+          </div>
+        </div>
+        <button onclick="excluirCom('${c.id}')" class="btn-ghost px-2 py-1 rounded text-xs shrink-0">🗑</button>
+      </div>
+    </div>`;
+  }).join('') : '<div class="panel p-10 text-center text-slate-500">Nenhum comunicado</div>';
+}
+
+function openComModal(){
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-4">Novo Comunicado</h3>
+    <div class="space-y-3">
+      <div><label class="lbl">Título *</label><input id="coTit" class="inp"></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="lbl">Categoria</label><select id="coCat" class="inp"><option>Geral</option><option>RH</option><option>Sistema</option><option>Evento</option><option>Operacional</option></select></div>
+        <div><label class="lbl">Urgente?</label><select id="coUrg" class="inp"><option value="false">Não</option><option value="true">Sim 🔥</option></select></div>
+      </div>
+      <div><label class="lbl">Mensagem *</label><textarea id="coMsg" class="inp" rows="4"></textarea></div>
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
+      <button onclick="publicarCom()" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">📢 Publicar</button>
+    </div>`);
+}
+async function publicarCom(){
+  const titulo = $('#coTit').value.trim(), mensagem = $('#coMsg').value.trim();
+  if(!titulo || !mensagem) return toast('Campos obrigatórios','Preencha título e mensagem','error');
+  const { error } = await sb.from('comunicados').insert({empresa_id:session.empresa.id, titulo, mensagem, categoria:$('#coCat').value, urgente:$('#coUrg').value==='true', destino:'todos'});
+  if(error) return toast('Erro','Falha ao publicar','error');
+  closeModal(); toast('📢 Publicado','Comunicado entregue','success'); refresh();
+}
+async function excluirCom(id){
+  if(!confirm('Excluir comunicado?')) return;
+  await sb.from('comunicados').delete().eq('id', id);
+  toast('Excluído','Comunicado removido','warn'); refresh();
+}
+
+function renderEsp(){
+  $('#espColab').innerHTML = state.cols.filter(c=>c.status==='ativo').map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  if(!$('#espMes').value) $('#espMes').value = mesAtual();
+  $('#espBody').innerHTML = state.espelhos.length ? state.espelhos.map(e => {
+    const badges = {enviado:'bg-sky-400/10 text-sky-300',visualizado:'bg-emerald-400/10 text-emerald-300',assinado:'bg-emerald-400/10 text-emerald-300',contestado:'bg-rose-400/10 text-rose-300'};
+    return `<tr>
+      <td class="text-slate-200">${e.colaboradores?.nome||'—'}</td>
+      <td class="capitalize text-slate-300">${e.mes_referencia}</td>
+      <td class="text-slate-400 whitespace-nowrap">${e.enviado_em ? fmtISO(e.enviado_em.slice(0,10)) : '—'}</td>
+      <td><span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold ${badges[e.status]||''}">${e.status}</span></td>
+      <td class="font-mono text-[10px] text-slate-500 truncate max-w-[200px]">${e.hash||'—'}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="5" class="text-center py-10 text-slate-500">Nenhum espelho enviado</td></tr>';
+}
+async function enviarEspelho(){
+  const cid = $('#espColab').value, mes = $('#espMes').value;
+  if(!cid || !mes) return toast('Selecione','Escolha colaborador e mês','error');
+  const { error } = await sb.from('espelhos').upsert({colaborador_id:cid, empresa_id:session.empresa.id, mes_referencia:mes, status:'enviado'}, {onConflict:'colaborador_id,mes_referencia'});
+  if(error) return toast('Erro', error.message, 'error');
+  toast('📲 Enviado','Espelho enviado ao app','success'); refresh();
+}
+async function enviarTodos(){
+  const mes = $('#espMes').value || mesAtual();
+  const ativos = state.cols.filter(c => c.status==='ativo' && !state.espelhos.find(e => e.colaborador_id===c.id && e.mes_referencia===mes));
+  if(!ativos.length) return toast('Nada a enviar','Todos já receberam','warn');
+  const { error } = await sb.from('espelhos').insert(ativos.map(c => ({colaborador_id:c.id, empresa_id:session.empresa.id, mes_referencia:mes, status:'enviado'})));
+  if(error) return toast('Erro', error.message, 'error');
+  toast(`📲 ${ativos.length} enviados`,'Espelhos entregues','success'); refresh();
+}
+
+function renderVrvt(){
+  const at = state.cols.filter(c=>c.status==='ativo');
+  const soma = t => at.reduce((s,c) => s + ((c.beneficios?.[t]?.on ? c.beneficios[t].valor : 0)), 0);
+  $('#vrvtResumo').innerHTML = `
+    <div class="flex items-center gap-2"><span class="text-xl">🍽️</span><div><p class="text-slate-500 text-[11px]">VR Total</p><p class="font-bold chrome-text font-display">${fmtMoeda(soma('vr')*22)}</p></div></div>
+    <div class="flex items-center gap-2"><span class="text-xl">🛒</span><div><p class="text-slate-500 text-[11px]">VA Total</p><p class="font-bold chrome-text font-display">${fmtMoeda(soma('va')*22)}</p></div></div>
+    <div class="flex items-center gap-2"><span class="text-xl">🚌</span><div><p class="text-slate-500 text-[11px]">VT Total</p><p class="font-bold chrome-text font-display">${fmtMoeda(soma('vt')*22)}</p></div></div>
+    <div class="ml-auto text-right"><p class="text-slate-500 text-[11px]">Custo Mensal</p><p class="font-display text-2xl font-bold chrome-text">${fmtMoeda((soma('vr')+soma('va')+soma('vt'))*22)}</p></div>`;
+  $('#vrvtBody').innerHTML = at.map(c => {
+    const b = c.beneficios || {};
+    const chip = t => {
+      const v = b[t] || {on:false, valor:0};
+      return `<div class="flex items-center gap-2"><span class="font-mono text-xs tnum w-16 text-slate-300">${v.on?fmtMoeda(v.valor):'—'}</span><label class="relative inline-flex cursor-pointer"><input type="checkbox" ${v.on?'checked':''} onchange="toggleBen('${c.id}','${t}')" class="peer sr-only"><div class="w-9 h-5 ${v.on?'bg-emerald-500':'bg-slate-600'} rounded-full"></div><div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${v.on?'translate-x-4':''}"></div></label></div>`;
+    };
+    return `<tr>
+      <td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(c.nome)}</div><p class="font-semibold text-slate-200 truncate">${c.nome}</p></div></td>
+      <td>${chip('vr')}</td><td>${chip('va')}</td><td>${chip('vt')}</td>
+      <td class="text-right"><button onclick="editVrvt('${c.id}')" class="btn-ghost px-3 py-1 rounded text-xs">Editar valores</button></td>
+    </tr>`;
   }).join('');
-  
-  // Adicionar event listeners aos botões
-  body.querySelectorAll('[data-action]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const action = this.dataset.action;
-      const id = this.dataset.id;
-      console.log(`🔘 Ação: ${action}, ID: ${id}`);
-      
-      if (action === 'toggle') toggleEmpresa(id);
-      else if (action === 'copiar') copiarCredenciaisEmpresa(id);
-      else if (action === 'excluir') excluirEmpresa(id);
-    });
-  });
+}
+async function toggleBen(cid, t){
+  const c = state.cols.find(x => x.id===cid);
+  const b = c.beneficios || {};
+  b[t] = b[t] || {on:false, valor:0};
+  b[t].on = !b[t].on;
+  await sb.from('colaboradores').update({beneficios:b}).eq('id', cid);
+  refresh();
+}
+function editVrvt(cid){
+  const c = state.cols.find(x => x.id===cid);
+  const b = c.beneficios || {};
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-4">Editar benefícios — ${c.nome}</h3>
+    ${['vr','va','vt'].map(t => `
+      <div class="flex items-center gap-3 mb-3">
+        <span class="w-16 text-sm">${t==='vr'?'🍽️ VR':t==='va'?'🛒 VA':'🚌 VT'}</span>
+        <label class="flex items-center gap-2 flex-1"><input type="checkbox" id="e_${t}_on" ${b[t]?.on?'checked':''} class="w-4 h-4">Ativo</label>
+        <input id="e_${t}_v" type="number" step="0.5" value="${b[t]?.valor||0}" class="inp !w-24">
+      </div>`).join('')}
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg">Cancelar</button>
+      <button onclick="salvarVrvt('${cid}')" class="btn-chrome flex-1 px-4 py-2 rounded-lg">Salvar</button>
+    </div>`);
+}
+async function salvarVrvt(cid){
+  const b = {};
+  ['vr','va','vt'].forEach(t => { b[t] = { on:$('#e_'+t+'_on').checked, valor:+$('#e_'+t+'_v').value||0 }; });
+  await sb.from('colaboradores').update({beneficios:b}).eq('id', cid);
+  closeModal(); toast('✓ Atualizado','Benefícios salvos','success'); refresh();
 }
 
-// ═══════════════════════════════════════════
-// AÇÕES
-// ═══════════════════════════════════════════
-async function toggleEmpresa(id) {
-  const emp = empresas.find(e => e.id === id);
-  if (!emp) return;
-  
-  const novoStatus = !emp.conta_ativa;
-  const { error } = await sb.from('empresas').update({ conta_ativa: novoStatus }).eq('id', id);
-  
-  if (error) {
-    alert('❌ Erro: ' + error.message);
-    return;
+function renderFer(){
+  $('#ferBody').innerHTML = state.fer.length ? state.fer.map(f => `
+    <tr>
+      <td class="font-mono text-slate-200 whitespace-nowrap">${fmtISO(f.data)}</td>
+      <td class="text-slate-200">${f.nome}</td>
+      <td class="text-slate-400 capitalize">${f.tipo}</td>
+      <td class="text-slate-400">${f.recorrente?'Sim':'Não'}</td>
+      <td class="text-right"><button onclick="excluirFer('${f.id}')" class="btn-ghost px-2 py-1 rounded text-xs">🗑</button></td>
+    </tr>`).join('') : '<tr><td colspan="5" class="text-center py-10 text-slate-500">Nenhum feriado</td></tr>';
+}
+function openFerModal(){
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-4">Novo Feriado</h3>
+    <div class="space-y-3">
+      <div><label class="lbl">Data *</label><input id="fData" type="date" class="inp"></div>
+      <div><label class="lbl">Nome *</label><input id="fNome" class="inp"></div>
+      <div><label class="lbl">Tipo</label><select id="fTipo" class="inp"><option>nacional</option><option>estadual</option><option>municipal</option><option>ponto-facultativo</option></select></div>
+      <label class="flex items-center gap-2 text-sm text-slate-300"><input id="fRec" type="checkbox" checked class="w-4 h-4">Recorrente (todo ano)</label>
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg">Cancelar</button>
+      <button onclick="salvarFer()" class="btn-chrome flex-1 px-4 py-2 rounded-lg">Salvar</button>
+    </div>`);
+}
+async function salvarFer(){
+  const data = $('#fData').value, nome = $('#fNome').value.trim();
+  if(!data || !nome) return toast('Campos obrigatórios','Preencha data e nome','error');
+  await sb.from('feriados').insert({empresa_id:session.empresa.id, data, nome, tipo:$('#fTipo').value, recorrente:$('#fRec').checked});
+  closeModal(); toast('✓ Cadastrado','Feriado adicionado','success'); refresh();
+}
+async function excluirFer(id){
+  if(!confirm('Excluir feriado?')) return;
+  await sb.from('feriados').delete().eq('id', id); refresh();
+}
+
+async function carregarRecrutamento(){
+  if(!session || !session.empresa?.id) return;
+  const eid = session.empresa.id;
+
+  const [vagasRes, candRes, configRes] = await Promise.all([
+    sb.from('vagas').select('*').eq('empresa_id', eid).order('criado_em',{ascending:false}),
+    sb.from('candidaturas').select('*, vagas(titulo), candidatos(nome,email,telefone,cpf)').eq('empresa_id', eid).order('criado_em',{ascending:false}),
+    sb.from('recrutamento_config').select('*').eq('empresa_id', eid).maybeSingle()
+  ]);
+  vagas = vagasRes.data || [];
+  candidaturas = candRes.data || [];
+  recrutConfig = configRes.data || { pagina_ativa: true };
+  renderRecrutamento();
+}
+
+function renderRecrutamento(){
+  const abertas = vagas.filter(v => v.status==='aberta');
+  const aguardando = candidaturas.filter(c => c.status==='aguardando_rh');
+  const contratados = candidaturas.filter(c => c.status==='contratado').length;
+  const total = candidaturas.length;
+
+  $('#togglePaginaCand').checked = recrutConfig.pagina_ativa;
+  $('#vagasAbertasCount').textContent = abertas.length;
+  $('#totalCandidaturas').textContent = candidaturas.length;
+  $('#candAguardando').textContent = aguardando.length;
+
+  if(aguardando.length > 0){
+    $('#badgeCandPend').textContent = aguardando.length;
+    $('#badgeCandPend').classList.remove('hidden');
+  } else {
+    $('#badgeCandPend').classList.add('hidden');
   }
-  
-  emp.conta_ativa = novoStatus;
-  atualizarKPIs();
-  renderEmpresas(empresas);
-  alert(novoStatus ? '🔓 Empresa ativada' : '🔒 Empresa desativada');
+
+  $('#badgeRecrut').textContent = aguardando.length;
+  $('#badgeRecrut').classList.toggle('hidden', !aguardando.length);
+
+  renderVagasAdmin();
+  renderCandidatosAdmin();
 }
 
-function copiarCredenciaisEmpresa(id) {
-  const emp = empresas.find(e => e.id === id);
-  const admin = admins.find(a => a.empresa_id === id);
-  
-  if (!admin) {
-    alert('⚠️ Esta empresa não tem admin.');
-    return;
+function setRecrutTab(tab){
+  recrutTab = tab;
+  $('#recrutTabVagas').classList.toggle('hidden', tab!=='vagas');
+  $('#recrutTabCandidatos').classList.toggle('hidden', tab!=='candidatos');
+  $('#tabRecVagas').className = tab==='vagas' ? 'btn-chrome px-4 py-2 rounded-lg text-sm' : 'btn-ghost px-4 py-2 rounded-lg text-sm';
+  $('#tabRecCandidatos').className = tab==='candidatos' ? 'btn-chrome px-4 py-2 rounded-lg text-sm' : 'btn-ghost px-4 py-2 rounded-lg text-sm';
+}
+
+function renderVagasAdmin(){
+  $('#vagasAdminList').innerHTML = vagas.length ? vagas.map(v => {
+    const cands = candidaturas.filter(c => c.vaga_id===v.id);
+    const aguardando = cands.filter(c => c.status==='aguardando_rh').length;
+    return `<div class="panel p-5 card-hover ${aguardando > 0 ? 'border-amber-400/40' : ''}">
+      <div class="flex items-start justify-between mb-2">
+        <span class="badge badge-sm ${v.status==='aberta'?'bg-emerald-400/10 text-emerald-300 border border-emerald-400/30':'bg-slate-400/10 text-slate-400 border border-slate-500/30'}">${v.status==='aberta'?'Aberta':'Fechada'}</span>
+        <div class="flex gap-1">
+          <button onclick="openVagaModal('${v.id}')" class="btn-ghost px-2 py-1 rounded text-xs">✏️</button>
+          <button onclick="toggleVaga('${v.id}')" class="btn-ghost px-2 py-1 rounded text-xs">${v.status==='aberta'?'🔒':'🔓'}</button>
+          <button onclick="excluirVaga('${v.id}')" class="btn-ghost px-2 py-1 rounded text-xs">🗑</button>
+        </div>
+      </div>
+      <h3 class="font-display font-bold text-slate-100 mb-1">${v.titulo}</h3>
+      <p class="text-xs text-slate-400 line-clamp-2 mb-3">${v.descricao||''}</p>
+      <div class="flex flex-wrap gap-2 text-[11px] text-slate-500 mb-3">
+        <span>💰 ${v.salario||'A combinar'}</span>
+        <span>📍 ${v.local||'—'}</span>
+        <span>📋 ${v.tipo||'CLT'}</span>
+      </div>
+      ${aguardando > 0 ? `<div class="p-2 mb-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">⏳ ${aguardando} aguardando aprovação</div>` : ''}
+      <div class="flex items-center justify-between pt-3 border-t border-slate-700/40">
+        <span class="text-xs text-slate-500">${cands.length} candidatura${cands.length!==1?'s':''}</span>
+        <button onclick="setRecrutTab('candidatos');filterRecrut('todos')" class="btn-ghost px-3 py-1 rounded text-xs">Ver candidatos</button>
+      </div>
+    </div>`;
+  }).join('') : '<div class="col-span-full panel p-10 text-center text-slate-500">Nenhuma vaga cadastrada.</div>';
+}
+
+function openVagaModal(id){
+  const v = id ? vagas.find(x=>x.id===id) : null;
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-4">${v?'Editar Vaga':'Nova Vaga'}</h3>
+    <div class="space-y-3">
+      <div><label class="lbl">Título *</label><input id="vTitulo" class="inp" value="${v?.titulo||''}"></div>
+      <div><label class="lbl">Descrição</label><textarea id="vDesc" class="inp" rows="2">${v?.descricao||''}</textarea></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="lbl">Salário</label><input id="vSalario" class="inp" value="${v?.salario||''}"></div>
+        <div><label class="lbl">Local</label><input id="vLocal" class="inp" value="${v?.local||''}"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="lbl">Tipo</label><select id="vTipo" class="inp"><option ${v?.tipo==='CLT'?'selected':''}>CLT</option><option ${v?.tipo==='PJ'?'selected':''}>PJ</option><option ${v?.tipo==='Estágio'?'selected':''}>Estágio</option></select></div>
+        <div><label class="lbl">Modalidade</label><select id="vMod" class="inp"><option ${v?.modalidade==='Presencial'?'selected':''}>Presencial</option><option ${v?.modalidade==='Remoto'?'selected':''}>Remoto</option><option ${v?.modalidade==='Híbrido'?'selected':''}>Híbrido</option></select></div>
+      </div>
+      <div><label class="lbl">Requisitos</label><textarea id="vReq" class="inp" rows="2">${v?.requisitos||''}</textarea></div>
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
+      <button onclick="salvarVaga('${id||''}')" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">${v?'Salvar':'Criar Vaga'}</button>
+    </div>`);
+}
+
+async function salvarVaga(id){
+  const dados = {
+    empresa_id: session.empresa.id,
+    titulo: $('#vTitulo').value.trim(),
+    descricao: $('#vDesc').value.trim(),
+    salario: $('#vSalario').value.trim(),
+    local: $('#vLocal').value.trim(),
+    tipo: $('#vTipo').value,
+    modalidade: $('#vMod').value,
+    requisitos: $('#vReq').value.trim()
+  };
+  if(!dados.titulo) return toast('Título obrigatório','Informe o título','error');
+
+  let error;
+  if(id){
+    ({ error } = await sb.from('vagas').update(dados).eq('id', id));
+  } else {
+    ({ error } = await sb.from('vagas').insert({...dados, status:'aberta'}));
   }
-  
-  const texto = `EMPRESA: ${emp.nome}\nEMAIL: ${admin.email}\nSENHA: ${admin.senha}`;
-  navigator.clipboard.writeText(texto).then(() => alert('✅ Copiado!'));
+  if(error) return toast('Erro', error.message, 'error');
+  closeModal();
+  toast(id?'✓ Vaga atualizada':'✓ Vaga criada', dados.titulo, 'success');
+  await carregarRecrutamento();
 }
 
-async function excluirEmpresa(id) {
-  const emp = empresas.find(e => e.id === id);
-  if (!confirm(`Excluir "${emp.nome}"? Esta ação não pode ser desfeita.`)) return;
-  
-  const { error } = await sb.from('empresas').delete().eq('id', id);
-  if (error) {
-    alert('❌ Erro: ' + error.message);
-    return;
-  }
-  
-  await carregarDados();
-  alert('✅ Empresa excluída');
+async function toggleVaga(id){
+  const v = vagas.find(x=>x.id===id);
+  const novo = v.status==='aberta' ? 'fechada' : 'aberta';
+  await sb.from('vagas').update({status:novo}).eq('id', id);
+  toast(novo==='aberta'?'🔓 Vaga reaberta':'🔒 Vaga fechada', v.titulo, novo==='aberta'?'success':'warn');
+  await carregarRecrutamento();
 }
 
-// ═══════════════════════════════════════════
-// MODAL NOVA EMPRESA
-// ═══════════════════════════════════════════
-document.getElementById('btnNovaEmpresa').addEventListener('click', abrirModalNovaEmpresa);
-document.getElementById('btnNovaEmpresaEmpty').addEventListener('click', abrirModalNovaEmpresa);
-document.getElementById('btnFecharModal').addEventListener('click', () => fecharModal('modalNovaEmpresa'));
-document.getElementById('btnCancelarModal').addEventListener('click', () => fecharModal('modalNovaEmpresa'));
-document.getElementById('btnGerarSenha').addEventListener('click', gerarSenha);
-
-function abrirModalNovaEmpresa() {
-  console.log('✨ Abrindo modal nova empresa');
-  document.getElementById('formNovaEmpresa').reset();
-  gerarSenha();
-  document.getElementById('modalMsg').classList.add('hidden');
-  document.getElementById('modalNovaEmpresa').classList.remove('hidden');
+async function excluirVaga(id){
+  if(!confirm('Excluir esta vaga?')) return;
+  await sb.from('vagas').delete().eq('id', id);
+  toast('Vaga excluída','Removida','warn');
+  await carregarRecrutamento();
 }
 
-function fecharModal(id) {
-  document.getElementById(id).classList.add('hidden');
+async function togglePaginaCandidatos(){
+  const ativo = $('#togglePaginaCand').checked;
+  const { error } = await sb.from('recrutamento_config').upsert({
+    empresa_id: session.empresa.id,
+    pagina_ativa: ativo,
+    atualizado_em: new Date().toISOString()
+  }, { onConflict: 'empresa_id' });
+  if(error) return toast('Erro','Falha ao salvar','error');
+  recrutConfig.pagina_ativa = ativo;
+  renderRecrutamento();
+  toast(ativo?'🔗 Página ativada':'🔒 Página desativada','', ativo?'success':'warn');
 }
 
-function gerarSenha() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%';
-  let senha = '';
-  for (let i = 0; i < 12; i++) {
-    senha += chars[Math.floor(Math.random() * chars.length)];
-  }
-  document.getElementById('adminSenha').value = senha;
+function filterRecrut(f){ 
+  recrutFilter = f; 
+  renderCandidatosAdmin();
 }
 
-document.getElementById('formNovaEmpresa').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  console.log('📝 Criando empresa...');
+function renderCandidatosAdmin(){
+  const list = recrutFilter==='todos' ? candidaturas : candidaturas.filter(c => c.status===recrutFilter);
   
-  const btn = document.getElementById('btnCriarEmpresa');
-  const msgBox = document.getElementById('modalMsg');
-  
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
-  msgBox.classList.add('hidden');
-  
-  const nome = document.getElementById('empNome').value.trim();
-  const cnpj = document.getElementById('empCnpj').value.trim();
-  const telefone = document.getElementById('empTelefone').value.trim();
-  const adminNome = document.getElementById('adminNome').value.trim();
-  const adminEmail = document.getElementById('adminEmail').value.trim().toLowerCase();
-  const adminSenha = document.getElementById('adminSenha').value;
-  const plano = document.getElementById('empPlano').value;
-  
-  try {
-    // Verificar email duplicado
-    const { data: emailExiste } = await sb.from('admin_users').select('id').eq('email', adminEmail).maybeSingle();
-    if (emailExiste) throw new Error('Email já em uso.');
+  const statusLabels = {
+    inscrito:{l:'Inscrito',c:'bg-slate-400/10 text-slate-300 border-slate-500/30'},
+    pre_entrevista:{l:'⏳ Pré-entrevista',c:'bg-amber-400/10 text-amber-300 border-amber-400/30'},
+    aguardando_rh:{l:'⏳ Aguardando RH',c:'bg-amber-400/10 text-amber-300 border-amber-400/30'},
+    aprovado_pre:{l:'✅ Aprovado',c:'bg-emerald-400/10 text-emerald-300 border-emerald-400/30'},
+    entrevista_agendada:{l:'📅 Entrevista',c:'bg-indigo-400/10 text-indigo-300 border-indigo-400/30'},
+    ficha_preenchida:{l:'📝 Ficha Enviada',c:'bg-violet-400/10 text-violet-300 border-violet-400/30'},
+    ficha_aprovada:{l:'Ficha Aprovada',c:'bg-emerald-400/10 text-emerald-300 border-emerald-400/30'},
+    integracao_marcada:{l:'🎯 Integração',c:'bg-emerald-400/10 text-emerald-300 border-emerald-400/30'},
+    contratado:{l:'🎉 Contratado',c:'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'},
+    reprovado:{l:'❌ Reprovado',c:'bg-rose-400/10 text-rose-300 border-rose-400/30'}
+  };
+
+  $('#recrutBody').innerHTML = list.length ? list.map(c => {
+    const st = statusLabels[c.status] || statusLabels.inscrito;
+    const isAguardando = c.status === 'aguardando_rh' || c.status === 'pre_entrevista';
+    const rowClass = isAguardando ? 'cand-row-aguardando' : '';
     
-    // Criar empresa
-    const { data: novaEmpresa, error: errEmp } = await sb.from('empresas').insert({
-      nome, cnpj: cnpj || null, email_contato: adminEmail, telefone: telefone || null, plano, conta_ativa: true
-    }).select().single();
+    let actions = `<button onclick="verCandidato('${c.id}')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">👁 Ver</button>`;
     
-    if (errEmp) throw new Error('Erro ao criar empresa: ' + errEmp.message);
-    
-    // Criar admin
-    const { error: errAdm } = await sb.from('admin_users').insert({
-      empresa_id: novaEmpresa.id, nome: adminNome, email: adminEmail, senha: adminSenha, role: 'admin', ativo: true
-    });
-    
-    if (errAdm) {
-      await sb.from('empresas').delete().eq('id', novaEmpresa.id);
-      throw new Error('Erro ao criar admin: ' + errAdm.message);
+    if(c.status === 'aguardando_rh' || c.status === 'pre_entrevista'){
+      actions += `
+        <button onclick="aprovarPre('${c.id}')" class="btn-success px-3 py-1.5 rounded text-xs font-bold mr-1">✓ Aprovar</button>
+        <button onclick="reprovarCandidato('${c.id}')" class="btn-danger px-3 py-1.5 rounded text-xs font-bold">✕ Reprovar</button>`;
+    } else if(c.status === 'aprovado_pre' || c.status === 'entrevista_agendada'){
+      actions += `<button onclick="agendarEntrevista('${c.id}')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">📅 Agendar</button>`;
+      actions += `<button onclick="reprovarCandidato('${c.id}')" class="btn-danger px-2 py-1 rounded text-xs">✕</button>`;
+    } else if(c.status === 'ficha_preenchida'){
+      actions += `<button onclick="aprovarFicha('${c.id}')" class="btn-success px-2 py-1 rounded text-xs mr-1">✓ Ficha</button>`;
+    } else if(c.status === 'ficha_aprovada'){
+      actions += `<button onclick="marcarIntegracao('${c.id}')" class="btn-chrome px-2 py-1 rounded text-xs mr-1">🎯 Integrar</button>`;
     }
     
-    fecharModal('modalNovaEmpresa');
-    mostrarCredenciais(novaEmpresa, adminEmail, adminSenha);
-    await carregarDados();
-    
-  } catch (err) {
-    msgBox.textContent = err.message;
-    msgBox.style.background = 'rgba(239,68,68,.1)';
-    msgBox.style.color = '#fca5a5';
-    msgBox.classList.remove('hidden');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Criar Empresa';
-  }
-});
-
-// ═══════════════════════════════════════════
-// MODAL CREDENCIAIS
-// ═══════════════════════════════════════════
-function mostrarCredenciais(empresa, email, senha) {
-  document.getElementById('credEmpresa').textContent = empresa.nome;
-  document.getElementById('credEmail').textContent = email;
-  document.getElementById('credSenha').textContent = senha;
-  document.getElementById('modalCredenciais').classList.remove('hidden');
+    return `<tr class="${rowClass}">
+      <td>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 grid place-items-center text-[11px] font-bold text-white">${iniciais(c.candidatos?.nome||'?')}</div>
+          <div class="min-w-0">
+            <p class="font-semibold text-slate-200 truncate">${c.candidatos?.nome||'—'}</p>
+            <p class="text-[11px] text-slate-500 truncate">${c.candidatos?.email||''}</p>
+          </div>
+        </div>
+      </td>
+      <td class="text-slate-300 max-w-[140px] truncate">${c.vagas?.titulo||'—'}</td>
+      <td><span class="badge badge-sm ${st.c}">${st.l}</span></td>
+      <td class="text-slate-400 text-xs whitespace-nowrap">${c.data_entrevista ? fmtDataHora(c.data_entrevista) : '—'}</td>
+      <td class="text-right whitespace-nowrap">${actions}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="5" class="text-center py-10 text-slate-500">Nenhum candidato</td></tr>';
 }
 
-document.getElementById('btnCopiarCred').addEventListener('click', function() {
-  const texto = `EMPRESA: ${document.getElementById('credEmpresa').textContent}
-EMAIL: ${document.getElementById('credEmail').textContent}
-SENHA: ${document.getElementById('credSenha').textContent}`;
-  navigator.clipboard.writeText(texto).then(() => alert('✅ Copiado!'));
-});
+function verCandidato(id){
+  const c = candidaturas.find(x => x.id===id);
+  if(!c) return;
+  const ficha = c.ficha_cadastro;
 
-document.getElementById('btnFecharCred').addEventListener('click', () => fecharModal('modalCredenciais'));
+  let html = `<h3 class="font-display font-bold text-slate-100 text-lg mb-4">${c.candidatos?.nome || 'Candidato'}</h3>`;
+  html += `<div class="space-y-2 text-sm mb-4">
+    <p><span class="text-slate-500">E-mail:</span> <span class="text-slate-200">${c.candidatos?.email||'—'}</span></p>
+    <p><span class="text-slate-500">Telefone:</span> <span class="text-slate-200">${c.candidatos?.telefone||'—'}</span></p>
+    <p><span class="text-slate-500">CPF:</span> <span class="text-slate-200">${c.candidatos?.cpf||'—'}</span></p>
+    <p><span class="text-slate-500">Vaga:</span> <span class="text-slate-200">${c.vagas?.titulo||'—'}</span></p>
+    <p><span class="text-slate-500">Status:</span> <span class="text-slate-200 capitalize">${c.status.replace(/_/g,' ')}</span></p>
+    ${c.observacao_rh?`<p><span class="text-slate-500">Observação:</span> <span class="text-slate-200">${c.observacao_rh}</span></p>`:''}
+  </div>`;
 
-// ═══════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════
-(function init() {
-  console.log('🔍 Verificando sessão...');
-  const salvo = sessionStorage.getItem('facige_master');
-  if (salvo) {
-    try {
-      JSON.parse(salvo);
-      entrarApp();
-    } catch(e) {
-      sessionStorage.removeItem('facige_master');
-    }
+  if(ficha){
+    html += `<div class="mb-4"><p class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">📋 Ficha Cadastral</p>
+    <div class="panel p-3 text-sm space-y-1">
+      ${Object.entries(ficha).filter(([k,v])=>v).map(([k,v]) => `<p><span class="text-slate-500 capitalize">${k}:</span> <span class="text-slate-200">${v}</span></p>`).join('')}
+    </div></div>`;
   }
-})();
+
+  html += `<div class="flex gap-2 mt-4">
+    <button onclick="closeModal()" class="btn-ghost flex-1 py-2 rounded-lg text-sm">Fechar</button>
+    ${c.status==='aguardando_rh'||c.status==='pre_entrevista'?`<button onclick="aprovarPre('${c.id}');closeModal()" class="btn-success flex-1 py-2 rounded-lg text-sm font-bold">✓ Aprovar</button>`:''}
+    ${c.status==='aguardando_rh'||c.status==='pre_entrevista'?`<button onclick="reprovarCandidato('${c.id}');closeModal()" class="btn-danger py-2 px-3 rounded-lg text-sm">✕ Reprovar</button>`:''}
+  </div>`;
+  openModal(html);
+}
+
+function aprovarPre(id){
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-3">✓ Aprovar candidato</h3>
+    <label class="lbl">Mensagem (opcional)</label>
+    <textarea id="msgAprov" class="inp" rows="2" placeholder="Parabéns! Entraremos em contato."></textarea>
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
+      <button onclick="confirmarAprovPre('${id}')" class="btn-success flex-1 px-4 py-2 rounded-lg text-sm font-bold">✓ Aprovar</button>
+    </div>`);
+}
+async function confirmarAprovPre(id){
+  const msg = $('#msgAprov')?.value || '';
+  const { error } = await sb.from('candidaturas').update({status:'aprovado_pre', observacao_rh:msg, atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(error) return toast('Erro','Falha ao aprovar','error');
+  closeModal(); toast('✅ Candidato aprovado','','success');
+  await carregarRecrutamento();
+}
+
+function agendarEntrevista(id){
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-3">📅 Agendar entrevista</h3>
+    <div class="space-y-3">
+      <div><label class="lbl">Data e hora *</label><input type="datetime-local" id="entData" class="inp"></div>
+      <div><label class="lbl">Observações</label><textarea id="entObs" class="inp" rows="2"></textarea></div>
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
+      <button onclick="confirmarAgendar('${id}')" class="btn-primary flex-1 px-4 py-2 rounded-lg text-sm">Agendar</button>
+    </div>`);
+}
+async function confirmarAgendar(id){
+  const data = $('#entData').value;
+  const obs = $('#entObs').value;
+  if(!data) return toast('Informe a data','','error');
+  const { error } = await sb.from('candidaturas').update({status:'entrevista_agendada', data_entrevista:data, observacao_rh:obs, atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(error) return toast('Erro','Falha ao agendar','error');
+  closeModal(); toast('📅 Entrevista agendada','','success');
+  await carregarRecrutamento();
+}
+
+async function aprovarFicha(id){
+  const { error } = await sb.from('candidaturas').update({status:'ficha_aprovada', atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(error) return toast('Erro','Falha','error');
+  toast('✅ Ficha aprovada','','success');
+  await carregarRecrutamento();
+}
+
+function marcarIntegracao(id){
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-3">🎯 Marcar integração</h3>
+    <div class="space-y-3">
+      <div><label class="lbl">Data integração *</label><input type="date" id="intData" class="inp"></div>
+      <div><label class="lbl">Data início *</label><input type="date" id="iniData" class="inp"></div>
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg">Cancelar</button>
+      <button onclick="confirmarIntegracao('${id}')" class="btn-primary flex-1 px-4 py-2 rounded-lg text-sm">Confirmar</button>
+    </div>`);
+}
+async function confirmarIntegracao(id){
+  const intData = $('#intData').value;
+  const iniData = $('#iniData').value;
+  if(!intData || !iniData) return toast('Preencha as datas','','error');
+  const { error } = await sb.from('candidaturas').update({status:'integracao_marcada', data_integracao:intData, data_inicio:iniData, atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(error) return toast('Erro','Falha','error');
+  closeModal(); toast('🎯 Integração marcada','','success');
+  await carregarRecrutamento();
+}
+
+function reprovarCandidato(id){
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-3">❌ Reprovar candidato</h3>
+    <label class="lbl">Motivo *</label>
+    <textarea id="motivoRep" class="inp" rows="3" placeholder="Explique o motivo..."></textarea>
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
+      <button onclick="confirmarReprovar('${id}')" class="bg-rose-500 text-white flex-1 py-2 rounded-lg text-sm font-bold hover:bg-rose-600">✕ Reprovar</button>
+    </div>`);
+}
+async function confirmarReprovar(id){
+  const motivo = $('#motivoRep').value.trim();
+  if(!motivo) return toast('Informe o motivo','','error');
+  const { error } = await sb.from('candidaturas').update({status:'reprovado', observacao_rh:motivo, atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(error) return toast('Erro','Falha','error');
+  closeModal(); toast('Candidato reprovado','','warn');
+  await carregarRecrutamento();
+}
+
+function exportarCandidatosCSV(){
+  const list = recrutFilter==='todos' ? candidaturas : candidaturas.filter(c => c.status===recrutFilter);
+  if(!list.length) return toast('Nada a exportar','','warn');
+  const header = 'Nome,Email,Telefone,CPF,Vaga,Status,Data\n';
+  const rows = list.map(c => 
+    `"${(c.candidatos?.nome||'').replace(/"/g,'""')}","${c.candidatos?.email||''}","${c.candidatos?.telefone||''}","${c.candidatos?.cpf||''}","${(c.vagas?.titulo||'').replace(/"/g,'""')}","${c.status}","${c.criado_em||''}"`
+  ).join('\n');
+  const blob = new Blob(['\ufeff'+header+rows], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `candidatos_neoge_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📥 CSV exportado','','success');
+}
+
+function openModal(html){ $('#modalContent').innerHTML = html; $('#modal').classList.remove('hidden'); }
+function closeModal(){ $('#modal').classList.add('hidden'); }
+$('#modal').addEventListener('click', e => { if(e.target.id==='modal') closeModal(); });
+
+// ═══════════════════════════════════════════
+// REALTIME (filtrado por empresa_id)
+// ═══════════════════════════════════════════
+function subscribeRealtime(){
+  if(!session?.empresa?.id) return;
+  sb.channel('facige-rh-'+session.empresa.id)
+    .on('postgres_changes', {event:'*', schema:'public', filter:`empresa_id=eq.${session.empresa.id}`}, () => { refresh(); })
+    .subscribe();
+}
+
+function tick(){
+  const d = new Date();
+  $('#clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+setInterval(tick, 1000); tick();
+
+// ═══════════════════════════════════════════
+// INICIALIZAÇÃO
+// ═══════════════════════════════════════════
+if (verificarSessao()) {
+  enterApp();
+}
 </script>
 </body>
 </html>
