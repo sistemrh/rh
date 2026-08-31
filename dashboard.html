@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
-<title>NeoGe · Painel Administrativo de RH</title>
+<title>Facige · Painel Administrativo de RH</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13,7 +13,8 @@ tailwind.config={theme:{extend:{
   fontFamily:{sans:['"IBM Plex Sans"','sans-serif'],display:['Sora','sans-serif'],mono:['"IBM Plex Mono"','monospace']},
   keyframes:{fadeUp:{from:{opacity:0,transform:'translateY(10px)'},to:{opacity:1,transform:'translateY(0)'}},
     toastIn:{from:{opacity:0,transform:'translateX(26px)'},to:{opacity:1,transform:'translateX(0)'}},
-    bar:{from:{width:'100%'},to:{width:'0%'}}},
+    bar:{from:{width:'100%'},to:{width:'0%'}},
+    spin:{to:{transform:'rotate(360deg)'}}},
   animation:{'fade-up':'fadeUp .35s ease both','toast-in':'toastIn .25s ease both'}
 }}}
 </script>
@@ -56,36 +57,31 @@ tailwind.config={theme:{extend:{
   .cand-row-aguardando{background:rgba(245,158,11,.05) !important;border-left:3px solid #f59e0b}
   .cand-row-aguardando:hover{background:rgba(245,158,11,.1) !important}
   ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:#2c3d5f;border-radius:8px}
+  .spinner{width:48px;height:48px;border:4px solid rgba(99,102,241,.3);border-top-color:#6366f1;border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body class="font-sans antialiased">
 
-<div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:#070d19;background-image:radial-gradient(900px 480px at 50% 30%,rgba(79,70,229,.25),transparent 60%)">
-  <div class="panel !rounded-2xl p-8 max-w-md w-full">
-    <div class="text-center mb-6">
-      <div class="w-16 h-16 mx-auto rounded-2xl btn-chrome grid place-items-center mb-4">
-        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-      </div>
-      <h1 class="font-display text-3xl font-bold chrome-text">NeoGe</h1>
-      <p class="text-slate-400 text-sm mt-1">Painel Administrativo de RH</p>
-    </div>
-    <form id="loginForm" class="space-y-4">
-      <div><label class="lbl">E-mail</label><input type="email" id="loginEmail" class="inp" placeholder="helena@vetorlog.com" required value="helena@vetorlog.com"></div>
-      <div><label class="lbl">Senha</label><input type="password" id="loginSenha" class="inp" placeholder="Sua senha" required value="admin123"></div>
-      <button type="submit" id="loginBtn" class="btn-chrome w-full px-4 py-3 rounded-lg text-sm">Acessar painel</button>
-      <p id="loginError" class="text-rose-400 text-xs text-center hidden"></p>
-      <p class="text-center text-[11px] text-slate-500">Demo: <code class="text-sky-400">helena@vetorlog.com</code> / <code class="text-sky-400">admin123</code></p>
-    </form>
+<!-- TELA DE LOADING (enquanto verifica sessão) -->
+<div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center" style="background:#070d19">
+  <div class="text-center">
+    <div class="spinner mx-auto mb-4"></div>
+    <p class="text-slate-400" id="loadingMsg">Verificando acesso...</p>
   </div>
 </div>
 
+<!-- APP PRINCIPAL -->
 <div id="appShell" class="hidden">
   <div id="sidebarBackdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden lg:hidden" onclick="toggleSidebar(false)"></div>
 
   <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out bg-[#060b16] text-slate-300 flex flex-col border-r border-slate-800/60">
     <div class="flex items-center gap-3 px-5 h-16 border-b border-slate-800/70">
       <div class="w-9 h-9 rounded-lg btn-chrome grid place-items-center"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-      <div class="flex-1 min-w-0"><div class="font-display font-bold text-[17px] chrome-text">NeoGe</div><div class="text-[10px] uppercase tracking-[0.18em] text-sky-400/70 mt-1">Console de RH</div></div>
+      <div class="flex-1 min-w-0">
+        <div class="font-display font-bold text-[17px] chrome-text">Facige</div>
+        <div class="text-[10px] uppercase tracking-[0.18em] text-sky-400/70 mt-1">Console de RH</div>
+      </div>
       <button onclick="toggleSidebar(false)" class="lg:hidden p-1.5 rounded-lg hover:bg-white/5 text-slate-400"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
@@ -100,8 +96,17 @@ tailwind.config={theme:{extend:{
     </nav>
     <div class="p-4 border-t border-slate-800/70">
       <div class="rounded-xl bg-white/[.03] border border-slate-700/40 p-3.5">
-        <div class="flex items-center gap-2 text-[11px] text-sky-400 mb-2"><span class="relative flex w-2 h-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-60"></span><span class="relative inline-flex rounded-full w-2 h-2 bg-sky-400"></span></span> Supabase Realtime ativo</div>
-        <div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0" id="userInit">HP</div><div class="min-w-0"><p class="text-[13px] font-semibold text-slate-100 truncate" id="userName">—</p><p class="text-[11px] text-slate-500 truncate" id="userEmpresa">—</p></div></div>
+        <div class="flex items-center gap-2 text-[11px] text-sky-400 mb-2">
+          <span class="relative flex w-2 h-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-60"></span><span class="relative inline-flex rounded-full w-2 h-2 bg-sky-400"></span></span>
+          Supabase Realtime ativo
+        </div>
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0" id="userInit">--</div>
+          <div class="min-w-0">
+            <p class="text-[13px] font-semibold text-slate-100 truncate" id="userName">—</p>
+            <p class="text-[11px] text-slate-500 truncate" id="userEmpresa">—</p>
+          </div>
+        </div>
       </div>
       <button onclick="logout()" class="w-full mt-3 text-xs text-slate-500 hover:text-rose-400 transition-colors">Sair</button>
     </div>
@@ -120,6 +125,7 @@ tailwind.config={theme:{extend:{
 
     <div class="p-4 sm:p-6 max-w-[1500px] mx-auto">
 
+      <!-- DASHBOARD -->
       <section id="view-dashboard" class="view-in">
         <div id="kpiGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-6"></div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -144,6 +150,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
+      <!-- SOLICITAÇÕES -->
       <section id="view-solicitacoes" class="hidden view-in">
         <div class="flex gap-2 mb-4 flex-wrap">
           <button onclick="filterSolic('todos')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Todos</button>
@@ -161,6 +168,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
+      <!-- COLABORADORES -->
       <section id="view-colaboradores" class="hidden view-in">
         <div class="flex justify-between mb-4 gap-3 flex-wrap">
           <input type="text" id="searchCol" class="inp !w-full sm:!w-64" placeholder="Buscar colaborador...">
@@ -176,6 +184,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
+      <!-- COMUNICADOS -->
       <section id="view-comunicados" class="hidden view-in">
         <div class="flex justify-end mb-4">
           <button onclick="openComModal()" class="btn-chrome px-4 py-2 rounded-lg text-sm">+ Novo Comunicado</button>
@@ -183,6 +192,7 @@ tailwind.config={theme:{extend:{
         <div id="comList" class="space-y-3"></div>
       </section>
 
+      <!-- ESPELHO -->
       <section id="view-espelho" class="hidden view-in">
         <div class="panel p-4 mb-4 flex flex-wrap gap-3 items-end">
           <div><label class="lbl">Colaborador</label><select id="espColab" class="inp !w-full sm:!w-64"></select></div>
@@ -201,6 +211,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
+      <!-- VR/VA/VT -->
       <section id="view-vrvt" class="hidden view-in">
         <div id="vrvtResumo" class="panel p-4 mb-4 flex flex-wrap gap-6 items-center text-sm"></div>
         <div class="panel overflow-hidden">
@@ -213,6 +224,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
+      <!-- FERIADOS -->
       <section id="view-feriados" class="hidden view-in">
         <div class="flex justify-end mb-4">
           <button onclick="openFerModal()" class="btn-chrome px-4 py-2 rounded-lg text-sm">+ Novo Feriado</button>
@@ -227,6 +239,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
+      <!-- RECRUTAMENTO -->
       <section id="view-recrutamento" class="hidden view-in">
         <div class="panel p-5 mb-6">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -302,15 +315,20 @@ tailwind.config={theme:{extend:{
 <div id="toastRoot" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2.5 w-[min(380px,calc(100vw-40px))]"></div>
 
 <script>
+// ═══════════════════════════════════════════
+// CONFIGURAÇÃO SUPABASE
+// ═══════════════════════════════════════════
 const SUPA_URL = 'https://ippykisvjqmigobagzjt.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwcHlraXN2anFtaWdvYmFnemp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU5NDUsImV4cCI6MjEwMzM0MTk0NX0.m0TuMyIxW_UaW1H9HUiKVn_711PFrxIk8y-kFw-OhKc';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+const LOGIN_URL = 'index.html';
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const pad = n => String(n).padStart(2,'0');
 const hoje = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
-const iniciais = n => n.split(' ').filter(Boolean).map(p=>p[0]).slice(0,2).join('').toUpperCase();
+const iniciais = n => (n||'?').split(' ').filter(Boolean).map(p=>p[0]).slice(0,2).join('').toUpperCase();
 const fmtISO = iso => { if(!iso) return '—'; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; };
 const fmtDataHora = iso => { if(!iso) return '—'; const d = new Date(iso); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); };
 const fmtMoeda = v => (+v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -325,6 +343,47 @@ let vagas = [];
 let candidaturas = [];
 let recrutConfig = { pagina_ativa: true };
 
+console.log('🚀 Dashboard Facige carregada');
+
+// ═══════════════════════════════════════════
+// 🔐 VERIFICAÇÃO DE SESSÃO (vinda do index.html)
+// ═══════════════════════════════════════════
+function verificarSessao() {
+  console.log('🔐 Verificando sessão...');
+  
+  const salvo = sessionStorage.getItem('facige_session');
+  
+  if (!salvo) {
+    console.warn('⚠️ Sem sessão, redirecionando para login');
+    window.location.href = LOGIN_URL;
+    return false;
+  }
+  
+  try {
+    const dados = JSON.parse(salvo);
+    
+    if (!dados.user || !dados.empresa || !dados.empresa.id) {
+      console.warn('⚠️ Sessão inválida');
+      sessionStorage.removeItem('facige_session');
+      window.location.href = LOGIN_URL;
+      return false;
+    }
+    
+    session = dados;
+    console.log('✅ Sessão válida:', session.user.nome, '|', session.empresa.nome);
+    return true;
+    
+  } catch(e) {
+    console.error('❌ Erro ao parsear sessão:', e);
+    sessionStorage.removeItem('facige_session');
+    window.location.href = LOGIN_URL;
+    return false;
+  }
+}
+
+// ═══════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════
 function toggleSidebar(open){
   $('#sidebar').classList.toggle('-translate-x-full', !open);
   $('#sidebarBackdrop').classList.toggle('hidden', !open);
@@ -343,56 +402,31 @@ function toast(titulo, msg, tipo='info'){
   setTimeout(()=>el.remove(), 4000);
 }
 
-$('#loginForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const btn = $('#loginBtn');
-  btn.disabled = true; btn.textContent = 'Autenticando...';
-  $('#loginError').classList.add('hidden');
-  
-  try {
-    const email = $('#loginEmail').value.trim();
-    const senha = $('#loginSenha').value;
-
-    if (email === 'helena@vetorlog.com' && (senha === 'admin123' || senha === 'admin12')) {
-      session = { 
-        user: { id: 'demo-user', nome: 'Helena Demo', email: 'helena@vetorlog.com' }, 
-        empresa: { id: 'a0000000-0000-0000-0000-000000000001', nome: 'Vetorlog Demo' } 
-      };
-      sessionStorage.setItem('neoge_admin', JSON.stringify(session));
-      enterApp();
-      return;
-    }
-
-    const { data, error } = await sb.from('admin_users').select('*, empresas(*)').eq('email', email).eq('senha', senha).maybeSingle();
-    if(error || !data) throw new Error('Credenciais inválidas');
-    
-    session = { user:data, empresa:data.empresas };
-    sessionStorage.setItem('neoge_admin', JSON.stringify(session));
-    enterApp();
-  } catch(err){
-    $('#loginError').textContent = err.message; 
-    $('#loginError').classList.remove('hidden');
-    btn.disabled = false; 
-    btn.textContent = 'Acessar painel';
-  }
-});
-
+// ═══════════════════════════════════════════
+// ENTRAR NO APP
+// ═══════════════════════════════════════════
 function enterApp(){
-  $('#loginScreen').classList.add('hidden');
+  console.log('📱 Entrando no app...');
+  $('#loadingScreen').classList.add('hidden');
   $('#appShell').classList.remove('hidden');
-  $('#userName').textContent = session.user.nome;
-  $('#userEmpresa').textContent = session.empresa.nome;
-  $('#userInit').textContent = iniciais(session.user.nome);
+  
+  $('#userName').textContent = session.user.nome || '—';
+  $('#userEmpresa').textContent = session.empresa.nome || '—';
+  $('#userInit').textContent = iniciais(session.user.nome || 'US');
+  
   refresh();
   subscribeRealtime();
 }
 
 function logout(){
-  sessionStorage.removeItem('neoge_admin');
-  session = null;
-  location.reload();
+  console.log('🚪 Logout...');
+  sessionStorage.removeItem('facige_session');
+  window.location.href = LOGIN_URL;
 }
 
+// ═══════════════════════════════════════════
+// NAVEGAÇÃO
+// ═══════════════════════════════════════════
 const VIEWS = ['dashboard','solicitacoes','colaboradores','comunicados','espelho','vrvt','feriados','recrutamento'];
 $$('.nav-btn').forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
 
@@ -407,8 +441,11 @@ function go(view){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
+// ═══════════════════════════════════════════
+// CARREGAR DADOS
+// ═══════════════════════════════════════════
 async function refresh(){
-  if(!session) return;
+  if(!session || !session.empresa?.id) return;
   const eid = session.empresa.id;
 
   const [cols, solic, pontos, coms, leituras, espelhos, humor, fer] = await Promise.all([
@@ -754,6 +791,7 @@ async function excluirFer(id){
 }
 
 async function carregarRecrutamento(){
+  if(!session || !session.empresa?.id) return;
   const eid = session.empresa.id;
 
   const [vagasRes, candRes, configRes] = await Promise.all([
@@ -770,8 +808,6 @@ async function carregarRecrutamento(){
 function renderRecrutamento(){
   const abertas = vagas.filter(v => v.status==='aberta');
   const aguardando = candidaturas.filter(c => c.status==='aguardando_rh');
-  const contratados = candidaturas.filter(c => c.status==='contratado').length;
-  const total = candidaturas.length;
 
   $('#togglePaginaCand').checked = recrutConfig.pagina_ativa;
   $('#vagasAbertasCount').textContent = abertas.length;
@@ -1088,7 +1124,7 @@ function exportarCandidatosCSV(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `candidatos_neoge_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `candidatos_facige_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
   toast('📥 CSV exportado','','success');
@@ -1100,7 +1136,7 @@ $('#modal').addEventListener('click', e => { if(e.target.id==='modal') closeModa
 
 function subscribeRealtime(){
   if(!session?.empresa?.id) return;
-  sb.channel('neoge-rh-'+session.empresa.id)
+  sb.channel('facige-rh-'+session.empresa.id)
     .on('postgres_changes', {event:'*', schema:'public', filter:`empresa_id=eq.${session.empresa.id}`}, () => { refresh(); })
     .subscribe();
 }
@@ -1111,8 +1147,12 @@ function tick(){
 }
 setInterval(tick, 1000); tick();
 
-const saved = sessionStorage.getItem('neoge_admin');
-if(saved){ try { session = JSON.parse(saved); enterApp(); } catch(e){ sessionStorage.removeItem('neoge_admin'); } }
+// ═══════════════════════════════════════════
+// INICIALIZAÇÃO
+// ═══════════════════════════════════════════
+if (verificarSessao()) {
+  enterApp();
+}
 </script>
 </body>
 </html>
