@@ -15,52 +15,86 @@ tailwind.config = {
         sans: ['Inter', 'sans-serif'],
         display: ['Sora', 'sans-serif'],
       },
-      colors: {
-        brand: {
-          50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe',
-          500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81'
-        }
-      },
       keyframes: {
         fadeUp: { from: {opacity:0, transform:'translateY(16px)'}, to: {opacity:1, transform:'translateY(0)'} },
         fadeIn: { from: {opacity:0}, to: {opacity:1} },
-        float: { '0%,100%': {transform:'translateY(0)'}, '50%': {transform:'translateY(-10px)'} },
-        shimmer: { '0%': {backgroundPosition:'-200% 0'}, '100%': {backgroundPosition:'200% 0'} },
+        spin: { to: { transform: 'rotate(360deg)' } }
       },
       animation: {
-        'fade-up': 'fadeUp .6s ease both',
-        'fade-in': 'fadeIn .8s ease both',
-        'float': 'float 6s ease-in-out infinite',
+        'fade-up': 'fadeUp .5s ease both',
+        'fade-in': 'fadeIn .6s ease both',
       }
     }
   }
 }
 </script>
 <style>
-  body{background:#0a0e1a}
-  .glass{background:rgba(255,255,255,.03);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08)}
-  .gradient-text{background:linear-gradient(135deg,#fff 0%,#c7d2fe 50%,#818cf8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .btn-gradient{background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%);transition:all .2s;box-shadow:0 4px 20px rgba(99,102,241,.4)}
-  .btn-gradient:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(99,102,241,.55)}
-  .btn-gradient:active{transform:translateY(0)}
-  .btn-gradient:disabled{opacity:.6;cursor:not-allowed;transform:none}
-  .input-field{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;transition:all .2s}
-  .input-field:focus{background:rgba(255,255,255,.06);border-color:#818cf8;box-shadow:0 0 0 3px rgba(129,140,248,.15)}
-  .input-field::placeholder{color:rgba(255,255,255,.3)}
-  .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.4;pointer-events:none}
-  .feature-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
-  .shine{position:relative;overflow:hidden}
-  .shine::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);background-size:200% 100%;animation:shimmer 3s infinite}
-  .shake{animation:shake .4s ease}
-  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-  .error-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
-  .success-box{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#86efac}
-  .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .dot-pattern{background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);background-size:24px 24px}
+  body { background: #0a0e1a; }
+  .glass { background: rgba(255,255,255,.03); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.08); }
+  .gradient-text { background: linear-gradient(135deg, #fff 0%, #c7d2fe 50%, #818cf8 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .btn-gradient { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); transition: all .2s; box-shadow: 0 4px 20px rgba(99,102,241,.4); cursor: pointer; }
+  .btn-gradient:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(99,102,241,.55); }
+  .btn-gradient:disabled { opacity: .6; cursor: not-allowed; }
+  .input-field { 
+    background: rgba(255,255,255,.06); 
+    border: 1px solid rgba(255,255,255,.15); 
+    color: #fff; 
+    transition: all .2s;
+    position: relative;
+    z-index: 10;
+  }
+  .input-field:focus { 
+    background: rgba(255,255,255,.1); 
+    border-color: #818cf8; 
+    box-shadow: 0 0 0 3px rgba(129,140,248,.2);
+    outline: none;
+  }
+  .input-field::placeholder { color: rgba(255,255,255,.35); }
+  
+  /* ORBS DECORATIVOS - SEM POINTER EVENTS */
+  .orb { 
+    position: absolute; 
+    border-radius: 50%; 
+    filter: blur(80px); 
+    opacity: .3; 
+    pointer-events: none; /* ← CRUCIAL: não bloqueia cliques */
+    z-index: 0;
+  }
+  
+  /* DOT PATTERN - SEM POINTER EVENTS */
+  .dot-pattern { 
+    background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px); 
+    background-size: 24px 24px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  .error-box { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.4); color: #fca5a5; }
+  .success-box { background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.4); color: #86efac; }
+  
+  /* Feature cards */
+  .feature-icon { 
+    width: 44px; 
+    height: 44px; 
+    border-radius: 12px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    background: rgba(255,255,255,.08); 
+    border: 1px solid rgba(255,255,255,.12);
+  }
+  
+  /* Shake animation para erros */
+  .shake { animation: shake .4s ease; }
+  @keyframes shake { 
+    0%, 100% { transform: translateX(0); } 
+    25% { transform: translateX(-8px); } 
+    75% { transform: translateX(8px); } 
+  }
 </style>
 </head>
-<body class="font-sans antialiased min-h-screen">
+<body class="font-sans antialiased min-h-screen text-slate-200">
 
 <div class="min-h-screen flex">
 
@@ -70,7 +104,7 @@ tailwind.config = {
   <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-between p-12 xl:p-16" 
        style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#4c1d95 100%)">
     
-    <!-- Orbs decorativos -->
+    <!-- Orbs decorativos (pointer-events: none via CSS) -->
     <div class="orb w-96 h-96 bg-indigo-500 -top-20 -left-20"></div>
     <div class="orb w-80 h-80 bg-purple-600 bottom-20 right-0"></div>
     <div class="dot-pattern absolute inset-0 opacity-30"></div>
@@ -99,7 +133,7 @@ tailwind.config = {
         Ponto eletrônico, recrutamento com IA, folha, benefícios e comunicados. Tudo em uma única plataforma.
       </p>
 
-      <!-- Features rápidos -->
+      <!-- Features -->
       <div class="grid grid-cols-2 gap-4">
         <div class="glass rounded-xl p-4">
           <div class="feature-icon mb-3">
@@ -132,11 +166,9 @@ tailwind.config = {
       </div>
     </div>
 
-    <!-- Rodapé do branding -->
+    <!-- Rodapé branding -->
     <div class="relative z-10 animate-fade-in">
-      <p class="text-indigo-300 text-sm">
-        © 2025 Facige · Todos os direitos reservados
-      </p>
+      <p class="text-indigo-300 text-sm">© 2025 Facige · Todos os direitos reservados</p>
     </div>
   </div>
 
@@ -145,11 +177,11 @@ tailwind.config = {
        ═══════════════════════════════════════════ -->
   <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative overflow-hidden">
     
-    <!-- Orbs para mobile -->
+    <!-- Orbs mobile (com pointer-events: none via CSS) -->
     <div class="orb w-72 h-72 bg-indigo-600 -top-20 -right-20 lg:hidden"></div>
     <div class="orb w-60 h-60 bg-purple-700 bottom-0 -left-20 lg:hidden"></div>
 
-    <div class="w-full max-w-md relative z-10">
+    <div class="w-full max-w-md relative z-20">
 
       <!-- Logo mobile -->
       <div class="lg:hidden flex items-center justify-center gap-3 mb-10 animate-fade-in">
@@ -165,40 +197,42 @@ tailwind.config = {
       </div>
 
       <!-- Card de login -->
-      <div class="glass rounded-3xl p-8 sm:p-10 animate-fade-up shine">
+      <div id="loginCard" class="glass rounded-3xl p-8 sm:p-10 animate-fade-up" style="position: relative; z-index: 30;">
         
         <div class="mb-8">
           <h2 class="font-display text-3xl font-bold text-white mb-2">Acessar painel</h2>
           <p class="text-slate-400 text-sm">Entre com sua chave de acesso e email corporativo.</p>
         </div>
 
-        <!-- Mensagens de erro/sucesso -->
+        <!-- Mensagens -->
         <div id="msgBox" class="hidden mb-6 px-4 py-3 rounded-xl text-sm"></div>
 
-        <form id="loginForm" class="space-y-5">
+        <form id="loginForm" class="space-y-5" style="position: relative; z-index: 40;">
           
           <!-- Chave de Acesso -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">
+          <div style="position: relative;">
+            <label for="inputChave" class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">
               🔑 Chave de Acesso
             </label>
             <input 
               type="text" 
               id="inputChave" 
-              class="input-field w-full px-4 py-3.5 rounded-xl text-sm font-mono"
+              name="chave"
+              class="input-field w-full px-4 py-3.5 rounded-xl text-sm font-mono uppercase"
               placeholder="SUA-EMPRESA-2024"
               autocomplete="off"
               required>
           </div>
 
           <!-- Email -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">
+          <div style="position: relative;">
+            <label for="inputEmail" class="block text-xs font-semibold text-slate-300 mb-2 tracking-wider uppercase">
               📧 Email
             </label>
             <input 
               type="email" 
               id="inputEmail" 
+              name="email"
               class="input-field w-full px-4 py-3.5 rounded-xl text-sm"
               placeholder="seu.nome@suaempresa.com"
               autocomplete="email"
@@ -211,11 +245,13 @@ tailwind.config = {
             id="btnEntrar"
             class="btn-gradient w-full py-4 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2">
             <span id="btnTexto">Entrar no painel</span>
-            <svg id="btnIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            <span id="btnIcon">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </span>
           </button>
         </form>
 
-        <!-- Info demo -->
+        <!-- Info -->
         <div class="mt-8 pt-6 border-t border-white/10">
           <p class="text-xs text-slate-500 text-center">
             Não tem acesso? 
@@ -226,9 +262,7 @@ tailwind.config = {
 
       <!-- Ajuda -->
       <div class="mt-6 text-center animate-fade-in">
-        <p class="text-slate-500 text-xs">
-          🔒 Conexão segura · Dados criptografados
-        </p>
+        <p class="text-slate-500 text-xs">🔒 Conexão segura · Dados criptografados</p>
       </div>
     </div>
   </div>
@@ -236,70 +270,88 @@ tailwind.config = {
 
 <script>
 // ═══════════════════════════════════════════
-// CONFIGURAÇÃO SUPABASE
+// CONFIGURAÇÃO
 // ═══════════════════════════════════════════
 const SUPA_URL = 'https://ippykisvjqmigobagzjt.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwcHlraXN2anFtaWdvYmFnemp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU5NDUsImV4cCI6MjEwMzM0MTk0NX0.m0TuMyIxW_UaW1H9HUiKVn_711PFrxIk8y-kFw-OhKc';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-const $ = s => document.querySelector(s);
+const DASHBOARD_URL = 'dashboard.html'; // ← Ajuste para sua dashboard
+
+console.log('🚀 Facige Login carregado');
 
 // ═══════════════════════════════════════════
-// REDIRECIONAMENTO (ajuste conforme sua estrutura)
+// ELEMENTOS DO DOM
 // ═══════════════════════════════════════════
-const DASHBOARD_URL = 'dashboard.html'; // ← Mude para a URL da sua dashboard
+const inputChave = document.getElementById('inputChave');
+const inputEmail = document.getElementById('inputEmail');
+const form = document.getElementById('loginForm');
+const btnEntrar = document.getElementById('btnEntrar');
+const btnTexto = document.getElementById('btnTexto');
+const btnIcon = document.getElementById('btnIcon');
+const msgBox = document.getElementById('msgBox');
+const loginCard = document.getElementById('loginCard');
+
+console.log('📋 Elementos carregados:', {
+  inputChave: !!inputChave,
+  inputEmail: !!inputEmail,
+  form: !!form,
+  btnEntrar: !!btnEntrar
+});
 
 // ═══════════════════════════════════════════
-// MENSAGENS
+// FUNÇÕES AUXILIARES
 // ═══════════════════════════════════════════
 function mostrarMsg(texto, tipo = 'erro') {
-  const box = $('#msgBox');
-  box.textContent = texto;
-  box.className = `mb-6 px-4 py-3 rounded-xl text-sm ${tipo === 'erro' ? 'error-box' : 'success-box'}`;
-  box.classList.remove('hidden');
+  msgBox.textContent = texto;
+  msgBox.className = `mb-6 px-4 py-3 rounded-xl text-sm ${tipo === 'erro' ? 'error-box' : 'success-box'}`;
+  msgBox.classList.remove('hidden');
   
   if (tipo === 'erro') {
-    const card = box.closest('.glass');
-    card.classList.add('shake');
-    setTimeout(() => card.classList.remove('shake'), 400);
+    loginCard.classList.add('shake');
+    setTimeout(() => loginCard.classList.remove('shake'), 400);
   }
 }
 
 function setLoading(loading) {
-  const btn = $('#btnEntrar');
-  const texto = $('#btnTexto');
-  const icon = $('#btnIcon');
-  
-  btn.disabled = loading;
+  btnEntrar.disabled = loading;
   
   if (loading) {
-    texto.textContent = 'Verificando acesso...';
-    icon.outerHTML = '<div id="btnIcon" class="spinner"></div>';
+    btnTexto.textContent = 'Verificando acesso...';
+    btnIcon.innerHTML = '<div class="spinner"></div>';
   } else {
-    texto.textContent = 'Entrar no painel';
-    icon.outerHTML = '<svg id="btnIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>';
+    btnTexto.textContent = 'Entrar no painel';
+    btnIcon.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>';
   }
 }
 
 // ═══════════════════════════════════════════
-// VALIDAÇÃO DE CHAVE (formato)
+// EVENTOS
 // ═══════════════════════════════════════════
-function formatarChave(input) {
-  input.value = input.value.toUpperCase();
-}
+
+// Auto uppercase na chave
+inputChave.addEventListener('input', function(e) {
+  e.target.value = e.target.value.toUpperCase();
+});
+
+// Debug - ver se eventos estão sendo disparados
+inputChave.addEventListener('focus', () => console.log('🔑 Chave focus'));
+inputEmail.addEventListener('focus', () => console.log('📧 Email focus'));
+btnEntrar.addEventListener('mouseenter', () => console.log('👆 Botão hover'));
 
 // ═══════════════════════════════════════════
-// LOGIN — CHAVE + EMAIL
+// SUBMIT DO FORMULÁRIO
 // ═══════════════════════════════════════════
-$('#inputChave').addEventListener('input', (e) => formatarChave(e.target));
-
-$('#loginForm').addEventListener('submit', async e => {
+form.addEventListener('submit', async function(e) {
   e.preventDefault();
+  console.log('📝 Formulário submetido!');
   
-  const chave = $('#inputChave').value.trim().toUpperCase();
-  const email = $('#inputEmail').value.trim().toLowerCase();
+  const chave = inputChave.value.trim().toUpperCase();
+  const email = inputEmail.value.trim().toLowerCase();
   
-  $('#msgBox').classList.add('hidden');
+  console.log('🔐 Tentando login:', { chave, email });
+  
+  msgBox.classList.add('hidden');
   
   if (!chave || !email) {
     mostrarMsg('Preencha a chave de acesso e o email.');
@@ -309,9 +361,8 @@ $('#loginForm').addEventListener('submit', async e => {
   setLoading(true);
   
   try {
-    console.log('🔐 Tentando acesso:', chave, '|', email);
-    
     // 1. Buscar empresa pela chave
+    console.log('🔍 Buscando empresa...');
     const { data: empresa, error: errEmpresa } = await sb
       .from('empresas')
       .select('*')
@@ -320,24 +371,26 @@ $('#loginForm').addEventListener('submit', async e => {
     
     if (errEmpresa) {
       console.error('Erro Supabase:', errEmpresa);
-      throw new Error('Erro ao verificar acesso. Tente novamente.');
+      throw new Error('Erro ao verificar acesso.');
     }
     
     if (!empresa) {
+      console.warn('❌ Chave não encontrada:', chave);
       mostrarMsg('Chave de acesso inválida. Verifique com sua empresa.');
       setLoading(false);
       return;
     }
     
     if (empresa.conta_ativa === false) {
-      mostrarMsg('Esta conta está desativada. Contate o suporte.');
+      mostrarMsg('Esta conta está desativada.');
       setLoading(false);
       return;
     }
     
     console.log('✅ Empresa encontrada:', empresa.nome);
     
-    // 2. Verificar se o email pertence a esta empresa
+    // 2. Verificar se email pertence à empresa
+    console.log('🔍 Buscando admin...');
     const { data: admin, error: errAdmin } = await sb
       .from('admin_users')
       .select('*')
@@ -348,16 +401,17 @@ $('#loginForm').addEventListener('submit', async e => {
     
     if (errAdmin) {
       console.error('Erro admin:', errAdmin);
-      throw new Error('Erro ao verificar email. Tente novamente.');
+      throw new Error('Erro ao verificar email.');
     }
     
     if (!admin) {
+      console.warn('❌ Email não encontrado para esta empresa');
       mostrarMsg('Email não autorizado para esta empresa.');
       setLoading(false);
       return;
     }
     
-    console.log('✅ Acesso liberado para:', admin.nome);
+    console.log('✅ Admin autorizado:', admin.nome);
     
     // 3. Criar sessão
     const sessao = {
@@ -366,23 +420,25 @@ $('#loginForm').addEventListener('submit', async e => {
     };
     
     sessionStorage.setItem('facige_session', JSON.stringify(sessao));
+    console.log('💾 Sessão salva no sessionStorage');
     
     mostrarMsg('Acesso liberado! Redirecionando...', 'sucesso');
     
-    // 4. Redirecionar após pequeno delay
+    // 4. Redirecionar
     setTimeout(() => {
+      console.log('🚀 Redirecionando para:', DASHBOARD_URL);
       window.location.href = DASHBOARD_URL;
     }, 900);
     
   } catch (err) {
-    console.error('❌ Erro:', err);
-    mostrarMsg(err.message || 'Erro inesperado. Tente novamente.');
+    console.error('❌ Erro geral:', err);
+    mostrarMsg(err.message || 'Erro inesperado.');
     setLoading(false);
   }
 });
 
 // ═══════════════════════════════════════════
-// RECUPERAR SESSÃO (se já logado, vai direto)
+// RECUPERAR SESSÃO (se já logado)
 // ═══════════════════════════════════════════
 (function recuperarSessao() {
   const salvo = sessionStorage.getItem('facige_session');
@@ -398,6 +454,12 @@ $('#loginForm').addEventListener('submit', async e => {
     }
   }
 })();
+
+// ═══════════════════════════════════════════
+// TESTE DE FUNCIONAMENTO (aparece no console)
+// ═══════════════════════════════════════════
+console.log('✅ Formulário pronto. Clique nos campos e teste.');
+console.log('💡 Dica: Veja os logs aqui ao interagir com a página.');
 </script>
 </body>
 </html>
