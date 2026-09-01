@@ -56,14 +56,18 @@ tailwind.config={theme:{extend:{
   .badge-sm{padding:3px 8px;font-size:10px}
   .cand-row-aguardando{background:rgba(245,158,11,.05) !important;border-left:3px solid #f59e0b}
   .cand-row-aguardando:hover{background:rgba(245,158,11,.1) !important}
+  .spinner{width:44px;height:44px;border:4px solid rgba(99,102,241,.3);border-top-color:#6366f1;border-radius:50%;animation:spin 1s linear infinite}
   ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:#2c3d5f;border-radius:8px}
-  .spinner{width:48px;height:48px;border:4px solid rgba(99,102,241,.3);border-top-color:#6366f1;border-radius:50%;animation:spin 1s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
+  .vaga-check-item{transition:all .15s;cursor:pointer}
+  .vaga-check-item:hover{background:rgba(99,102,241,.08)}
+  input[type="color"]{-webkit-appearance:none;appearance:none;background:none;padding:0}
+  input[type="color"]::-webkit-color-swatch-wrapper{padding:2px}
+  input[type="color"]::-webkit-color-swatch{border-radius:8px;border:none}
 </style>
 </head>
 <body class="font-sans antialiased">
 
-<!-- TELA DE LOADING (enquanto verifica sessão) -->
+<!-- LOADING -->
 <div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center" style="background:#070d19">
   <div class="text-center">
     <div class="spinner mx-auto mb-4"></div>
@@ -71,7 +75,7 @@ tailwind.config={theme:{extend:{
   </div>
 </div>
 
-<!-- APP PRINCIPAL -->
+<!-- APP -->
 <div id="appShell" class="hidden">
   <div id="sidebarBackdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden lg:hidden" onclick="toggleSidebar(false)"></div>
 
@@ -93,6 +97,7 @@ tailwind.config={theme:{extend:{
       <button data-view="vrvt" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">💳 VR · VA · VT</button>
       <button data-view="feriados" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">🎌 Feriados</button>
       <button data-view="recrutamento" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">🎯 Recrutamento <span id="badgeRecrut" class="ml-auto hidden px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold"></span></button>
+      <button data-view="pagina" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">🌐 Página de Recrutamento</button>
     </nav>
     <div class="p-4 border-t border-slate-800/70">
       <div class="rounded-xl bg-white/[.03] border border-slate-700/40 p-3.5">
@@ -125,7 +130,7 @@ tailwind.config={theme:{extend:{
 
     <div class="p-4 sm:p-6 max-w-[1500px] mx-auto">
 
-      <!-- DASHBOARD -->
+      <!-- ═══ VIEW: DASHBOARD ═══ -->
       <section id="view-dashboard" class="view-in">
         <div id="kpiGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-6"></div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -150,7 +155,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- SOLICITAÇÕES -->
+      <!-- ═══ VIEW: SOLICITAÇÕES ═══ -->
       <section id="view-solicitacoes" class="hidden view-in">
         <div class="flex gap-2 mb-4 flex-wrap">
           <button onclick="filterSolic('todos')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Todos</button>
@@ -168,7 +173,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- COLABORADORES -->
+      <!-- ═══ VIEW: COLABORADORES ═══ -->
       <section id="view-colaboradores" class="hidden view-in">
         <div class="flex justify-between mb-4 gap-3 flex-wrap">
           <input type="text" id="searchCol" class="inp !w-full sm:!w-64" placeholder="Buscar colaborador...">
@@ -184,7 +189,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- COMUNICADOS -->
+      <!-- ═══ VIEW: COMUNICADOS ═══ -->
       <section id="view-comunicados" class="hidden view-in">
         <div class="flex justify-end mb-4">
           <button onclick="openComModal()" class="btn-chrome px-4 py-2 rounded-lg text-sm">+ Novo Comunicado</button>
@@ -192,7 +197,7 @@ tailwind.config={theme:{extend:{
         <div id="comList" class="space-y-3"></div>
       </section>
 
-      <!-- ESPELHO -->
+      <!-- ═══ VIEW: ESPELHO ═══ -->
       <section id="view-espelho" class="hidden view-in">
         <div class="panel p-4 mb-4 flex flex-wrap gap-3 items-end">
           <div><label class="lbl">Colaborador</label><select id="espColab" class="inp !w-full sm:!w-64"></select></div>
@@ -211,7 +216,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- VR/VA/VT -->
+      <!-- ═══ VIEW: VR/VA/VT ═══ -->
       <section id="view-vrvt" class="hidden view-in">
         <div id="vrvtResumo" class="panel p-4 mb-4 flex flex-wrap gap-6 items-center text-sm"></div>
         <div class="panel overflow-hidden">
@@ -224,7 +229,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- FERIADOS -->
+      <!-- ═══ VIEW: FERIADOS ═══ -->
       <section id="view-feriados" class="hidden view-in">
         <div class="flex justify-end mb-4">
           <button onclick="openFerModal()" class="btn-chrome px-4 py-2 rounded-lg text-sm">+ Novo Feriado</button>
@@ -239,24 +244,15 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- RECRUTAMENTO -->
+      <!-- ═══ VIEW: RECRUTAMENTO ═══ -->
       <section id="view-recrutamento" class="hidden view-in">
         <div class="panel p-5 mb-6">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 class="font-display font-bold text-slate-100 text-base">🔗 Página de Candidatos</h3>
-              <p class="text-sm text-slate-400 mt-1">Controle o acesso público à página de recrutamento.</p>
+              <h3 class="font-display font-bold text-slate-100 text-base">🎯 Gestão de Recrutamento</h3>
+              <p class="text-sm text-slate-400 mt-1">Gerencie vagas e candidatos. Para a página pública, use 🌐 Página de Recrutamento.</p>
             </div>
-            <div class="flex items-center gap-4 shrink-0">
-              <label class="flex items-center gap-3 cursor-pointer">
-                <span class="text-sm text-slate-300 font-semibold">Página ativa</span>
-                <div class="relative">
-                  <input type="checkbox" id="togglePaginaCand" class="peer sr-only" onchange="togglePaginaCandidatos()">
-                  <div class="w-11 h-6 bg-slate-600 rounded-full transition-colors peer-checked:bg-emerald-500"></div>
-                  <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5"></div>
-                </div>
-              </label>
-            </div>
+            <button onclick="go('pagina')" class="btn-ghost px-4 py-2 rounded-lg text-sm shrink-0">🌐 Configurar Página →</button>
           </div>
           <div class="mt-4 p-3 rounded-lg bg-slate-800/40 border border-slate-700/40">
             <div class="flex items-center justify-between flex-wrap gap-3">
@@ -304,10 +300,173 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
+      <!-- ═══════════════════════════════════════════
+           VIEW: PÁGINA DE RECRUTAMENTO (NOVO)
+           ═══════════════════════════════════════════ -->
+      <section id="view-pagina" class="hidden view-in">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Coluna principal -->
+          <div class="lg:col-span-2 space-y-5">
+            
+            <!-- Status -->
+            <div class="panel p-6">
+              <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
+                <div>
+                  <h3 class="font-display font-bold text-slate-100 text-lg">🌐 Minha Página de Recrutamento</h3>
+                  <p class="text-sm text-slate-400 mt-1">Personalize a página pública que os candidatos acessam</p>
+                </div>
+                <label class="flex items-center gap-3 cursor-pointer shrink-0">
+                  <span class="text-sm font-semibold" id="paginaStatusLabel">Desativada</span>
+                  <div class="relative">
+                    <input type="checkbox" id="pgAtiva" class="peer sr-only" onchange="togglePaginaRecrutamento()">
+                    <div class="w-12 h-6 bg-slate-600 rounded-full transition-colors peer-checked:bg-emerald-500"></div>
+                    <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-6"></div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Conteúdo -->
+            <div class="panel p-6 space-y-5">
+              <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider">✏️ Conteúdo</h4>
+              <div>
+                <label class="lbl">Título da página</label>
+                <input type="text" id="pgTitulo" class="inp" placeholder="Ex: Vem ser Vetorlog!" maxlength="60" oninput="atualizarPreviewPagina()">
+                <p class="text-[11px] text-slate-500 mt-1">Frase de impacto no topo (máx. 60 caracteres)</p>
+              </div>
+              <div>
+                <label class="lbl">Mensagem de boas-vindas</label>
+                <textarea id="pgMensagem" class="inp" rows="3" placeholder="Ex: Faça parte do nosso time. Aqui você cresce com a gente!" oninput="atualizarPreviewPagina()"></textarea>
+                <p class="text-[11px] text-slate-500 mt-1">Texto curto que apresenta a empresa aos candidatos</p>
+              </div>
+            </div>
+
+            <!-- Identidade visual -->
+            <div class="panel p-6 space-y-5">
+              <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider">🎨 Identidade Visual</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="lbl">Cor primária</label>
+                  <div class="flex items-center gap-3">
+                    <input type="color" id="pgCorPrimaria" class="w-12 h-12 rounded-lg cursor-pointer border border-slate-600" value="#6366f1" oninput="syncCor('primaria')">
+                    <input type="text" id="pgCorPrimariaText" class="inp flex-1 font-mono" value="#6366f1" maxlength="7" oninput="syncCorText('primaria')">
+                  </div>
+                </div>
+                <div>
+                  <label class="lbl">Cor secundária</label>
+                  <div class="flex items-center gap-3">
+                    <input type="color" id="pgCorSecundaria" class="w-12 h-12 rounded-lg cursor-pointer border border-slate-600" value="#8b5cf6" oninput="syncCor('secundaria')">
+                    <input type="text" id="pgCorSecundariaText" class="inp flex-1 font-mono" value="#8b5cf6" maxlength="7" oninput="syncCorText('secundaria')">
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label class="lbl">Logo da empresa (URL)</label>
+                <input type="text" id="pgLogo" class="inp" placeholder="https://suaempresa.com/logo.png" oninput="atualizarPreviewPagina()">
+                <p class="text-[11px] text-slate-500 mt-1">Cole o link da logo (recomendado: fundo transparente, 200x200px). Vazio = ícone padrão.</p>
+              </div>
+            </div>
+
+            <!-- Seleção de vagas -->
+            <div class="panel p-6 space-y-4">
+              <div class="flex items-center justify-between flex-wrap gap-3">
+                <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider">📋 Vagas Exibidas</h4>
+                <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-300">
+                  <input type="checkbox" id="pgTodasVagas" class="w-4 h-4 accent-indigo-500" onchange="toggleModoVagas()" checked>
+                  Mostrar todas as vagas abertas
+                </label>
+              </div>
+              <div id="pgVagasInfo" class="text-sm text-slate-400">Todas as vagas abertas serão exibidas automaticamente.</div>
+              <div id="pgVagasList" class="space-y-2 hidden"></div>
+            </div>
+
+            <!-- Ações -->
+            <div class="flex gap-3 flex-wrap">
+              <button onclick="salvarPaginaRecrutamento()" id="btnSalvarPagina" class="btn-primary px-6 py-3 rounded-lg text-sm font-bold flex items-center gap-2">
+                <span>💾</span> Salvar alterações
+              </button>
+              <button onclick="previewPagina()" class="btn-ghost px-6 py-3 rounded-lg text-sm font-bold flex items-center gap-2">
+                <span>👁</span> Ver página
+              </button>
+            </div>
+          </div>
+
+          <!-- Coluna lateral -->
+          <div class="space-y-5">
+            
+            <!-- Link público -->
+            <div class="panel p-6">
+              <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider mb-4">🔗 Link Público</h4>
+              <div class="mb-4">
+                <label class="lbl">Endereço da página (slug)</label>
+                <div class="flex gap-2">
+                  <input type="text" id="pgSlug" class="inp flex-1 font-mono lowercase" placeholder="sua-empresa" oninput="atualizarLinkPreview()">
+                  <button onclick="verificarSlug()" class="btn-ghost px-3 py-2 rounded-lg text-xs shrink-0">✓ Checar</button>
+                </div>
+                <p class="text-[11px] mt-1" id="slugFeedback"></p>
+              </div>
+              <div class="rounded-xl bg-slate-800/50 border border-slate-700 p-3 mb-3">
+                <p class="text-[10px] uppercase text-slate-500 font-bold mb-1.5">Seu link:</p>
+                <p class="text-xs text-indigo-300 font-mono break-all" id="pgLinkPreview">—</p>
+              </div>
+              <button onclick="copiarLinkPagina()" class="btn-chrome w-full px-4 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2">
+                <span>📋</span> Copiar link
+              </button>
+              <div class="mt-4 p-3 rounded-lg bg-sky-500/5 border border-sky-500/20">
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                  💡 <strong class="text-sky-300">Dica:</strong> Envie este link para candidatos por WhatsApp, email ou redes sociais. Ele é único da sua empresa.
+                </p>
+              </div>
+            </div>
+
+            <!-- Preview ao vivo -->
+            <div class="panel p-6">
+              <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider mb-4">📱 Pré-visualização</h4>
+              <div class="rounded-xl overflow-hidden border border-slate-700" style="background:#0a0e1a">
+                <div class="p-5 text-center" id="previewHero">
+                  <div class="w-14 h-14 mx-auto rounded-2xl mb-3 flex items-center justify-center text-2xl overflow-hidden" id="previewLogoBox" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+                    <span id="previewLogoIcon">💼</span>
+                    <img id="previewLogoImg" class="w-full h-full object-contain hidden" alt="Logo">
+                  </div>
+                  <p class="font-display font-bold text-white text-sm mb-1" id="previewTitulo">Sua empresa</p>
+                  <p class="text-[11px] text-slate-400 line-clamp-2" id="previewMensagem">Sua mensagem de boas-vindas aparecerá aqui</p>
+                </div>
+                <div class="px-5 pb-4">
+                  <div class="h-8 rounded-lg mb-2" style="background:rgba(255,255,255,.05)"></div>
+                  <div class="h-8 rounded-lg" style="background:rgba(255,255,255,.03)"></div>
+                </div>
+              </div>
+              <p class="text-[10px] text-slate-500 mt-3 text-center">Assim sua página aparecerá para os candidatos</p>
+            </div>
+
+            <!-- Estatísticas -->
+            <div class="panel p-6">
+              <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider mb-4">📊 Desempenho</h4>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-slate-400">Vagas exibidas</span>
+                  <span class="font-display font-bold text-slate-100" id="statVagasExibidas">0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-slate-400">Candidaturas recebidas</span>
+                  <span class="font-display font-bold text-slate-100" id="statCandidaturas">0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-slate-400">Aguardando análise</span>
+                  <span class="font-display font-bold text-amber-300" id="statAguardando">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
 </div>
 
+<!-- MODAL -->
 <div id="modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
   <div id="modalContent" class="panel !rounded-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"></div>
 </div>
@@ -316,12 +475,11 @@ tailwind.config={theme:{extend:{
 
 <script>
 // ═══════════════════════════════════════════
-// CONFIGURAÇÃO SUPABASE
+// CONFIG SUPABASE
 // ═══════════════════════════════════════════
 const SUPA_URL = 'https://ippykisvjqmigobagzjt.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwcHlraXN2anFtaWdvYmFnemp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU5NDUsImV4cCI6MjEwMzM0MTk0NX0.m0TuMyIxW_UaW1H9HUiKVn_711PFrxIk8y-kFw-OhKc';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
-
 const LOGIN_URL = 'index.html';
 
 const $ = s => document.querySelector(s);
@@ -342,48 +500,31 @@ let recrutTab = 'vagas';
 let vagas = [];
 let candidaturas = [];
 let recrutConfig = { pagina_ativa: true };
-
-console.log('🚀 Dashboard Facige carregada');
+let paginaConfig = {};
+let empresaAtual = null;
 
 // ═══════════════════════════════════════════
-// 🔐 VERIFICAÇÃO DE SESSÃO (vinda do index.html)
+// SESSÃO
 // ═══════════════════════════════════════════
 function verificarSessao() {
-  console.log('🔐 Verificando sessão...');
-  
   const salvo = sessionStorage.getItem('facige_session');
-  
-  if (!salvo) {
-    console.warn('⚠️ Sem sessão, redirecionando para login');
-    window.location.href = LOGIN_URL;
-    return false;
-  }
-  
+  if (!salvo) { window.location.href = LOGIN_URL; return false; }
   try {
     const dados = JSON.parse(salvo);
-    
     if (!dados.user || !dados.empresa || !dados.empresa.id) {
-      console.warn('⚠️ Sessão inválida');
       sessionStorage.removeItem('facige_session');
       window.location.href = LOGIN_URL;
       return false;
     }
-    
     session = dados;
-    console.log('✅ Sessão válida:', session.user.nome, '|', session.empresa.nome);
     return true;
-    
   } catch(e) {
-    console.error('❌ Erro ao parsear sessão:', e);
     sessionStorage.removeItem('facige_session');
     window.location.href = LOGIN_URL;
     return false;
   }
 }
 
-// ═══════════════════════════════════════════
-// UI HELPERS
-// ═══════════════════════════════════════════
 function toggleSidebar(open){
   $('#sidebar').classList.toggle('-translate-x-full', !open);
   $('#sidebarBackdrop').classList.toggle('hidden', !open);
@@ -402,32 +543,42 @@ function toast(titulo, msg, tipo='info'){
   setTimeout(()=>el.remove(), 4000);
 }
 
-// ═══════════════════════════════════════════
-// ENTRAR NO APP
-// ═══════════════════════════════════════════
 function enterApp(){
-  console.log('📱 Entrando no app...');
   $('#loadingScreen').classList.add('hidden');
   $('#appShell').classList.remove('hidden');
-  
   $('#userName').textContent = session.user.nome || '—';
   $('#userEmpresa').textContent = session.empresa.nome || '—';
   $('#userInit').textContent = iniciais(session.user.nome || 'US');
-  
+  carregarEmpresaAtual();
   refresh();
   subscribeRealtime();
 }
 
 function logout(){
-  console.log('🚪 Logout...');
   sessionStorage.removeItem('facige_session');
   window.location.href = LOGIN_URL;
+}
+
+async function carregarEmpresaAtual(){
+  const { data } = await sb.from('empresas').select('*').eq('id', session.empresa.id).maybeSingle();
+  empresaAtual = data;
+  if (empresaAtual && !empresaAtual.slug) {
+    // Gerar slug automático se não existir
+    const novoSlug = gerarSlug(empresaAtual.nome || 'empresa');
+    await sb.from('empresas').update({ slug: novoSlug }).eq('id', empresaAtual.id);
+    empresaAtual.slug = novoSlug;
+  }
+}
+
+function gerarSlug(nome){
+  return nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'empresa';
 }
 
 // ═══════════════════════════════════════════
 // NAVEGAÇÃO
 // ═══════════════════════════════════════════
-const VIEWS = ['dashboard','solicitacoes','colaboradores','comunicados','espelho','vrvt','feriados','recrutamento'];
+const VIEWS = ['dashboard','solicitacoes','colaboradores','comunicados','espelho','vrvt','feriados','recrutamento','pagina'];
 $$('.nav-btn').forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
 
 function go(view){
@@ -436,9 +587,10 @@ function go(view){
     b.className = 'nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ' +
       (b.dataset.view===view ? 'bg-sky-400/15 text-white ring-1 ring-inset ring-sky-400/25' : 'text-slate-400 hover:text-slate-100 hover:bg-white/5');
   });
-  const titles = {dashboard:'Dashboard',solicitacoes:'Solicitações',colaboradores:'Colaboradores',comunicados:'Comunicados',espelho:'Espelho de Ponto',vrvt:'VR · VA · VT',feriados:'Feriados',recrutamento:'Recrutamento'};
+  const titles = {dashboard:'Dashboard',solicitacoes:'Solicitações',colaboradores:'Colaboradores',comunicados:'Comunicados',espelho:'Espelho de Ponto',vrvt:'VR · VA · VT',feriados:'Feriados',recrutamento:'Recrutamento',pagina:'Página de Recrutamento'};
   $('#pageTitle').textContent = titles[view] || view;
   window.scrollTo({top:0, behavior:'smooth'});
+  if (view === 'pagina') carregarPaginaRecrutamento();
 }
 
 // ═══════════════════════════════════════════
@@ -447,7 +599,6 @@ function go(view){
 async function refresh(){
   if(!session || !session.empresa?.id) return;
   const eid = session.empresa.id;
-
   const [cols, solic, pontos, coms, leituras, espelhos, humor, fer] = await Promise.all([
     sb.from('colaboradores').select('*').eq('empresa_id', eid).order('nome'),
     sb.from('solicitacoes').select('*, colaboradores(nome,matricula)').eq('empresa_id', eid).order('criado_em',{ascending:false}),
@@ -470,9 +621,7 @@ async function refresh(){
   await carregarRecrutamento();
 }
 
-function render(){
-  renderDashboard(); renderSolic(); renderColab(); renderCom(); renderEsp(); renderVrvt(); renderFer();
-}
+function render(){ renderDashboard(); renderSolic(); renderColab(); renderCom(); renderEsp(); renderVrvt(); renderFer(); }
 
 function renderDashboard(){
   const colsAtivos = state.cols.filter(c => c.status==='ativo');
@@ -480,7 +629,6 @@ function renderDashboard(){
   const pontosHoje = state.pontos.filter(p => p.data===hoje()).length;
   const humorHoje = state.humor.length;
   const candPend = candidaturas.filter(c => c.status==='aguardando_rh').length;
-
   const kpis = [
     {lbl:'Colaboradores', v:colsAtivos.length, ico:'👥', tile:'bg-indigo-400/10 text-indigo-300', go:'colaboradores'},
     {lbl:'Solicitações', v:pend, ico:'📥', tile:'bg-amber-400/10 text-amber-300', go:'solicitacoes'},
@@ -489,22 +637,18 @@ function renderDashboard(){
     {lbl:'Espelhos Pend.', v:0, ico:'📄', tile:'bg-sky-400/10 text-sky-300', go:'espelho'},
     {lbl:'Candidatos (RH)', v:candPend, ico:'🎯', tile:'bg-rose-400/10 text-rose-300', go:'recrutamento'}
   ];
-
   $('#kpiGrid').innerHTML = kpis.map(k => `
     <button onclick="${k.go ? `go('${k.go}')` : ''}" class="panel card-hover kpi-clickable p-3 sm:p-5 ${!k.go?'cursor-default':''}">
       <span class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${k.tile} grid place-items-center text-base sm:text-xl mb-2 sm:mb-3">${k.ico}</span>
       <p class="font-display text-[22px] sm:text-[32px] leading-none font-bold tnum chrome-text">${k.v}</p>
       <p class="text-[11px] sm:text-sm text-slate-300 mt-1 sm:mt-1.5 truncate">${k.lbl}</p>
     </button>`).join('');
-
   $('#badgeSolic').textContent = pend;
   $('#badgeSolic').classList.toggle('hidden', !pend);
   $('#badgeRecrut').textContent = candPend;
   $('#badgeRecrut').classList.toggle('hidden', !candPend);
-
   if(pend){ $('#dashSolicCount').textContent = pend; $('#dashSolicCount').classList.remove('hidden'); }
   else $('#dashSolicCount').classList.add('hidden');
-
   const pendS = state.solic.filter(s => s.status==='pendente').slice(0, 10);
   $('#dashSolic').innerHTML = pendS.length ? pendS.map(s => `
     <div class="flex items-center gap-3 p-2.5 rounded-lg border border-slate-700/40 hover:border-sky-400/40">
@@ -518,7 +662,6 @@ function renderDashboard(){
         <button onclick="event.stopPropagation();openRejeitar('${s.id}')" class="w-7 h-7 rounded bg-rose-500 text-white grid place-items-center hover:bg-rose-400">×</button>
       </div>
     </div>`).join('') : '<p class="text-sm text-slate-500 text-center py-8">Nenhuma pendência 🎉</p>';
-
   $('#dashPontos').innerHTML = state.pontos.slice(0,15).map(p => `
     <div class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-white/5">
       <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(p.colaboradores?.nome || 'NC')}</div>
@@ -528,7 +671,6 @@ function renderDashboard(){
       </div>
       <span class="font-mono text-xs text-slate-400 tnum shrink-0">${p.hora ? p.hora.substring(0,5) : '--:--'}</span>
     </div>`).join('');
-
   $('#dashHumor').innerHTML = state.humor.length ? state.humor.map(h => `
     <div class="flex flex-col items-center gap-1 p-2 rounded-lg bg-white/[.03]">
       <span class="text-xl sm:text-2xl">${h.voto}</span>
@@ -793,7 +935,6 @@ async function excluirFer(id){
 async function carregarRecrutamento(){
   if(!session || !session.empresa?.id) return;
   const eid = session.empresa.id;
-
   const [vagasRes, candRes, configRes] = await Promise.all([
     sb.from('vagas').select('*').eq('empresa_id', eid).order('criado_em',{ascending:false}),
     sb.from('candidaturas').select('*, vagas(titulo), candidatos(nome,email,telefone,cpf)').eq('empresa_id', eid).order('criado_em',{ascending:false}),
@@ -808,22 +949,13 @@ async function carregarRecrutamento(){
 function renderRecrutamento(){
   const abertas = vagas.filter(v => v.status==='aberta');
   const aguardando = candidaturas.filter(c => c.status==='aguardando_rh');
-
-  $('#togglePaginaCand').checked = recrutConfig.pagina_ativa;
   $('#vagasAbertasCount').textContent = abertas.length;
   $('#totalCandidaturas').textContent = candidaturas.length;
   $('#candAguardando').textContent = aguardando.length;
-
-  if(aguardando.length > 0){
-    $('#badgeCandPend').textContent = aguardando.length;
-    $('#badgeCandPend').classList.remove('hidden');
-  } else {
-    $('#badgeCandPend').classList.add('hidden');
-  }
-
+  if(aguardando.length > 0){ $('#badgeCandPend').textContent = aguardando.length; $('#badgeCandPend').classList.remove('hidden'); }
+  else { $('#badgeCandPend').classList.add('hidden'); }
   $('#badgeRecrut').textContent = aguardando.length;
   $('#badgeRecrut').classList.toggle('hidden', !aguardando.length);
-
   renderVagasAdmin();
   renderCandidatosAdmin();
 }
@@ -899,17 +1031,14 @@ async function salvarVaga(id){
     requisitos: $('#vReq').value.trim()
   };
   if(!dados.titulo) return toast('Título obrigatório','Informe o título','error');
-
   let error;
-  if(id){
-    ({ error } = await sb.from('vagas').update(dados).eq('id', id));
-  } else {
-    ({ error } = await sb.from('vagas').insert({...dados, status:'aberta'}));
-  }
+  if(id){ ({ error } = await sb.from('vagas').update(dados).eq('id', id)); }
+  else { ({ error } = await sb.from('vagas').insert({...dados, status:'aberta'})); }
   if(error) return toast('Erro', error.message, 'error');
   closeModal();
   toast(id?'✓ Vaga atualizada':'✓ Vaga criada', dados.titulo, 'success');
   await carregarRecrutamento();
+  if (!$('#view-pagina').classList.contains('hidden')) carregarPaginaRecrutamento();
 }
 
 async function toggleVaga(id){
@@ -927,27 +1056,10 @@ async function excluirVaga(id){
   await carregarRecrutamento();
 }
 
-async function togglePaginaCandidatos(){
-  const ativo = $('#togglePaginaCand').checked;
-  const { error } = await sb.from('recrutamento_config').upsert({
-    empresa_id: session.empresa.id,
-    pagina_ativa: ativo,
-    atualizado_em: new Date().toISOString()
-  }, { onConflict: 'empresa_id' });
-  if(error) return toast('Erro','Falha ao salvar','error');
-  recrutConfig.pagina_ativa = ativo;
-  renderRecrutamento();
-  toast(ativo?'🔗 Página ativada':'🔒 Página desativada','', ativo?'success':'warn');
-}
-
-function filterRecrut(f){ 
-  recrutFilter = f; 
-  renderCandidatosAdmin();
-}
+function filterRecrut(f){ recrutFilter = f; renderCandidatosAdmin(); }
 
 function renderCandidatosAdmin(){
   const list = recrutFilter==='todos' ? candidaturas : candidaturas.filter(c => c.status===recrutFilter);
-  
   const statusLabels = {
     inscrito:{l:'Inscrito',c:'bg-slate-400/10 text-slate-300 border-slate-500/30'},
     pre_entrevista:{l:'⏳ Pré-entrevista',c:'bg-amber-400/10 text-amber-300 border-amber-400/30'},
@@ -960,37 +1072,27 @@ function renderCandidatosAdmin(){
     contratado:{l:'🎉 Contratado',c:'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'},
     reprovado:{l:'❌ Reprovado',c:'bg-rose-400/10 text-rose-300 border-rose-400/30'}
   };
-
   $('#recrutBody').innerHTML = list.length ? list.map(c => {
     const st = statusLabels[c.status] || statusLabels.inscrito;
     const isAguardando = c.status === 'aguardando_rh' || c.status === 'pre_entrevista';
     const rowClass = isAguardando ? 'cand-row-aguardando' : '';
-    
     let actions = `<button onclick="verCandidato('${c.id}')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">👁 Ver</button>`;
-    
     if(c.status === 'aguardando_rh' || c.status === 'pre_entrevista'){
-      actions += `
-        <button onclick="aprovarPre('${c.id}')" class="btn-success px-3 py-1.5 rounded text-xs font-bold mr-1">✓ Aprovar</button>
+      actions += `<button onclick="aprovarPre('${c.id}')" class="btn-success px-3 py-1.5 rounded text-xs font-bold mr-1">✓ Aprovar</button>
         <button onclick="reprovarCandidato('${c.id}')" class="btn-danger px-3 py-1.5 rounded text-xs font-bold">✕ Reprovar</button>`;
     } else if(c.status === 'aprovado_pre' || c.status === 'entrevista_agendada'){
-      actions += `<button onclick="agendarEntrevista('${c.id}')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">📅 Agendar</button>`;
-      actions += `<button onclick="reprovarCandidato('${c.id}')" class="btn-danger px-2 py-1 rounded text-xs">✕</button>`;
+      actions += `<button onclick="agendarEntrevista('${c.id}')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">📅 Agendar</button>
+        <button onclick="reprovarCandidato('${c.id}')" class="btn-danger px-2 py-1 rounded text-xs">✕</button>`;
     } else if(c.status === 'ficha_preenchida'){
       actions += `<button onclick="aprovarFicha('${c.id}')" class="btn-success px-2 py-1 rounded text-xs mr-1">✓ Ficha</button>`;
     } else if(c.status === 'ficha_aprovada'){
       actions += `<button onclick="marcarIntegracao('${c.id}')" class="btn-chrome px-2 py-1 rounded text-xs mr-1">🎯 Integrar</button>`;
     }
-    
     return `<tr class="${rowClass}">
-      <td>
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 grid place-items-center text-[11px] font-bold text-white">${iniciais(c.candidatos?.nome||'?')}</div>
-          <div class="min-w-0">
-            <p class="font-semibold text-slate-200 truncate">${c.candidatos?.nome||'—'}</p>
-            <p class="text-[11px] text-slate-500 truncate">${c.candidatos?.email||''}</p>
-          </div>
-        </div>
-      </td>
+      <td><div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 grid place-items-center text-[11px] font-bold text-white">${iniciais(c.candidatos?.nome||'?')}</div>
+        <div class="min-w-0"><p class="font-semibold text-slate-200 truncate">${c.candidatos?.nome||'—'}</p><p class="text-[11px] text-slate-500 truncate">${c.candidatos?.email||''}</p></div>
+      </div></td>
       <td class="text-slate-300 max-w-[140px] truncate">${c.vagas?.titulo||'—'}</td>
       <td><span class="badge badge-sm ${st.c}">${st.l}</span></td>
       <td class="text-slate-400 text-xs whitespace-nowrap">${c.data_entrevista ? fmtDataHora(c.data_entrevista) : '—'}</td>
@@ -1003,7 +1105,6 @@ function verCandidato(id){
   const c = candidaturas.find(x => x.id===id);
   if(!c) return;
   const ficha = c.ficha_cadastro;
-
   let html = `<h3 class="font-display font-bold text-slate-100 text-lg mb-4">${c.candidatos?.nome || 'Candidato'}</h3>`;
   html += `<div class="space-y-2 text-sm mb-4">
     <p><span class="text-slate-500">E-mail:</span> <span class="text-slate-200">${c.candidatos?.email||'—'}</span></p>
@@ -1013,14 +1114,12 @@ function verCandidato(id){
     <p><span class="text-slate-500">Status:</span> <span class="text-slate-200 capitalize">${c.status.replace(/_/g,' ')}</span></p>
     ${c.observacao_rh?`<p><span class="text-slate-500">Observação:</span> <span class="text-slate-200">${c.observacao_rh}</span></p>`:''}
   </div>`;
-
   if(ficha){
     html += `<div class="mb-4"><p class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">📋 Ficha Cadastral</p>
     <div class="panel p-3 text-sm space-y-1">
       ${Object.entries(ficha).filter(([k,v])=>v).map(([k,v]) => `<p><span class="text-slate-500 capitalize">${k}:</span> <span class="text-slate-200">${v}</span></p>`).join('')}
     </div></div>`;
   }
-
   html += `<div class="flex gap-2 mt-4">
     <button onclick="closeModal()" class="btn-ghost flex-1 py-2 rounded-lg text-sm">Fechar</button>
     ${c.status==='aguardando_rh'||c.status==='pre_entrevista'?`<button onclick="aprovarPre('${c.id}');closeModal()" class="btn-success flex-1 py-2 rounded-lg text-sm font-bold">✓ Aprovar</button>`:''}
@@ -1130,6 +1229,258 @@ function exportarCandidatosCSV(){
   toast('📥 CSV exportado','','success');
 }
 
+// ═══════════════════════════════════════════
+// 🌐 PÁGINA DE RECRUTAMENTO (NOVO MÓDULO)
+// ═══════════════════════════════════════════
+async function carregarPaginaRecrutamento(){
+  if(!session?.empresa?.id) return;
+  const eid = session.empresa.id;
+  
+  // Garantir que empresaAtual está carregado
+  if (!empresaAtual) await carregarEmpresaAtual();
+  
+  const { data: config } = await sb.from('recrutamento_config').select('*').eq('empresa_id', eid).maybeSingle();
+  paginaConfig = config || { empresa_id: eid, pagina_ativa: false, mostrar_todas_vagas: true };
+  
+  // Preencher campos
+  $('#pgAtiva').checked = paginaConfig.pagina_ativa === true;
+  $('#pgTitulo').value = paginaConfig.titulo || (empresaAtual?.nome ? `Vem ser ${empresaAtual.nome}!` : '');
+  $('#pgMensagem').value = paginaConfig.mensagem || '';
+  $('#pgCorPrimaria').value = paginaConfig.cor_primaria || '#6366f1';
+  $('#pgCorPrimariaText').value = paginaConfig.cor_primaria || '#6366f1';
+  $('#pgCorSecundaria').value = paginaConfig.cor_secundaria || '#8b5cf6';
+  $('#pgCorSecundariaText').value = paginaConfig.cor_secundaria || '#8b5cf6';
+  $('#pgLogo').value = paginaConfig.logo_url || '';
+  $('#pgSlug').value = empresaAtual?.slug || '';
+  
+  const todas = paginaConfig.mostrar_todas_vagas !== false;
+  $('#pgTodasVagas').checked = todas;
+  toggleModoVagas();
+  
+  atualizarStatusLabel();
+  atualizarPreviewPagina();
+  atualizarLinkPreview();
+  atualizarEstatisticasPagina();
+}
+
+function atualizarStatusLabel(){
+  const ativa = $('#pgAtiva').checked;
+  const label = $('#paginaStatusLabel');
+  label.textContent = ativa ? 'Ativa' : 'Desativada';
+  label.className = 'text-sm font-semibold ' + (ativa ? 'text-emerald-300' : 'text-slate-500');
+}
+
+async function togglePaginaRecrutamento(){
+  const ativa = $('#pgAtiva').checked;
+  const { error } = await sb.from('recrutamento_config').upsert({
+    empresa_id: session.empresa.id,
+    pagina_ativa: ativa,
+    atualizado_em: new Date().toISOString()
+  }, { onConflict: 'empresa_id' });
+  
+  if (error) {
+    toast('Erro', 'Falha ao atualizar status', 'error');
+    $('#pgAtiva').checked = !ativa;
+    return;
+  }
+  paginaConfig.pagina_ativa = ativa;
+  atualizarStatusLabel();
+  toast(ativa ? '🌐 Página ativada' : '🔒 Página desativada', '', ativa ? 'success' : 'warn');
+}
+
+function syncCor(tipo){
+  if (tipo === 'primaria') $('#pgCorPrimariaText').value = $('#pgCorPrimaria').value;
+  else $('#pgCorSecundariaText').value = $('#pgCorSecundaria').value;
+  atualizarPreviewPagina();
+}
+
+function syncCorText(tipo){
+  const text = tipo === 'primaria' ? $('#pgCorPrimariaText').value : $('#pgCorSecundariaText').value;
+  if (/^#[0-9a-fA-F]{6}$/.test(text)) {
+    if (tipo === 'primaria') $('#pgCorPrimaria').value = text;
+    else $('#pgCorSecundaria').value = text;
+  }
+  atualizarPreviewPagina();
+}
+
+function toggleModoVagas(){
+  const todas = $('#pgTodasVagas').checked;
+  $('#pgVagasList').classList.toggle('hidden', todas);
+  $('#pgVagasInfo').classList.toggle('hidden', !todas);
+  if (!todas) renderVagasSelecao();
+  atualizarEstatisticasPagina();
+}
+
+function renderVagasSelecao(){
+  const abertas = vagas.filter(v => v.status === 'aberta');
+  const visiveis = paginaConfig.vagas_visiveis || [];
+  
+  if (!abertas.length) {
+    $('#pgVagasList').innerHTML = '<p class="text-sm text-slate-500">Nenhuma vaga aberta. Crie vagas na seção 🎯 Recrutamento.</p>';
+    return;
+  }
+  
+  $('#pgVagasList').innerHTML = abertas.map(v => {
+    const checked = visiveis.includes(v.id) ? 'checked' : '';
+    return `<label class="vaga-check-item flex items-center gap-3 p-3 rounded-lg border border-slate-700">
+      <input type="checkbox" class="w-4 h-4 accent-indigo-500 pgVagaCheck" value="${v.id}" ${checked}>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-slate-200 truncate">${v.titulo}</p>
+        <p class="text-[11px] text-slate-500">${v.local || ''} · ${v.tipo || ''}</p>
+      </div>
+    </label>`;
+  }).join('');
+}
+
+function atualizarPreviewPagina(){
+  const titulo = $('#pgTitulo').value || (empresaAtual?.nome || 'Sua empresa');
+  const mensagem = $('#pgMensagem').value || 'Sua mensagem de boas-vindas aparecerá aqui';
+  const cor1 = $('#pgCorPrimariaText').value || '#6366f1';
+  const cor2 = $('#pgCorSecundariaText').value || '#8b5cf6';
+  const logo = $('#pgLogo').value;
+  
+  $('#previewTitulo').textContent = titulo;
+  $('#previewMensagem').textContent = mensagem;
+  $('#previewLogoBox').style.background = `linear-gradient(135deg, ${cor1}, ${cor2})`;
+  $('#previewHero').style.background = `linear-gradient(180deg, ${cor1}22, transparent)`;
+  
+  const logoImg = $('#previewLogoImg');
+  const logoIcon = $('#previewLogoIcon');
+  if (logo) {
+    logoImg.src = logo;
+    logoImg.classList.remove('hidden');
+    logoIcon.classList.add('hidden');
+    logoImg.onerror = () => { logoImg.classList.add('hidden'); logoIcon.classList.remove('hidden'); };
+  } else {
+    logoImg.classList.add('hidden');
+    logoIcon.classList.remove('hidden');
+  }
+}
+
+function atualizarLinkPreview(){
+  const slug = $('#pgSlug').value.trim().toLowerCase() || (empresaAtual?.slug || 'sua-empresa');
+  const link = `${window.location.origin}/vagas.html?e=${encodeURIComponent(slug)}`;
+  $('#pgLinkPreview').textContent = link;
+}
+
+async function verificarSlug(){
+  const slug = $('#pgSlug').value.trim().toLowerCase();
+  const feedback = $('#slugFeedback');
+  
+  if (!slug) {
+    feedback.textContent = '⚠️ Digite um slug';
+    feedback.className = 'text-[11px] mt-1 text-amber-400';
+    return;
+  }
+  
+  if (!/^[a-z0-9-]+$/.test(slug)) {
+    feedback.textContent = '❌ Use apenas letras minúsculas, números e hífens';
+    feedback.className = 'text-[11px] mt-1 text-rose-400';
+    return;
+  }
+  
+  const { data: existente } = await sb.from('empresas').select('id, nome').eq('slug', slug).maybeSingle();
+  
+  if (existente && existente.id !== session.empresa.id) {
+    feedback.textContent = `❌ Slug já usado por "${existente.nome}"`;
+    feedback.className = 'text-[11px] mt-1 text-rose-400';
+  } else {
+    feedback.textContent = '✅ Slug disponível';
+    feedback.className = 'text-[11px] mt-1 text-emerald-400';
+  }
+}
+
+async function salvarPaginaRecrutamento(){
+  const btn = $('#btnSalvarPagina');
+  btn.disabled = true;
+  btn.innerHTML = '<span>Salvando...</span>';
+  
+  const slug = $('#pgSlug').value.trim().toLowerCase();
+  
+  // Validar slug único
+  if (slug) {
+    const { data: existente } = await sb.from('empresas').select('id').eq('slug', slug).maybeSingle();
+    if (existente && existente.id !== session.empresa.id) {
+      toast('Slug indisponível', 'Este endereço já está em uso por outra empresa', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<span>💾</span> Salvar alterações';
+      return;
+    }
+  }
+  
+  // Coletar vagas selecionadas
+  let vagasVisiveis = null;
+  if (!$('#pgTodasVagas').checked) {
+    vagasVisiveis = [...document.querySelectorAll('.pgVagaCheck:checked')].map(cb => cb.value);
+  }
+  
+  const dados = {
+    titulo: $('#pgTitulo').value.trim(),
+    mensagem: $('#pgMensagem').value.trim(),
+    cor_primaria: $('#pgCorPrimariaText').value,
+    cor_secundaria: $('#pgCorSecundariaText').value,
+    logo_url: $('#pgLogo').value.trim() || null,
+    mostrar_todas_vagas: $('#pgTodasVagas').checked,
+    vagas_visiveis: vagasVisiveis,
+    atualizado_em: new Date().toISOString()
+  };
+  
+  // Salvar config
+  const { error: errConfig } = await sb.from('recrutamento_config').upsert({
+    empresa_id: session.empresa.id,
+    ...dados
+  }, { onConflict: 'empresa_id' });
+  
+  if (errConfig) {
+    toast('Erro', errConfig.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<span>💾</span> Salvar alterações';
+    return;
+  }
+  
+  // Salvar slug na empresa
+  if (slug && empresaAtual) {
+    await sb.from('empresas').update({ slug }).eq('id', empresaAtual.id);
+    empresaAtual.slug = slug;
+  }
+  
+  paginaConfig = { ...paginaConfig, ...dados };
+  atualizarLinkPreview();
+  
+  btn.disabled = false;
+  btn.innerHTML = '<span>💾</span> Salvar alterações';
+  toast('✅ Página salva', 'Suas alterações foram aplicadas', 'success');
+}
+
+function copiarLinkPagina(){
+  const link = $('#pgLinkPreview').textContent;
+  navigator.clipboard.writeText(link).then(() => {
+    toast('📋 Link copiado', link, 'success');
+  });
+}
+
+function previewPagina(){
+  const link = $('#pgLinkPreview').textContent;
+  window.open(link, '_blank');
+}
+
+function atualizarEstatisticasPagina(){
+  const abertas = vagas.filter(v => v.status === 'aberta');
+  let exibidas = abertas.length;
+  
+  if (!$('#pgTodasVagas').checked) {
+    const visiveis = paginaConfig.vagas_visiveis || [];
+    exibidas = abertas.filter(v => visiveis.includes(v.id)).length;
+  }
+  
+  $('#statVagasExibidas').textContent = exibidas;
+  $('#statCandidaturas').textContent = candidaturas.length;
+  $('#statAguardando').textContent = candidaturas.filter(c => c.status === 'aguardando_rh').length;
+}
+
+// ═══════════════════════════════════════════
+// MODAL + REALTIME + INIT
+// ═══════════════════════════════════════════
 function openModal(html){ $('#modalContent').innerHTML = html; $('#modal').classList.remove('hidden'); }
 function closeModal(){ $('#modal').classList.add('hidden'); }
 $('#modal').addEventListener('click', e => { if(e.target.id==='modal') closeModal(); });
@@ -1147,9 +1498,6 @@ function tick(){
 }
 setInterval(tick, 1000); tick();
 
-// ═══════════════════════════════════════════
-// INICIALIZAÇÃO
-// ═══════════════════════════════════════════
 if (verificarSessao()) {
   enterApp();
 }
