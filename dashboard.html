@@ -260,12 +260,8 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- ═══════════════════════════════════════════
-           VIEW: FÉRIAS (MÓDULO INTEGRADO)
-           ═══════════════════════════════════════════ -->
+      <!-- ═══ VIEW: FÉRIAS (INTEGRADO) ═══ -->
       <section id="view-ferias" class="hidden view-in">
-        
-        <!-- Banner -->
         <div class="panel overflow-hidden relative mb-6" style="background:linear-gradient(120deg,rgba(120,53,15,.35),rgba(15,23,42,.6))">
           <div class="absolute -top-10 -right-10 w-48 h-48 rounded-full" style="background:radial-gradient(circle,rgba(251,191,36,.2),transparent 70%)"></div>
           <div class="relative px-6 py-5 flex flex-wrap items-center justify-between gap-4">
@@ -279,7 +275,6 @@ tailwind.config={theme:{extend:{
           </div>
         </div>
 
-        <!-- KPIs de Férias -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
           <div class="panel card-hover p-4 sm:p-5">
             <div class="flex items-center justify-between mb-3">
@@ -313,7 +308,6 @@ tailwind.config={theme:{extend:{
           </div>
         </div>
 
-        <!-- Tabs de Férias -->
         <div class="flex gap-2 mb-4 flex-wrap">
           <button onclick="setFeriasTab('solicitacoes')" id="tabFerSolic" class="tab-btn active btn-ghost px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">📥 Solicitações</button>
           <button onclick="setFeriasTab('calendario')" id="tabFerCal" class="tab-btn btn-ghost px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">📅 Calendário</button>
@@ -321,7 +315,6 @@ tailwind.config={theme:{extend:{
           <button onclick="setFeriasTab('resumo')" id="tabFerResumo" class="tab-btn btn-ghost px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">📊 Resumo Anual</button>
         </div>
 
-        <!-- TAB: SOLICITAÇÕES -->
         <div id="feriasTabSolic">
           <div class="flex gap-2 mb-4 flex-wrap items-center">
             <button onclick="setFeriasFilter('todas')" data-f="todas" class="fbtn active btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Todas</button>
@@ -345,7 +338,6 @@ tailwind.config={theme:{extend:{
           </div>
         </div>
 
-        <!-- TAB: CALENDÁRIO -->
         <div id="feriasTabCalendario" class="hidden">
           <div class="panel p-5">
             <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
@@ -375,7 +367,6 @@ tailwind.config={theme:{extend:{
           </div>
         </div>
 
-        <!-- TAB: SALDOS -->
         <div id="feriasTabSaldos" class="hidden">
           <div class="panel overflow-hidden">
             <div class="px-5 py-4 border-b border-slate-700/40 flex items-center justify-between flex-wrap gap-2">
@@ -395,7 +386,6 @@ tailwind.config={theme:{extend:{
           </div>
         </div>
 
-        <!-- TAB: RESUMO ANUAL -->
         <div id="feriasTabResumo" class="hidden">
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div class="panel p-5 lg:col-span-2">
@@ -415,7 +405,6 @@ tailwind.config={theme:{extend:{
             </div>
           </div>
         </div>
-
       </section>
 
       <!-- VIEW: RECRUTAMENTO -->
@@ -659,8 +648,6 @@ let candidaturas = [];
 let recrutConfig = { pagina_ativa: true };
 let paginaConfig = {};
 let empresaAtual = null;
-
-// Estado de Férias
 let feriasList = [];
 let feriasFilter = 'todas';
 let feriasTabAtual = 'solicitacoes';
@@ -992,7 +979,7 @@ async function excluirFer(id){
 }
 
 // ═══════════════════════════════════════════
-// 🏖️ MÓDULO DE FÉRIAS (INTEGRADO)
+// 🏖️ MÓDULO DE FÉRIAS (INTEGRADO NO DASHBOARD)
 // ═══════════════════════════════════════════
 async function carregarFerias(){
   if(!session || !session.empresa || !session.empresa.id) return;
