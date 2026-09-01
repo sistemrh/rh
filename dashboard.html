@@ -130,7 +130,7 @@ tailwind.config={theme:{extend:{
 
     <div class="p-4 sm:p-6 max-w-[1500px] mx-auto">
 
-      <!-- ═══ VIEW: DASHBOARD ═══ -->
+      <!-- VIEW: DASHBOARD -->
       <section id="view-dashboard" class="view-in">
         <div id="kpiGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-6"></div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -155,7 +155,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- ═══ VIEW: SOLICITAÇÕES ═══ -->
+      <!-- VIEW: SOLICITAÇÕES -->
       <section id="view-solicitacoes" class="hidden view-in">
         <div class="flex gap-2 mb-4 flex-wrap">
           <button onclick="filterSolic('todos')" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Todos</button>
@@ -173,7 +173,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- ═══ VIEW: COLABORADORES ═══ -->
+      <!-- VIEW: COLABORADORES -->
       <section id="view-colaboradores" class="hidden view-in">
         <div class="flex justify-between mb-4 gap-3 flex-wrap">
           <input type="text" id="searchCol" class="inp !w-full sm:!w-64" placeholder="Buscar colaborador...">
@@ -189,7 +189,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- ═══ VIEW: COMUNICADOS ═══ -->
+      <!-- VIEW: COMUNICADOS -->
       <section id="view-comunicados" class="hidden view-in">
         <div class="flex justify-end mb-4">
           <button onclick="openComModal()" class="btn-chrome px-4 py-2 rounded-lg text-sm">+ Novo Comunicado</button>
@@ -197,7 +197,7 @@ tailwind.config={theme:{extend:{
         <div id="comList" class="space-y-3"></div>
       </section>
 
-      <!-- ═══ VIEW: ESPELHO ═══ -->
+      <!-- VIEW: ESPELHO -->
       <section id="view-espelho" class="hidden view-in">
         <div class="panel p-4 mb-4 flex flex-wrap gap-3 items-end">
           <div><label class="lbl">Colaborador</label><select id="espColab" class="inp !w-full sm:!w-64"></select></div>
@@ -216,7 +216,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- ═══ VIEW: VR/VA/VT ═══ -->
+      <!-- VIEW: VR/VA/VT -->
       <section id="view-vrvt" class="hidden view-in">
         <div id="vrvtResumo" class="panel p-4 mb-4 flex flex-wrap gap-6 items-center text-sm"></div>
         <div class="panel overflow-hidden">
@@ -229,7 +229,7 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- ═══ VIEW: FERIADOS ═══ -->
+      <!-- VIEW: FERIADOS -->
       <section id="view-feriados" class="hidden view-in">
         <div class="flex justify-end mb-4">
           <button onclick="openFerModal()" class="btn-chrome px-4 py-2 rounded-lg text-sm">+ Novo Feriado</button>
@@ -244,13 +244,13 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- ═══ VIEW: RECRUTAMENTO ═══ -->
+      <!-- VIEW: RECRUTAMENTO -->
       <section id="view-recrutamento" class="hidden view-in">
         <div class="panel p-5 mb-6">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 class="font-display font-bold text-slate-100 text-base">🎯 Gestão de Recrutamento</h3>
-              <p class="text-sm text-slate-400 mt-1">Gerencie vagas e candidatos. Para a página pública, use 🌐 Página de Recrutamento.</p>
+              <p class="text-sm text-slate-400 mt-1">Gerencie vagas e candidatos.</p>
             </div>
             <button onclick="go('pagina')" class="btn-ghost px-4 py-2 rounded-lg text-sm shrink-0">🌐 Configurar Página →</button>
           </div>
@@ -300,16 +300,11 @@ tailwind.config={theme:{extend:{
         </div>
       </section>
 
-      <!-- ═══════════════════════════════════════════
-           VIEW: PÁGINA DE RECRUTAMENTO (NOVO)
-           ═══════════════════════════════════════════ -->
+      <!-- VIEW: PÁGINA DE RECRUTAMENTO -->
       <section id="view-pagina" class="hidden view-in">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          <!-- Coluna principal -->
           <div class="lg:col-span-2 space-y-5">
-            
-            <!-- Status -->
             <div class="panel p-6">
               <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
                 <div>
@@ -327,7 +322,6 @@ tailwind.config={theme:{extend:{
               </div>
             </div>
 
-            <!-- Conteúdo -->
             <div class="panel p-6 space-y-5">
               <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider">✏️ Conteúdo</h4>
               <div>
@@ -342,7 +336,6 @@ tailwind.config={theme:{extend:{
               </div>
             </div>
 
-            <!-- Identidade visual -->
             <div class="panel p-6 space-y-5">
               <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider">🎨 Identidade Visual</h4>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -368,7 +361,6 @@ tailwind.config={theme:{extend:{
               </div>
             </div>
 
-            <!-- Seleção de vagas -->
             <div class="panel p-6 space-y-4">
               <div class="flex items-center justify-between flex-wrap gap-3">
                 <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider">📋 Vagas Exibidas</h4>
@@ -381,7 +373,6 @@ tailwind.config={theme:{extend:{
               <div id="pgVagasList" class="space-y-2 hidden"></div>
             </div>
 
-            <!-- Ações -->
             <div class="flex gap-3 flex-wrap">
               <button onclick="salvarPaginaRecrutamento()" id="btnSalvarPagina" class="btn-primary px-6 py-3 rounded-lg text-sm font-bold flex items-center gap-2">
                 <span>💾</span> Salvar alterações
@@ -392,10 +383,7 @@ tailwind.config={theme:{extend:{
             </div>
           </div>
 
-          <!-- Coluna lateral -->
           <div class="space-y-5">
-            
-            <!-- Link público -->
             <div class="panel p-6">
               <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider mb-4">🔗 Link Público</h4>
               <div class="mb-4">
@@ -415,12 +403,11 @@ tailwind.config={theme:{extend:{
               </button>
               <div class="mt-4 p-3 rounded-lg bg-sky-500/5 border border-sky-500/20">
                 <p class="text-[11px] text-slate-400 leading-relaxed">
-                  💡 <strong class="text-sky-300">Dica:</strong> Envie este link para candidatos por WhatsApp, email ou redes sociais. Ele é único da sua empresa.
+                  💡 <strong class="text-sky-300">Dica:</strong> Envie este link para candidatos por WhatsApp, email ou redes sociais.
                 </p>
               </div>
             </div>
 
-            <!-- Preview ao vivo -->
             <div class="panel p-6">
               <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider mb-4">📱 Pré-visualização</h4>
               <div class="rounded-xl overflow-hidden border border-slate-700" style="background:#0a0e1a">
@@ -440,7 +427,6 @@ tailwind.config={theme:{extend:{
               <p class="text-[10px] text-slate-500 mt-3 text-center">Assim sua página aparecerá para os candidatos</p>
             </div>
 
-            <!-- Estatísticas -->
             <div class="panel p-6">
               <h4 class="font-display font-bold text-slate-100 text-sm uppercase tracking-wider mb-4">📊 Desempenho</h4>
               <div class="space-y-3">
@@ -466,7 +452,6 @@ tailwind.config={theme:{extend:{
   </main>
 </div>
 
-<!-- MODAL -->
 <div id="modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
   <div id="modalContent" class="panel !rounded-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"></div>
 </div>
@@ -474,13 +459,10 @@ tailwind.config={theme:{extend:{
 <div id="toastRoot" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2.5 w-[min(380px,calc(100vw-40px))]"></div>
 
 <script>
-// ═══════════════════════════════════════════
-// CONFIG SUPABASE
-// ═══════════════════════════════════════════
 const SUPA_URL = 'https://ippykisvjqmigobagzjt.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwcHlraXN2anFtaWdvYmFnemp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU5NDUsImV4cCI6MjEwMzM0MTk0NX0.m0TuMyIxW_UaW1H9HUiKVn_711PFrxIk8y-kFw-OhKc';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
-const LOGIN_URL = 'index.html';
+const LOGIN_URL = '/rh/index.html';
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -503,9 +485,6 @@ let recrutConfig = { pagina_ativa: true };
 let paginaConfig = {};
 let empresaAtual = null;
 
-// ═══════════════════════════════════════════
-// SESSÃO
-// ═══════════════════════════════════════════
 function verificarSessao() {
   const salvo = sessionStorage.getItem('facige_session');
   if (!salvo) { window.location.href = LOGIN_URL; return false; }
@@ -563,7 +542,6 @@ async function carregarEmpresaAtual(){
   const { data } = await sb.from('empresas').select('*').eq('id', session.empresa.id).maybeSingle();
   empresaAtual = data;
   if (empresaAtual && !empresaAtual.slug) {
-    // Gerar slug automático se não existir
     const novoSlug = gerarSlug(empresaAtual.nome || 'empresa');
     await sb.from('empresas').update({ slug: novoSlug }).eq('id', empresaAtual.id);
     empresaAtual.slug = novoSlug;
@@ -575,9 +553,6 @@ function gerarSlug(nome){
     .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'empresa';
 }
 
-// ═══════════════════════════════════════════
-// NAVEGAÇÃO
-// ═══════════════════════════════════════════
 const VIEWS = ['dashboard','solicitacoes','colaboradores','comunicados','espelho','vrvt','feriados','recrutamento','pagina'];
 $$('.nav-btn').forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
 
@@ -593,9 +568,6 @@ function go(view){
   if (view === 'pagina') carregarPaginaRecrutamento();
 }
 
-// ═══════════════════════════════════════════
-// CARREGAR DADOS
-// ═══════════════════════════════════════════
 async function refresh(){
   if(!session || !session.empresa?.id) return;
   const eid = session.empresa.id;
@@ -1229,20 +1201,12 @@ function exportarCandidatosCSV(){
   toast('📥 CSV exportado','','success');
 }
 
-// ═══════════════════════════════════════════
-// 🌐 PÁGINA DE RECRUTAMENTO (NOVO MÓDULO)
-// ═══════════════════════════════════════════
 async function carregarPaginaRecrutamento(){
   if(!session?.empresa?.id) return;
   const eid = session.empresa.id;
-  
-  // Garantir que empresaAtual está carregado
   if (!empresaAtual) await carregarEmpresaAtual();
-  
   const { data: config } = await sb.from('recrutamento_config').select('*').eq('empresa_id', eid).maybeSingle();
   paginaConfig = config || { empresa_id: eid, pagina_ativa: false, mostrar_todas_vagas: true };
-  
-  // Preencher campos
   $('#pgAtiva').checked = paginaConfig.pagina_ativa === true;
   $('#pgTitulo').value = paginaConfig.titulo || (empresaAtual?.nome ? `Vem ser ${empresaAtual.nome}!` : '');
   $('#pgMensagem').value = paginaConfig.mensagem || '';
@@ -1252,11 +1216,9 @@ async function carregarPaginaRecrutamento(){
   $('#pgCorSecundariaText').value = paginaConfig.cor_secundaria || '#8b5cf6';
   $('#pgLogo').value = paginaConfig.logo_url || '';
   $('#pgSlug').value = empresaAtual?.slug || '';
-  
   const todas = paginaConfig.mostrar_todas_vagas !== false;
   $('#pgTodasVagas').checked = todas;
   toggleModoVagas();
-  
   atualizarStatusLabel();
   atualizarPreviewPagina();
   atualizarLinkPreview();
@@ -1277,7 +1239,6 @@ async function togglePaginaRecrutamento(){
     pagina_ativa: ativa,
     atualizado_em: new Date().toISOString()
   }, { onConflict: 'empresa_id' });
-  
   if (error) {
     toast('Erro', 'Falha ao atualizar status', 'error');
     $('#pgAtiva').checked = !ativa;
@@ -1314,12 +1275,10 @@ function toggleModoVagas(){
 function renderVagasSelecao(){
   const abertas = vagas.filter(v => v.status === 'aberta');
   const visiveis = paginaConfig.vagas_visiveis || [];
-  
   if (!abertas.length) {
     $('#pgVagasList').innerHTML = '<p class="text-sm text-slate-500">Nenhuma vaga aberta. Crie vagas na seção 🎯 Recrutamento.</p>';
     return;
   }
-  
   $('#pgVagasList').innerHTML = abertas.map(v => {
     const checked = visiveis.includes(v.id) ? 'checked' : '';
     return `<label class="vaga-check-item flex items-center gap-3 p-3 rounded-lg border border-slate-700">
@@ -1338,12 +1297,10 @@ function atualizarPreviewPagina(){
   const cor1 = $('#pgCorPrimariaText').value || '#6366f1';
   const cor2 = $('#pgCorSecundariaText').value || '#8b5cf6';
   const logo = $('#pgLogo').value;
-  
   $('#previewTitulo').textContent = titulo;
   $('#previewMensagem').textContent = mensagem;
   $('#previewLogoBox').style.background = `linear-gradient(135deg, ${cor1}, ${cor2})`;
   $('#previewHero').style.background = `linear-gradient(180deg, ${cor1}22, transparent)`;
-  
   const logoImg = $('#previewLogoImg');
   const logoIcon = $('#previewLogoIcon');
   if (logo) {
@@ -1359,28 +1316,25 @@ function atualizarPreviewPagina(){
 
 function atualizarLinkPreview(){
   const slug = $('#pgSlug').value.trim().toLowerCase() || (empresaAtual?.slug || 'sua-empresa');
-  const link = `${window.location.origin}/vagas.html?e=${encodeURIComponent(slug)}`;
+  const baseUrl = window.location.origin;
+  const link = `${baseUrl}/rh/vagas.html?e=${encodeURIComponent(slug)}`;
   $('#pgLinkPreview').textContent = link;
 }
 
 async function verificarSlug(){
   const slug = $('#pgSlug').value.trim().toLowerCase();
   const feedback = $('#slugFeedback');
-  
   if (!slug) {
     feedback.textContent = '⚠️ Digite um slug';
     feedback.className = 'text-[11px] mt-1 text-amber-400';
     return;
   }
-  
   if (!/^[a-z0-9-]+$/.test(slug)) {
     feedback.textContent = '❌ Use apenas letras minúsculas, números e hífens';
     feedback.className = 'text-[11px] mt-1 text-rose-400';
     return;
   }
-  
   const { data: existente } = await sb.from('empresas').select('id, nome').eq('slug', slug).maybeSingle();
-  
   if (existente && existente.id !== session.empresa.id) {
     feedback.textContent = `❌ Slug já usado por "${existente.nome}"`;
     feedback.className = 'text-[11px] mt-1 text-rose-400';
@@ -1394,10 +1348,7 @@ async function salvarPaginaRecrutamento(){
   const btn = $('#btnSalvarPagina');
   btn.disabled = true;
   btn.innerHTML = '<span>Salvando...</span>';
-  
   const slug = $('#pgSlug').value.trim().toLowerCase();
-  
-  // Validar slug único
   if (slug) {
     const { data: existente } = await sb.from('empresas').select('id').eq('slug', slug).maybeSingle();
     if (existente && existente.id !== session.empresa.id) {
@@ -1407,13 +1358,10 @@ async function salvarPaginaRecrutamento(){
       return;
     }
   }
-  
-  // Coletar vagas selecionadas
   let vagasVisiveis = null;
   if (!$('#pgTodasVagas').checked) {
     vagasVisiveis = [...document.querySelectorAll('.pgVagaCheck:checked')].map(cb => cb.value);
   }
-  
   const dados = {
     titulo: $('#pgTitulo').value.trim(),
     mensagem: $('#pgMensagem').value.trim(),
@@ -1424,29 +1372,22 @@ async function salvarPaginaRecrutamento(){
     vagas_visiveis: vagasVisiveis,
     atualizado_em: new Date().toISOString()
   };
-  
-  // Salvar config
   const { error: errConfig } = await sb.from('recrutamento_config').upsert({
     empresa_id: session.empresa.id,
     ...dados
   }, { onConflict: 'empresa_id' });
-  
   if (errConfig) {
     toast('Erro', errConfig.message, 'error');
     btn.disabled = false;
     btn.innerHTML = '<span>💾</span> Salvar alterações';
     return;
   }
-  
-  // Salvar slug na empresa
   if (slug && empresaAtual) {
     await sb.from('empresas').update({ slug }).eq('id', empresaAtual.id);
     empresaAtual.slug = slug;
   }
-  
   paginaConfig = { ...paginaConfig, ...dados };
   atualizarLinkPreview();
-  
   btn.disabled = false;
   btn.innerHTML = '<span>💾</span> Salvar alterações';
   toast('✅ Página salva', 'Suas alterações foram aplicadas', 'success');
@@ -1467,20 +1408,15 @@ function previewPagina(){
 function atualizarEstatisticasPagina(){
   const abertas = vagas.filter(v => v.status === 'aberta');
   let exibidas = abertas.length;
-  
   if (!$('#pgTodasVagas').checked) {
     const visiveis = paginaConfig.vagas_visiveis || [];
     exibidas = abertas.filter(v => visiveis.includes(v.id)).length;
   }
-  
   $('#statVagasExibidas').textContent = exibidas;
   $('#statCandidaturas').textContent = candidaturas.length;
   $('#statAguardando').textContent = candidaturas.filter(c => c.status === 'aguardando_rh').length;
 }
 
-// ═══════════════════════════════════════════
-// MODAL + REALTIME + INIT
-// ═══════════════════════════════════════════
 function openModal(html){ $('#modalContent').innerHTML = html; $('#modal').classList.remove('hidden'); }
 function closeModal(){ $('#modal').classList.add('hidden'); }
 $('#modal').addEventListener('click', e => { if(e.target.id==='modal') closeModal(); });
