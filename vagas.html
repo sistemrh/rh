@@ -11,7 +11,8 @@
 tailwind.config={theme:{extend:{
   fontFamily:{sans:['"IBM Plex Sans"','sans-serif'],display:['Sora','sans-serif']},
   keyframes:{fadeUp:{from:{opacity:0,transform:'translateY(15px)'},to:{opacity:1,transform:'translateY(0)'}},
-    fadeIn:{from:{opacity:0},to:{opacity:1}}},
+    fadeIn:{from:{opacity:0},to:{opacity:1}},
+    typing:{from{width:0},to{width:'100%'}}},
   animation:{'fade-up':'fadeUp .5s ease both','fade-in':'fadeIn .3s ease both'}
 }}}
 </script>
@@ -35,13 +36,26 @@ tailwind.config={theme:{extend:{
   @keyframes toastbar{from{width:100%}to{width:0%}}
   .spinner{width:40px;height:40px;border:4px solid rgba(99,102,241,.3);border-top-color:#6366f1;border-radius:50%;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
+  
+  /* Chat SEAR */
+  .chat-container{height:400px;overflow-y:auto;padding:1rem;background:rgba(10,14,26,.5);border-radius:.75rem}
+  .chat-message{margin-bottom:1rem;display:flex;gap:.75rem}
+  .chat-message.user{flex-direction:row-reverse}
+  .chat-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .chat-message.sear .chat-avatar{background:linear-gradient(135deg,#4f46e5,#7c3aed)}
+  .chat-message.user .chat-avatar{background:linear-gradient(135deg,#059669,#10b981)}
+  .chat-bubble{max-width:75%;padding:.75rem 1rem;border-radius:1rem;font-size:.875rem;line-height:1.5}
+  .chat-message.sear .chat-bubble{background:rgba(79,70,229,.15);border:1px solid rgba(79,70,229,.3)}
+  .chat-message.user .chat-bubble{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3)}
+  .typing-indicator{display:flex;gap:4px;padding:.5rem 0}
+  .typing-indicator span{width:8px;height:8px;background:#7dd3fc;border-radius:50%;animation:typing 1.4s infinite}
+  .typing-indicator span:nth-child(2){animation-delay:.2s}
+  .typing-indicator span:nth-child(3){animation-delay:.4s}
 </style>
 </head>
 <body class="antialiased min-h-screen">
 
-<!-- ═══════════════════════════════════════════
-     HEADER DA EMPRESA
-     ═══════════════════════════════════════════ -->
+<!-- HEADER -->
 <header class="border-b border-slate-800/60 bg-[#0a1224]/85 backdrop-blur sticky top-0 z-40">
   <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
     <div class="flex items-center gap-3">
@@ -57,9 +71,7 @@ tailwind.config={theme:{extend:{
   </div>
 </header>
 
-<!-- ═══════════════════════════════════════════
-     HERO / BANNER
-     ═══════════════════════════════════════════ -->
+<!-- HERO -->
 <section class="relative overflow-hidden py-12 px-4" style="background:linear-gradient(120deg,rgba(79,70,229,.15),rgba(124,58,237,.1))">
   <div class="max-w-6xl mx-auto text-center">
     <h2 class="font-display text-3xl sm:text-4xl font-bold chrome-text mb-3" id="heroTitulo">Vem ser parte do nosso time!</h2>
@@ -67,9 +79,7 @@ tailwind.config={theme:{extend:{
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════
-     VAGAS DISPONÍVEIS
-     ═══════════════════════════════════════════ -->
+<!-- VAGAS -->
 <main class="max-w-6xl mx-auto px-4 py-8">
   <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
     <h3 class="font-display text-xl font-bold text-white">📋 Vagas Disponíveis</h3>
@@ -77,15 +87,12 @@ tailwind.config={theme:{extend:{
       👤 Já se candidatou? Acompanhe aqui
     </button>
   </div>
-
   <div id="listaVagas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <p class="text-slate-400 col-span-full text-center py-8">Carregando vagas...</p>
   </div>
 </main>
 
-<!-- ═══════════════════════════════════════════
-     MODAL DE CANDIDATURA
-     ═══════════════════════════════════════════ -->
+<!-- MODAL CANDIDATURA -->
 <div id="modalCandidatura" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="panel !rounded-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4">
@@ -94,26 +101,13 @@ tailwind.config={theme:{extend:{
     </div>
     
     <div class="space-y-3">
-      <div>
-        <label class="lbl">Nome completo *</label>
-        <input type="text" id="candNome" class="inp" placeholder="Seu nome completo">
-      </div>
-      <div>
-        <label class="lbl">CPF *</label>
-        <input type="text" id="candCPF" class="inp" placeholder="000.000.000-00" maxlength="14">
-      </div>
-      <div>
-        <label class="lbl">Email *</label>
-        <input type="email" id="candEmail" class="inp" placeholder="seu@email.com">
-      </div>
-      <div>
-        <label class="lbl">Telefone *</label>
-        <input type="tel" id="candTelefone" class="inp" placeholder="(00) 00000-0000">
-      </div>
+      <div><label class="lbl">Nome completo *</label><input type="text" id="candNome" class="inp" placeholder="Seu nome completo"></div>
+      <div><label class="lbl">CPF *</label><input type="text" id="candCPF" class="inp" placeholder="000.000.000-00" maxlength="14"></div>
+      <div><label class="lbl">Email *</label><input type="email" id="candEmail" class="inp" placeholder="seu@email.com"></div>
+      <div><label class="lbl">Telefone *</label><input type="tel" id="candTelefone" class="inp" placeholder="(00) 00000-0000"></div>
     </div>
     
     <div id="candidaturaErro" class="hidden mt-3 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm"></div>
-    <div id="candidaturaSucesso" class="hidden mt-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm"></div>
     
     <button onclick="enviarCandidatura()" id="btnEnviarCandidatura" class="btn-primary w-full mt-4 px-4 py-3 rounded-xl text-sm font-bold">
       📤 Enviar Candidatura
@@ -121,9 +115,32 @@ tailwind.config={theme:{extend:{
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     MODAL LOGIN CANDIDATO
-     ═══════════════════════════════════════════ -->
+<!-- MODAL CHAT SEAR (PRÉ-ENTREVISTA) -->
+<div id="modalSear" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="panel !rounded-2xl max-w-2xl w-full p-6 max-h-[90vh] flex flex-col">
+    <div class="flex justify-between items-center mb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl">🤖</div>
+        <div>
+          <h3 class="font-display font-bold text-slate-100">SEAR - Pré-Entrevista</h3>
+          <p class="text-xs text-slate-400">Assistente virtual de recrutamento</p>
+        </div>
+      </div>
+      <button onclick="fecharSear()" class="text-slate-500 hover:text-white text-xl">✕</button>
+    </div>
+    
+    <div id="chatSear" class="chat-container flex-1 mb-4">
+      <!-- Mensagens do chat aparecem aqui -->
+    </div>
+    
+    <div class="flex gap-2">
+      <input type="text" id="inputSear" class="inp flex-1" placeholder="Digite sua resposta..." onkeypress="if(event.key==='Enter')enviarMensagemSear()">
+      <button onclick="enviarMensagemSear()" id="btnEnviarSear" class="btn-primary px-4 py-2 rounded-lg font-bold">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGIN CANDIDATO -->
 <div id="modalLoginCandidato" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="panel !rounded-2xl max-w-md w-full p-6">
     <div class="flex justify-between items-center mb-4">
@@ -133,31 +150,17 @@ tailwind.config={theme:{extend:{
     <p class="text-sm text-slate-400 mb-4">Acompanhe suas candidaturas e próximos passos.</p>
     
     <div class="space-y-3">
-      <div>
-        <label class="lbl">CPF *</label>
-        <input type="text" id="loginCPF" class="inp" placeholder="000.000.000-00" maxlength="14">
-      </div>
-      <div>
-        <label class="lbl">Nome completo *</label>
-        <input type="text" id="loginNome" class="inp" placeholder="Seu nome completo">
-      </div>
+      <div><label class="lbl">CPF *</label><input type="text" id="loginCPF" class="inp" placeholder="000.000.000-00" maxlength="14"></div>
+      <div><label class="lbl">Nome completo *</label><input type="text" id="loginNome" class="inp" placeholder="Seu nome completo"></div>
     </div>
     
     <div id="loginErro" class="hidden mt-3 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm"></div>
     
-    <button onclick="fazerLoginCandidato()" id="btnLoginCandidato" class="btn-primary w-full mt-4 px-4 py-3 rounded-xl text-sm font-bold">
-      🔓 Entrar
-    </button>
-    
-    <p class="text-xs text-slate-500 text-center mt-3">
-      Usamos seu CPF e nome apenas para identificar suas candidaturas.
-    </p>
+    <button onclick="fazerLoginCandidato()" id="btnLoginCandidato" class="btn-primary w-full mt-4 px-4 py-3 rounded-xl text-sm font-bold">🔓 Entrar</button>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     MODAL CANDIDATURAS (APÓS LOGIN)
-     ═══════════════════════════════════════════ -->
+<!-- MODAL CANDIDATURAS -->
 <div id="modalCandidaturas" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="panel !rounded-2xl max-w-2xl w-full p-6 max-h-[85vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4">
@@ -170,30 +173,33 @@ tailwind.config={theme:{extend:{
         <button onclick="fecharCandidaturas()" class="text-slate-500 hover:text-white text-xl">✕</button>
       </div>
     </div>
-    
-    <div id="listaCandidaturas" class="space-y-3">
-      <p class="text-slate-400 text-center py-4">Carregando...</p>
-    </div>
+    <div id="listaCandidaturas" class="space-y-3"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     TOAST
-     ═══════════════════════════════════════════ -->
+<!-- TOAST -->
 <div id="toastRoot" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2.5 w-[min(380px,calc(100vw-40px))]"></div>
 
 <script>
 // ═══════════════════════════════════════════
-// CONFIGURAÇÃO SUPABASE
+// CONFIGURAÇÃO
 // ═══════════════════════════════════════════
 const SUPA_URL = 'https://ippykisvjqmigobagzjt.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwcHlraXN2anFtaWdvYmFnemp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU5NDUsImV4cCI6MjEwMzM0MTk0NX0.m0TuMyIxW_UaW1H9HUiKVn_711PFrxIk8y-kFw-OhKc';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
+// Configuração da API Mistral (SEAR)
+const MISTRAL_API_KEY = 'SUA_CHAVE_MISTRAL_AQUI'; // ⚠️ Substitua pela sua chave
+const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
+const MISTRAL_MODEL = 'mistral-small-latest';
+
 let empresaAtual = null;
 let vagasDisponiveis = [];
 let vagaSelecionada = null;
 let candidatoLogado = null;
+let candidatoAtual = null;
+let candidaturaAtual = null;
+let chatSearAtivo = false;
 
 // ═══════════════════════════════════════════
 // INICIALIZAÇÃO
@@ -222,7 +228,6 @@ function aplicarMascaraCPF(id) {
 // ═══════════════════════════════════════════
 async function carregarEmpresa() {
   try {
-    // Pegar slug da URL
     const params = new URLSearchParams(window.location.search);
     const slug = params.get('e');
     
@@ -231,7 +236,6 @@ async function carregarEmpresa() {
       return;
     }
     
-    // Buscar empresa pelo slug
     const { data: empresa, error } = await sb
       .from('empresas')
       .select('*')
@@ -244,12 +248,9 @@ async function carregarEmpresa() {
     }
     
     empresaAtual = empresa;
-    
-    // Atualizar header
     document.getElementById('empresaNome').textContent = empresa.nome || 'Empresa';
     document.getElementById('empresaSlogan').textContent = empresa.slogan || 'Trabalhe Conosco';
     
-    // Buscar configurações de recrutamento
     const { data: config } = await sb
       .from('recrutamento_config')
       .select('*')
@@ -264,7 +265,6 @@ async function carregarEmpresa() {
       }
     }
     
-    // Carregar vagas
     await carregarVagas();
     
   } catch (err) {
@@ -290,8 +290,6 @@ async function carregarVagas() {
     
   } catch (err) {
     console.error('Erro ao carregar vagas:', err);
-    document.getElementById('listaVagas').innerHTML = 
-      '<p class="text-rose-400 col-span-full text-center py-8">Erro ao carregar vagas.</p>';
   }
 }
 
@@ -343,9 +341,7 @@ function abrirCandidatura(vagaId) {
   
   document.getElementById('tituloVagaCandidatura').textContent = 'Candidatar-se: ' + vagaSelecionada.titulo;
   document.getElementById('candidaturaErro').classList.add('hidden');
-  document.getElementById('candidaturaSucesso').classList.add('hidden');
   
-  // Limpar campos
   document.getElementById('candNome').value = '';
   document.getElementById('candCPF').value = '';
   document.getElementById('candEmail').value = '';
@@ -365,13 +361,10 @@ async function enviarCandidatura() {
   const telefone = document.getElementById('candTelefone').value.trim();
   
   const erroDiv = document.getElementById('candidaturaErro');
-  const sucessoDiv = document.getElementById('candidaturaSucesso');
   const btn = document.getElementById('btnEnviarCandidatura');
   
   erroDiv.classList.add('hidden');
-  sucessoDiv.classList.add('hidden');
   
-  // Validações
   if (!nome || nome.length < 3) {
     erroDiv.textContent = '⚠️ Digite seu nome completo';
     erroDiv.classList.remove('hidden');
@@ -394,7 +387,6 @@ async function enviarCandidatura() {
   btn.textContent = 'Enviando...';
   
   try {
-    // Verificar se candidato já existe
     let { data: candidatoExistente } = await sb
       .from('candidatos')
       .select('*')
@@ -405,28 +397,22 @@ async function enviarCandidatura() {
     
     if (candidatoExistente) {
       candidatoId = candidatoExistente.id;
-      // Atualizar dados
       await sb.from('candidatos')
         .update({ nome: nome, email: email, telefone: telefone })
         .eq('id', candidatoId);
+      candidatoAtual = { ...candidatoExistente, nome, email, telefone };
     } else {
-      // Criar novo candidato
       const { data: novoCandidato, error } = await sb
         .from('candidatos')
-        .insert({
-          nome: nome,
-          cpf: cpf,
-          email: email,
-          telefone: telefone
-        })
+        .insert({ nome, cpf, email, telefone })
         .select()
         .single();
       
       if (error) throw error;
       candidatoId = novoCandidato.id;
+      candidatoAtual = novoCandidato;
     }
     
-    // Verificar se já se candidatou para esta vaga
     const { data: candidaturaExistente } = await sb
       .from('candidaturas')
       .select('*')
@@ -435,33 +421,30 @@ async function enviarCandidatura() {
       .maybeSingle();
     
     if (candidaturaExistente) {
-      erroDiv.textContent = '⚠️ Você já se candidatou para esta vaga. Acompanhe na Área do Candidato.';
+      erroDiv.textContent = '⚠️ Você já se candidatou para esta vaga.';
       erroDiv.classList.remove('hidden');
       btn.disabled = false;
       btn.textContent = '📤 Enviar Candidatura';
       return;
     }
     
-    // Criar candidatura
-    const { error: errorCandidatura } = await sb
+    const { data: novaCandidatura, error: errorCandidatura } = await sb
       .from('candidaturas')
       .insert({
         candidato_id: candidatoId,
         vaga_id: vagaSelecionada.id,
         empresa_id: empresaAtual.id,
-        status: 'aguardando_rh'
-      });
+        status: 'pre_entrevista'
+      })
+      .select()
+      .single();
     
     if (errorCandidatura) throw errorCandidatura;
     
-    // Sucesso
-    sucessoDiv.textContent = '✅ Candidatura enviada com sucesso! Você pode acompanhar o status na Área do Candidato.';
-    sucessoDiv.classList.remove('hidden');
+    candidaturaAtual = novaCandidatura;
     
-    setTimeout(function() {
-      fecharCandidatura();
-      toast('🎉 Sucesso!', 'Candidatura enviada. Acompanhe na Área do Candidato.', 'success');
-    }, 2000);
+    fecharCandidatura();
+    iniciarChatSear();
     
   } catch (err) {
     console.error('Erro ao enviar candidatura:', err);
@@ -471,6 +454,151 @@ async function enviarCandidatura() {
     btn.disabled = false;
     btn.textContent = '📤 Enviar Candidatura';
   }
+}
+
+// ═══════════════════════════════════════════
+// CHAT SEAR (PRÉ-ENTREVISTA)
+// ═══════════════════════════════════════════
+function iniciarChatSear() {
+  chatSearAtivo = true;
+  document.getElementById('modalSear').classList.remove('hidden');
+  document.getElementById('chatSear').innerHTML = '';
+  
+  adicionarMensagemSear('sear', 'Olá! Eu sou a SEAR, assistente virtual de recrutamento. Vou fazer algumas perguntas rápidas para conhecer você melhor. Vamos começar?');
+  
+  setTimeout(function() {
+    adicionarMensagemSear('sear', 'Me conte um pouco sobre sua experiência profissional. Quais foram suas principais atividades nos últimos empregos?');
+  }, 1500);
+}
+
+function fecharSear() {
+  document.getElementById('modalSear').classList.add('hidden');
+  chatSearAtivo = false;
+}
+
+function adicionarMensagemSear(tipo, texto) {
+  const chat = document.getElementById('chatSear');
+  const avatar = tipo === 'sear' ? '🤖' : '👤';
+  
+  const msgHtml = '<div class="chat-message ' + tipo + ' animate-fade-up">' +
+    '<div class="chat-avatar">' + avatar + '</div>' +
+    '<div class="chat-bubble">' + texto + '</div>' +
+    '</div>';
+  
+  chat.insertAdjacentHTML('beforeend', msgHtml);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function mostrarTyping() {
+  const chat = document.getElementById('chatSear');
+  const typingHtml = '<div class="chat-message sear" id="typingIndicator">' +
+    '<div class="chat-avatar">🤖</div>' +
+    '<div class="chat-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div>' +
+    '</div>';
+  chat.insertAdjacentHTML('beforeend', typingHtml);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function removerTyping() {
+  const typing = document.getElementById('typingIndicator');
+  if (typing) typing.remove();
+}
+
+async function enviarMensagemSear() {
+  const input = document.getElementById('inputSear');
+  const mensagem = input.value.trim();
+  
+  if (!mensagem) return;
+  
+  adicionarMensagemSear('user', mensagem);
+  input.value = '';
+  
+  mostrarTyping();
+  document.getElementById('btnEnviarSear').disabled = true;
+  
+  try {
+    const resposta = await chamarMistral(mensagem);
+    removerTyping();
+    adicionarMensagemSear('sear', resposta);
+    
+    // Verificar se deve encerrar a entrevista
+    if (resposta.toLowerCase().includes('entrevista concluída') || 
+        resposta.toLowerCase().includes('obrigado pela conversa')) {
+      setTimeout(function() {
+        encerrarPreEntrevista();
+      }, 2000);
+    }
+    
+  } catch (err) {
+    console.error('Erro na SEAR:', err);
+    removerTyping();
+    adicionarMensagemSear('sear', 'Desculpe, tive um problema técnico. Pode tentar novamente?');
+  } finally {
+    document.getElementById('btnEnviarSear').disabled = false;
+  }
+}
+
+async function chamarMistral(mensagemUsuario) {
+  if (!MISTRAL_API_KEY || MISTRAL_API_KEY === 'PQOJsjtYo97oaBZ4h1PCegVYh4gK5aap') {
+    return gerarRespostaLocal(mensagemUsuario);
+  }
+  
+  try {
+    const response = await fetch(MISTRAL_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + MISTRAL_API_KEY
+      },
+      body: JSON.stringify({
+        model: MISTRAL_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: 'Você é SEAR, uma assistente virtual de recrutamento simpática e profissional. Faça perguntas de pré-entrevista para candidatos. Seja breve e objetiva. Ao final de 5-6 perguntas, agradeça e diga "Entrevista concluída! Obrigado pela conversa."'
+          },
+          { role: 'user', content: mensagemUsuario }
+        ],
+        max_tokens: 500,
+        temperature: 0.7
+      })
+    });
+    
+    if (!response.ok) throw new Error('Erro na API');
+    
+    const data = await response.json();
+    return data.choices[0].message.content;
+    
+  } catch (err) {
+    console.error('Erro na API Mistral:', err);
+    return gerarRespostaLocal(mensagemUsuario);
+  }
+}
+
+function gerarRespostaLocal(mensagem) {
+  const respostas = [
+    'Entendi! Me conte mais sobre isso. Quais foram seus maiores desafios?',
+    'Ótimo! E como você lida com trabalho em equipe?',
+    'Interessante! Quais são suas expectativas salariais?',
+    'Perfeito! Você tem disponibilidade para início imediato?',
+    'Muito bem! Por que você quer trabalhar conosco?',
+    'Entrevista concluída! Obrigado pela conversa. Em breve entraremos em contato.'
+  ];
+  
+  const count = document.querySelectorAll('.chat-message.user').length;
+  return respostas[Math.min(count, respostas.length - 1)];
+}
+
+async function encerrarPreEntrevista() {
+  fecharSear();
+  
+  if (candidaturaAtual) {
+    await sb.from('candidaturas')
+      .update({ status: 'aguardando_rh' })
+      .eq('id', candidaturaAtual.id);
+  }
+  
+  toast('🎉 Pré-entrevista concluída!', 'Sua candidatura está sendo analisada pelo RH.', 'success');
 }
 
 // ═══════════════════════════════════════════
@@ -530,7 +658,6 @@ async function fazerLoginCandidato() {
   btn.textContent = 'Verificando...';
   
   try {
-    // Buscar candidato pelo CPF
     const { data, error } = await sb
       .from('candidatos')
       .select('*')
@@ -547,19 +674,17 @@ async function fazerLoginCandidato() {
       return;
     }
     
-    // Validar nome (comparação case-insensitive)
     const nomeCadastrado = data.nome.toLowerCase().trim();
     const nomeDigitado = nome.toLowerCase().trim();
     
     if (nomeCadastrado !== nomeDigitado) {
-      erroDiv.textContent = '❌ Nome não confere com o cadastro. Verifique e tente novamente.';
+      erroDiv.textContent = '❌ Nome não confere com o cadastro.';
       erroDiv.classList.remove('hidden');
       btn.disabled = false;
       btn.textContent = '🔓 Entrar';
       return;
     }
     
-    // Login successful
     candidatoLogado = data;
     sessionStorage.setItem('candidato_logado', JSON.stringify(data));
     
@@ -620,8 +745,6 @@ async function abrirCandidaturas() {
     
   } catch (err) {
     console.error('Erro ao carregar candidaturas:', err);
-    document.getElementById('listaCandidaturas').innerHTML = 
-      '<p class="text-rose-400 text-center py-4">Erro ao carregar. Tente novamente.</p>';
   }
 }
 
@@ -638,7 +761,6 @@ function renderCandidaturaCard(c) {
   html += '<span class="badge" style="background: ' + statusInfo.cor + '20; color: ' + statusInfo.cor + '">' + statusInfo.label + '</span>';
   html += '</div>';
   
-  // Timeline de progresso
   html += '<div class="mt-3 pt-3 border-t border-slate-700/40">';
   html += '<p class="text-xs font-bold text-slate-400 mb-2">📌 Próximos passos:</p>';
   html += '<p class="text-sm text-slate-300">' + statusInfo.mensagem + '</p>';
@@ -659,70 +781,24 @@ function renderCandidaturaCard(c) {
 
 function getStatusInfo(status) {
   const statusMap = {
-    'pre_entrevista': {
-      label: '⏳ Pré-entrevista',
-      cor: '#f59e0b',
-      mensagem: 'Complete a pré-entrevista com a SEAR para avançar no processo.'
-    },
-    'aguardando_rh': {
-      label: '⏳ Aguardando RH',
-      cor: '#f59e0b',
-      mensagem: 'Sua candidatura está sendo analisada pelo RH. Aguarde o retorno.'
-    },
-    'aprovado_pre': {
-      label: '✅ Pré-aprovado',
-      cor: '#10b981',
-      mensagem: 'Parabéns! Você foi pré-aprovado. Aguarde o contato para próxima etapa.'
-    },
-    'entrevista_agendada': {
-      label: '📅 Entrevista marcada',
-      cor: '#6366f1',
-      mensagem: 'Sua entrevista está agendada! Compareça no local e horário indicados.'
-    },
-    'ficha_preenchida': {
-      label: '📝 Ficha recebida',
-      cor: '#8b5cf6',
-      mensagem: 'Recebemos sua ficha cadastral. Aguardando aprovação do RH.'
-    },
-    'ficha_aprovada': {
-      label: '✅ Ficha aprovada',
-      cor: '#10b981',
-      mensagem: 'Sua ficha foi aprovada! Aguarde as próximas instruções.'
-    },
-    'integracao_marcada': {
-      label: '🎯 Integração marcada',
-      cor: '#10b981',
-      mensagem: 'Sua integração está marcada! Prepare-se para começar.'
-    },
-    'contratado': {
-      label: '🎉 Contratado',
-      cor: '#10b981',
-      mensagem: 'Parabéns! Você foi contratado! Bem-vindo à equipe!'
-    },
-    'reprovado': {
-      label: '❌ Não aprovado',
-      cor: '#ef4444',
-      mensagem: 'Infelizmente não foi desta vez. Continue acompanhando novas vagas!'
-    }
+    'pre_entrevista': { label: '⏳ Pré-entrevista', cor: '#f59e0b', mensagem: 'Complete a pré-entrevista com a SEAR para avançar no processo.' },
+    'aguardando_rh': { label: '⏳ Aguardando RH', cor: '#f59e0b', mensagem: 'Sua candidatura está sendo analisada pelo RH. Aguarde o retorno.' },
+    'aprovado_pre': { label: '✅ Pré-aprovado', cor: '#10b981', mensagem: 'Parabéns! Você foi pré-aprovado. Aguarde o contato para próxima etapa.' },
+    'entrevista_agendada': { label: '📅 Entrevista marcada', cor: '#6366f1', mensagem: 'Sua entrevista está agendada! Compareça no local e horário indicados.' },
+    'ficha_preenchida': { label: '📝 Ficha recebida', cor: '#8b5cf6', mensagem: 'Recebemos sua ficha cadastral. Aguardando aprovação do RH.' },
+    'ficha_aprovada': { label: '✅ Ficha aprovada', cor: '#10b981', mensagem: 'Sua ficha foi aprovada! Aguarde as próximas instruções.' },
+    'integracao_marcada': { label: '🎯 Integração marcada', cor: '#10b981', mensagem: 'Sua integração está marcada! Prepare-se para começar.' },
+    'contratado': { label: '🎉 Contratado', cor: '#10b981', mensagem: 'Parabéns! Você foi contratado! Bem-vindo à equipe!' },
+    'reprovado': { label: '❌ Não aprovado', cor: '#ef4444', mensagem: 'Infelizmente não foi desta vez. Continue acompanhando novas vagas!' }
   };
   
-  return statusMap[status] || {
-    label: '📋 Inscrito',
-    cor: '#64748b',
-    mensagem: 'Sua candidatura foi recebida. Aguarde as próximas etapas.'
-  };
+  return statusMap[status] || { label: '📋 Inscrito', cor: '#64748b', mensagem: 'Sua candidatura foi recebida. Aguarde as próximas etapas.' };
 }
 
 function formatarData(dataISO) {
   if (!dataISO) return '—';
   const d = new Date(dataISO);
-  return d.toLocaleDateString('pt-BR', { 
-    day: '2-digit', 
-    month: '2-digit', 
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 // ═══════════════════════════════════════════
