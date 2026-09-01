@@ -632,7 +632,25 @@ const pad = n => String(n).padStart(2,'0');
 const hoje = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const iniciais = n => (n||'?').split(' ').filter(Boolean).map(p=>p[0]).slice(0,2).join('').toUpperCase();
 const fmtISO = iso => { if(!iso) return '—'; const parts = iso.split('-'); return `${parts[2]}/${parts[1]}/${parts[0]}`; };
-const fmtDataHora = iso => { if(!iso) return '—'; const d = new Date(iso); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); };
+const fmtDataHora = iso => { if(!iso) return '—'; const d = new Date(iso); if (isNaN(d.getTime())) return '—'; return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); };
+
+// ✅ Função de formatação de data de entrevista (evita "Invalid Date")
+function formatarDataEntrevista(dataISO) {
+  if (!dataISO) return '—';
+  try {
+    const d = new Date(dataISO);
+    if (isNaN(d.getTime())) return '—';
+    const dia = String(d.getDate()).padStart(2, '0');
+    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const ano = d.getFullYear();
+    const hora = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return dia + '/' + mes + '/' + ano + ' ' + hora + ':' + min;
+  } catch (e) {
+    return '—';
+  }
+}
+
 const fmtMoeda = v => (+v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const mesAtual = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; };
 const MESES_ANO = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -1460,6 +1478,7 @@ async function excluirVaga(id){
 
 function filterRecrut(f){ recrutFilter = f; renderCandidatosAdmin(); }
 
+// ✅ renderCandidatosAdmin CORRIGIDO com Agendar/Remarcar/Adiar e data formatada
 function renderCandidatosAdmin(){
   const list = recrutFilter==='todos' ? candidaturas : candidaturas.filter(function(c){ return c.status===recrutFilter; });
   const statusLabels = {
@@ -1479,19 +1498,29 @@ function renderCandidatosAdmin(){
     const isAguardando = c.status === 'aguardando_rh' || c.status === 'pre_entrevista';
     const rowClass = isAguardando ? 'cand-row-aguardando' : '';
     let actions = '<button onclick="verCandidato(\'' + c.id + '\')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">👁 Ver</button>';
+    
+    // ✅ Bloco separado: apenas Agendar quando APROVADO (sem data ainda)
     if(c.status === 'aguardando_rh' || c.status === 'pre_entrevista'){
       actions += '<button onclick="aprovarPre(\'' + c.id + '\')" class="btn-success px-3 py-1.5 rounded text-xs font-bold mr-1">✓ Aprovar</button><button onclick="reprovarCandidato(\'' + c.id + '\')" class="btn-danger px-3 py-1.5 rounded text-xs font-bold">✕ Reprovar</button>';
-    } else if(c.status === 'aprovado_pre' || c.status === 'entrevista_agendada'){
+    } else if(c.status === 'aprovado_pre'){
       actions += '<button onclick="agendarEntrevista(\'' + c.id + '\')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">📅 Agendar</button><button onclick="reprovarCandidato(\'' + c.id + '\')" class="btn-danger px-2 py-1 rounded text-xs">✕</button>';
+    } else if(c.status === 'entrevista_agendada'){
+      // ✅ Bloco separado: Remarcar + Adiar quando JÁ tem data
+      actions += '<button onclick="remarcarEntrevista(\'' + c.id + '\')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">🔄 Remarcar</button>';
+      actions += '<button onclick="adiarEntrevista(\'' + c.id + '\')" class="btn-ghost px-2 py-1 rounded text-xs mr-1 !border-amber-400/40 text-amber-300">⏰ Adiar</button>';
+      actions += '<button onclick="reprovarCandidato(\'' + c.id + '\')" class="btn-danger px-2 py-1 rounded text-xs">✕</button>';
     } else if(c.status === 'ficha_preenchida'){
       actions += '<button onclick="aprovarFicha(\'' + c.id + '\')" class="btn-success px-2 py-1 rounded text-xs mr-1">✓ Ficha</button>';
     } else if(c.status === 'ficha_aprovada'){
       actions += '<button onclick="marcarIntegracao(\'' + c.id + '\')" class="btn-chrome px-2 py-1 rounded text-xs mr-1">🎯 Integrar</button>';
     }
+    
     const nome = (c.candidatos && c.candidatos.nome) || '—';
     const email = (c.candidatos && c.candidatos.email) || '';
     const vaga = (c.vagas && c.vagas.titulo) || '—';
-    return '<tr class="' + rowClass + '"><td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 grid place-items-center text-[11px] font-bold text-white">' + iniciais(nome) + '</div><div class="min-w-0"><p class="font-semibold text-slate-200 truncate">' + nome + '</p><p class="text-[11px] text-slate-500 truncate">' + email + '</p></div></div></td><td class="text-slate-300 max-w-[140px] truncate">' + vaga + '</td><td><span class="badge badge-sm ' + st.c + '">' + st.l + '</span></td><td class="text-slate-400 text-xs whitespace-nowrap">' + (c.data_entrevista ? fmtDataHora(c.data_entrevista) : '—') + '</td><td class="text-right whitespace-nowrap">' + actions + '</td></tr>';
+    
+    // ✅ Usar formatarDataEntrevista ao invés de fmtDataHora (evita "Invalid Date")
+    return '<tr class="' + rowClass + '"><td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 grid place-items-center text-[11px] font-bold text-white">' + iniciais(nome) + '</div><div class="min-w-0"><p class="font-semibold text-slate-200 truncate">' + nome + '</p><p class="text-[11px] text-slate-500 truncate">' + email + '</p></div></div></td><td class="text-slate-300 max-w-[140px] truncate">' + vaga + '</td><td><span class="badge badge-sm ' + st.c + '">' + st.l + '</span></td><td class="text-slate-400 text-xs whitespace-nowrap">' + formatarDataEntrevista(c.data_entrevista) + '</td><td class="text-right whitespace-nowrap">' + actions + '</td></tr>';
   }).join('') : '<tr><td colspan="5" class="text-center py-10 text-slate-500">Nenhum candidato</td></tr>';
 }
 
@@ -1546,6 +1575,88 @@ async function confirmarAgendar(id){
   const res = await sb.from('candidaturas').update({status:'entrevista_agendada', data_entrevista:data, observacao_rh:obs, atualizado_em:new Date().toISOString()}).eq('id', id);
   if(res.error) return toast('Erro','Falha ao agendar','error');
   closeModal(); toast('📅 Entrevista agendada','','success');
+  await carregarRecrutamento();
+}
+
+// ✅ NOVA FUNÇÃO: Remarcar entrevista (mantém status, muda apenas a data)
+function remarcarEntrevista(id){
+  const cand = candidaturas.find(function(x){ return x.id === id; });
+  const dataAtual = cand && cand.data_entrevista ? cand.data_entrevista.substring(0, 16) : '';
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-3">🔄 Remarcar Entrevista</h3>' +
+    '<p class="text-sm text-slate-400 mb-4">Escolha uma nova data e horário para a entrevista.</p>' +
+    '<div class="space-y-3">' +
+    '<div><label class="lbl">Nova data e hora *</label><input type="datetime-local" id="entNovaData" class="inp" value="' + dataAtual + '"></div>' +
+    '<div><label class="lbl">Motivo da remarcação</label><textarea id="entMotivoRemarcar" class="inp" rows="2" placeholder="Ex: Candidato solicitou mudança de horário..."></textarea></div>' +
+    '</div>' +
+    '<div class="flex gap-2 mt-4">' +
+    '<button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>' +
+    '<button onclick="confirmarRemarcar(\'' + id + '\')" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm font-bold">🔄 Confirmar Remarcação</button>' +
+    '</div>');
+}
+
+async function confirmarRemarcar(id){
+  const novaData = document.getElementById('entNovaData').value;
+  const motivo = document.getElementById('entMotivoRemarcar').value.trim();
+  if(!novaData) return toast('Informe a nova data','','error');
+  
+  let observacaoAtual = '';
+  const cand = candidaturas.find(function(x){ return x.id === id; });
+  if(cand && cand.observacao_rh) observacaoAtual = cand.observacao_rh + '\n\n';
+  
+  let novaObservacao = observacaoAtual;
+  if(motivo){
+    novaObservacao += '🔄 REMARCADO em ' + new Date().toLocaleDateString('pt-BR') + ': ' + motivo;
+  } else {
+    novaObservacao += '🔄 REMARCADO em ' + new Date().toLocaleDateString('pt-BR');
+  }
+  
+  const res = await sb.from('candidaturas').update({
+    status: 'entrevista_agendada',
+    data_entrevista: novaData,
+    observacao_rh: novaObservacao,
+    atualizado_em: new Date().toISOString()
+  }).eq('id', id);
+  
+  if(res.error) return toast('Erro','Falha ao remarcar','error');
+  closeModal();
+  toast('🔄 Entrevista remarcada','Nova data: ' + formatarDataEntrevista(novaData),'success');
+  await carregarRecrutamento();
+}
+
+// ✅ NOVA FUNÇÃO: Adiar entrevista (cancela data, volta para "Aprovado")
+function adiarEntrevista(id){
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-3">⏰ Adiar Entrevista</h3>' +
+    '<p class="text-sm text-slate-400 mb-4">Adie a entrevista. O candidato será notificado que precisa aguardar nova data.</p>' +
+    '<div class="space-y-3">' +
+    '<div><label class="lbl">Motivo do adiamento *</label><textarea id="entMotivoAdiar" class="inp" rows="3" placeholder="Ex: Problemas de agenda do entrevistador, necessidade de reagendar..."></textarea></div>' +
+    '</div>' +
+    '<div class="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">' +
+    '<p class="text-xs text-amber-300">⚠️ O status mudará para "Aprovado" e você precisará remarcar depois.</p>' +
+    '</div>' +
+    '<div class="flex gap-2 mt-4">' +
+    '<button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>' +
+    '<button onclick="confirmarAdiar(\'' + id + '\')" class="btn-danger flex-1 px-4 py-2 rounded-lg text-sm font-bold">⏰ Adiar</button>' +
+    '</div>');
+}
+
+async function confirmarAdiar(id){
+  const motivo = document.getElementById('entMotivoAdiar').value.trim();
+  if(!motivo) return toast('Informe o motivo','','error');
+  
+  const cand = candidaturas.find(function(x){ return x.id === id; });
+  const observacaoAtual = cand && cand.observacao_rh ? cand.observacao_rh + '\n\n' : '';
+  const novaObservacao = observacaoAtual + '⏰ ADIADO em ' + new Date().toLocaleDateString('pt-BR') + ': ' + motivo;
+  
+  const res = await sb.from('candidaturas').update({
+    status: 'aprovado_pre',
+    data_entrevista: null,
+    observacao_rh: novaObservacao,
+    atualizado_em: new Date().toISOString()
+  }).eq('id', id);
+  
+  if(res.error) return toast('Erro','Falha ao adiar','error');
+  closeModal();
+  toast('⏰ Entrevista adiada','Você precisará agendar nova data','warn');
   await carregarRecrutamento();
 }
 
