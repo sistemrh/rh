@@ -4,575 +4,745 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trabalhe Conosco</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+tailwind.config={theme:{extend:{
+  fontFamily:{sans:['"IBM Plex Sans"','sans-serif'],display:['Sora','sans-serif']},
+  keyframes:{fadeUp:{from:{opacity:0,transform:'translateY(15px)'},to:{opacity:1,transform:'translateY(0)'}},
+    fadeIn:{from:{opacity:0},to:{opacity:1}}},
+  animation:{'fade-up':'fadeUp .5s ease both','fade-in':'fadeIn .3s ease both'}
+}}}
+</script>
 <style>
-  body { background: #0a0e1a; font-family: 'Inter', sans-serif; color: #e2e8f0; }
-  .font-display { font-family: 'Sora', sans-serif; }
-  .glass { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); }
-  .btn-gradient { transition: all .2s; cursor: pointer; color: white; font-weight: 600; }
-  .btn-gradient:hover { transform: translateY(-2px); filter: brightness(1.1); }
-  .input-field { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); color: #fff; }
-  .input-field:focus { border-color: var(--cor-empresa); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--cor-empresa) 25%, transparent); }
-  .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .3; pointer-events: none; z-index: 0; }
-  .vaga-card { transition: all .25s; cursor: pointer; }
-  .vaga-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,.4); }
-  .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes fadeUp { from {opacity:0; transform:translateY(16px)} to {opacity:1; transform:translateY(0)} }
-  .animate-fade-up { animation: fadeUp .5s ease both; }
-  .sear-container { display: flex; flex-direction: column; height: 70vh; max-height: 600px; }
-  .sear-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
-  .sear-msg { max-width: 85%; animation: fadeUp .3s ease both; }
-  .sear-msg.bot { align-self: flex-start; }
-  .sear-msg.user { align-self: flex-end; }
-  .sear-bubble { padding: 14px 18px; border-radius: 20px; font-size: 15px; line-height: 1.5; }
-  .sear-msg.bot .sear-bubble { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-bottom-left-radius: 6px; }
-  .sear-msg.user .sear-bubble { color: white; border-bottom-right-radius: 6px; }
-  .sear-dot { width: 8px; height: 8px; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
-  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
-  :root { --cor-empresa: #6366f1; --cor-empresa-2: #8b5cf6; }
+  body{background:#070d19;color:#cbd5e1;font-family:'IBM Plex Sans',sans-serif}
+  .font-display{font-family:'Sora',sans-serif}
+  .panel{background:linear-gradient(180deg,rgba(24,36,62,.92),rgba(12,20,37,.96));border:1px solid rgba(82,106,150,.35);box-shadow:0 8px 24px rgba(0,0,0,.35);border-radius:.85rem}
+  .btn-primary{background:linear-gradient(135deg,#4f46e5,#7c3aed,#ec4899);color:#fff;font-weight:700;box-shadow:0 4px 14px rgba(79,70,229,.4);transition:all .2s}
+  .btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+  .btn-ghost{border:1px solid rgba(125,145,180,.4);color:#cbd5e1;background:rgba(255,255,255,.03);transition:all .2s}
+  .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(125,211,252,.5)}
+  .inp{background:#0e1830;border:1px solid rgba(82,106,150,.45);color:#e2e8f0;border-radius:.5rem;padding:.6rem .75rem;font-size:.875rem;outline:none;width:100%}
+  .inp:focus{border-color:#7dd3fc;box-shadow:0 0 0 3px rgba(56,189,248,.15)}
+  .inp::placeholder{color:#46587a}
+  .lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5c7295;margin-bottom:6px}
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700}
+  .vaga-card{transition:all .25s;cursor:pointer}
+  .vaga-card:hover{transform:translateY(-4px);border-color:rgba(125,211,252,.45);box-shadow:0 12px 32px rgba(0,0,0,.4)}
+  .chrome-text{background:linear-gradient(180deg,#fff,#e6edf5 34%,#93a5bd 58%,#e2e9f2 78%,#64748b);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .toast-bar{animation:toastbar 4s linear forwards}
+  @keyframes toastbar{from{width:100%}to{width:0%}}
+  .spinner{width:40px;height:40px;border:4px solid rgba(99,102,241,.3);border-top-color:#6366f1;border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
-<body>
+<body class="antialiased min-h-screen">
 
-<!-- LOADING -->
-<div id="telaLoading" class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-  <div class="orb w-96 h-96 -top-20 -left-20" style="background:var(--cor-empresa)"></div>
-  <div class="text-center relative z-10">
-    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center shadow-lg animate-pulse" style="background:linear-gradient(135deg,var(--cor-empresa),var(--cor-empresa-2))">
-      <span class="text-3xl">💼</span>
+<!-- ═══════════════════════════════════════════
+     HEADER DA EMPRESA
+     ═══════════════════════════════════════════ -->
+<header class="border-b border-slate-800/60 bg-[#0a1224]/85 backdrop-blur sticky top-0 z-40">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-2xl" id="empresaLogo">💼</div>
+      <div>
+        <h1 class="font-display font-bold text-lg text-white" id="empresaNome">Carregando...</h1>
+        <p class="text-xs text-slate-400" id="empresaSlogan">Trabalhe Conosco</p>
+      </div>
     </div>
-    <h1 class="font-display text-2xl font-bold mb-2">Carregando...</h1>
-    <p class="text-slate-400 text-sm" id="loadingMsg">Validando acesso</p>
+    <button onclick="abrirAreaCandidato()" class="btn-ghost px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+      👤 Área do Candidato
+    </button>
   </div>
-</div>
+</header>
 
-<!-- CHAVE INVÁLIDA -->
-<div id="telaChaveInvalida" class="hidden min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-  <div class="orb w-96 h-96 bg-rose-500 -top-20 -left-20"></div>
-  <div class="glass rounded-3xl p-8 max-w-md w-full relative z-10 animate-fade-up text-center">
-    <div class="w-20 h-20 mx-auto rounded-full bg-rose-500/20 grid place-items-center mb-4"><span class="text-4xl">🔒</span></div>
-    <h2 class="font-display text-2xl font-bold mb-2">Página não encontrada</h2>
-    <p class="text-slate-400 mb-6" id="msgChaveInvalida">Verifique o link com a empresa.</p>
+<!-- ═══════════════════════════════════════════
+     HERO / BANNER
+     ═══════════════════════════════════════════ -->
+<section class="relative overflow-hidden py-12 px-4" style="background:linear-gradient(120deg,rgba(79,70,229,.15),rgba(124,58,237,.1))">
+  <div class="max-w-6xl mx-auto text-center">
+    <h2 class="font-display text-3xl sm:text-4xl font-bold chrome-text mb-3" id="heroTitulo">Vem ser parte do nosso time!</h2>
+    <p class="text-slate-300 max-w-2xl mx-auto" id="heroMensagem">Conheça nossas oportunidades e candidate-se.</p>
   </div>
-</div>
+</section>
 
-<!-- LISTA DE VAGAS -->
-<div id="telaVagas" class="hidden min-h-screen">
-  <header class="border-b border-white/10 sticky top-0 z-40" style="background:rgba(10,14,26,.85);backdrop-filter:blur(12px)">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
-      <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg overflow-hidden" id="headerLogoBox" style="background:linear-gradient(135deg,var(--cor-empresa),var(--cor-empresa-2))">
-        <span id="headerLogoIcon" class="text-2xl">💼</span>
-        <img id="headerLogoImg" class="w-full h-full object-contain hidden" alt="Logo">
+<!-- ═══════════════════════════════════════════
+     VAGAS DISPONÍVEIS
+     ═══════════════════════════════════════════ -->
+<main class="max-w-6xl mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
+    <h3 class="font-display text-xl font-bold text-white">📋 Vagas Disponíveis</h3>
+    <button onclick="abrirAreaCandidato()" class="btn-ghost px-4 py-2 rounded-lg text-sm font-bold">
+      👤 Já se candidatou? Acompanhe aqui
+    </button>
+  </div>
+
+  <div id="listaVagas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <p class="text-slate-400 col-span-full text-center py-8">Carregando vagas...</p>
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════
+     MODAL DE CANDIDATURA
+     ═══════════════════════════════════════════ -->
+<div id="modalCandidatura" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="panel !rounded-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-display font-bold text-slate-100 text-lg" id="tituloVagaCandidatura">Candidatar-se</h3>
+      <button onclick="fecharCandidatura()" class="text-slate-500 hover:text-white text-xl">✕</button>
+    </div>
+    
+    <div class="space-y-3">
+      <div>
+        <label class="lbl">Nome completo *</label>
+        <input type="text" id="candNome" class="inp" placeholder="Seu nome completo">
       </div>
       <div>
-        <h1 class="font-display font-bold text-lg" id="empresaNome">Empresa</h1>
-        <p class="text-[10px] uppercase tracking-wider" style="color:var(--cor-empresa)">Trabalhe Conosco</p>
+        <label class="lbl">CPF *</label>
+        <input type="text" id="candCPF" class="inp" placeholder="000.000.000-00" maxlength="14">
+      </div>
+      <div>
+        <label class="lbl">Email *</label>
+        <input type="email" id="candEmail" class="inp" placeholder="seu@email.com">
+      </div>
+      <div>
+        <label class="lbl">Telefone *</label>
+        <input type="tel" id="candTelefone" class="inp" placeholder="(00) 00000-0000">
       </div>
     </div>
-  </header>
-
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-    <div class="text-center mb-12 animate-fade-up">
-      <h2 class="font-display text-4xl sm:text-5xl font-bold mb-4" id="heroTitulo">Faça parte do nosso time</h2>
-      <p class="text-slate-400 text-lg max-w-2xl mx-auto" id="heroMensagem">Conheça nossas oportunidades e candidate-se.</p>
-    </div>
-    <div class="flex items-center justify-between mb-6">
-      <h3 class="font-display text-xl font-bold">Vagas Disponíveis</h3>
-      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold" id="vagasCount" style="background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.3)">0 vagas</span>
-    </div>
-    <div id="vagasGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-    <div id="emptyVagas" class="hidden text-center py-16">
-      <p class="text-5xl mb-4">📭</p>
-      <p class="text-slate-300 font-semibold mb-2">Nenhuma vaga disponível no momento</p>
-      <p class="text-sm text-slate-500">Volte em breve para conferir novas oportunidades!</p>
-    </div>
-  </main>
-  <footer class="border-t border-white/10 mt-12 py-8 text-center">
-    <p class="text-xs text-slate-600">© 2025 · Portal de Recrutamento</p>
-  </footer>
-</div>
-
-<!-- INSCRIÇÃO -->
-<div id="telaInscricao" class="hidden min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-  <div class="orb w-96 h-96 -top-20 -left-20" style="background:var(--cor-empresa)"></div>
-  <div class="glass rounded-3xl p-8 max-w-lg w-full relative z-10 animate-fade-up">
-    <button onclick="voltarParaVagas()" class="text-slate-400 hover:text-white text-sm mb-4 flex items-center gap-2"><span>←</span> Voltar às vagas</button>
-    <div class="mb-6">
-      <h2 class="font-display text-2xl font-bold mb-1" id="inscricaoVagaTitulo">Nome da Vaga</h2>
-      <p class="text-slate-400 text-sm" id="inscricaoVagaInfo">Local · Modalidade</p>
-    </div>
-    <div class="glass rounded-xl p-4 mb-6" style="background:color-mix(in srgb, var(--cor-empresa) 8%, transparent);border-color:color-mix(in srgb, var(--cor-empresa) 30%, transparent)">
-      <p class="text-xs text-slate-300 leading-relaxed">🤖 <strong style="color:var(--cor-empresa)">Como funciona:</strong> Após preencher seus dados, nossa assistente <strong style="color:var(--cor-empresa)">SEAR</strong> fará uma breve conversa para te conhecer melhor. Leva cerca de <strong>5-10 minutos</strong>.</p>
-    </div>
-    <div id="inscricaoMsg" class="hidden mb-4 px-4 py-3 rounded-xl text-sm"></div>
-    <form id="formInscricao" class="space-y-4">
-      <div><label class="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wider">Nome completo *</label><input type="text" id="candNome" class="input-field w-full px-4 py-3.5 rounded-xl text-sm" placeholder="Seu nome completo" required></div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div><label class="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wider">Email *</label><input type="email" id="candEmail" class="input-field w-full px-4 py-3.5 rounded-xl text-sm" placeholder="seu@email.com" required></div>
-        <div><label class="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wider">Telefone *</label><input type="tel" id="candTelefone" class="input-field w-full px-4 py-3.5 rounded-xl text-sm" placeholder="(00) 00000-0000" maxlength="15" required></div>
-      </div>
-      <div><label class="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wider">CPF *</label><input type="text" id="candCPF" class="input-field w-full px-4 py-3.5 rounded-xl text-sm" placeholder="000.000.000-00" maxlength="14" required></div>
-      <button type="submit" id="btnIniciar" class="btn-gradient w-full py-4 rounded-xl text-sm" style="background:linear-gradient(135deg,var(--cor-empresa),var(--cor-empresa-2))"><span id="btnIniciarTexto">🤖 Iniciar conversa com SEAR</span></button>
-    </form>
+    
+    <div id="candidaturaErro" class="hidden mt-3 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm"></div>
+    <div id="candidaturaSucesso" class="hidden mt-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm"></div>
+    
+    <button onclick="enviarCandidatura()" id="btnEnviarCandidatura" class="btn-primary w-full mt-4 px-4 py-3 rounded-xl text-sm font-bold">
+      📤 Enviar Candidatura
+    </button>
   </div>
 </div>
 
-<!-- CHAT SEAR -->
-<div id="telaSear" class="hidden min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-  <div class="orb w-96 h-96 -top-20 -left-20" style="background:var(--cor-empresa)"></div>
-  <div class="glass rounded-3xl w-full max-w-3xl relative z-10 overflow-hidden animate-fade-up">
-    <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between" style="background:color-mix(in srgb, var(--cor-empresa) 15%, transparent)">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg" style="background:linear-gradient(135deg,var(--cor-empresa),var(--cor-empresa-2))">🤖</div>
-        <div>
-          <h3 class="font-display font-bold">SEAR · Recrutadora IA</h3>
-          <p class="text-xs flex items-center gap-1.5" style="color:var(--cor-empresa)"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span id="searStatus">Online agora</span></p>
-        </div>
-      </div>
-      <div class="text-right"><p class="text-[10px] text-slate-500 uppercase tracking-wider">Progresso</p><p class="font-display font-bold" id="searProgress" style="color:var(--cor-empresa)">0%</p></div>
+<!-- ═══════════════════════════════════════════
+     MODAL LOGIN CANDIDATO
+     ═══════════════════════════════════════════ -->
+<div id="modalLoginCandidato" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="panel !rounded-2xl max-w-md w-full p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-display font-bold text-slate-100 text-lg">👤 Área do Candidato</h3>
+      <button onclick="fecharLoginCandidato()" class="text-slate-500 hover:text-white text-xl">✕</button>
     </div>
-    <div class="h-1 bg-white/5"><div id="searProgressBar" class="h-full transition-all duration-500" style="width:0%;background:linear-gradient(90deg,var(--cor-empresa),var(--cor-empresa-2))"></div></div>
-    <div class="sear-container">
-      <div class="sear-messages" id="searMessages"></div>
-      <div class="px-6 py-4 border-t border-white/10 flex gap-3" style="background:rgba(10,14,26,.8)">
-        <input type="text" id="searInput" class="input-field flex-1 px-4 py-3 rounded-full text-sm" placeholder="Digite sua resposta..." autocomplete="off" disabled>
-        <button id="searSendBtn" onclick="enviarMensagemSear()" class="btn-gradient w-12 h-12 rounded-full flex items-center justify-center text-lg" style="background:linear-gradient(135deg,var(--cor-empresa),var(--cor-empresa-2))" disabled>➜</button>
+    <p class="text-sm text-slate-400 mb-4">Acompanhe suas candidaturas e próximos passos.</p>
+    
+    <div class="space-y-3">
+      <div>
+        <label class="lbl">CPF *</label>
+        <input type="text" id="loginCPF" class="inp" placeholder="000.000.000-00" maxlength="14">
       </div>
+      <div>
+        <label class="lbl">Nome completo *</label>
+        <input type="text" id="loginNome" class="inp" placeholder="Seu nome completo">
+      </div>
+    </div>
+    
+    <div id="loginErro" class="hidden mt-3 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm"></div>
+    
+    <button onclick="fazerLoginCandidato()" id="btnLoginCandidato" class="btn-primary w-full mt-4 px-4 py-3 rounded-xl text-sm font-bold">
+      🔓 Entrar
+    </button>
+    
+    <p class="text-xs text-slate-500 text-center mt-3">
+      Usamos seu CPF e nome apenas para identificar suas candidaturas.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL CANDIDATURAS (APÓS LOGIN)
+     ═══════════════════════════════════════════ -->
+<div id="modalCandidaturas" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="panel !rounded-2xl max-w-2xl w-full p-6 max-h-[85vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h3 class="font-display font-bold text-slate-100 text-lg">📋 Minhas Candidaturas</h3>
+        <p class="text-sm text-slate-400" id="candidatoLogadoNome">—</p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="logoutCandidato()" class="btn-ghost px-3 py-1.5 rounded-lg text-xs">Sair</button>
+        <button onclick="fecharCandidaturas()" class="text-slate-500 hover:text-white text-xl">✕</button>
+      </div>
+    </div>
+    
+    <div id="listaCandidaturas" class="space-y-3">
+      <p class="text-slate-400 text-center py-4">Carregando...</p>
     </div>
   </div>
 </div>
 
-<!-- CONFIRMAÇÃO -->
-<div id="telaConfirmacao" class="hidden min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-  <div class="orb w-96 h-96 bg-emerald-500 -top-20 -left-20"></div>
-  <div class="glass rounded-3xl p-8 sm:p-10 max-w-md w-full relative z-10 animate-fade-up text-center">
-    <div class="w-20 h-20 mx-auto rounded-full bg-emerald-500/20 grid place-items-center mb-5"><span class="text-4xl">🎉</span></div>
-    <h2 class="font-display text-2xl font-bold mb-3">Inscrição concluída!</h2>
-    <p class="text-slate-400 mb-6 leading-relaxed">Suas respostas foram enviadas ao RH. Em breve você receberá um retorno no email <strong style="color:var(--cor-empresa)" id="confirmEmail">—</strong>.</p>
-    <button onclick="location.reload()" class="btn-gradient w-full py-3.5 rounded-xl text-sm" style="background:linear-gradient(135deg,var(--cor-empresa),var(--cor-empresa-2))">Ver outras vagas</button>
-  </div>
-</div>
+<!-- ═══════════════════════════════════════════
+     TOAST
+     ═══════════════════════════════════════════ -->
+<div id="toastRoot" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2.5 w-[min(380px,calc(100vw-40px))]"></div>
 
 <script>
+// ═══════════════════════════════════════════
+// CONFIGURAÇÃO SUPABASE
+// ═══════════════════════════════════════════
 const SUPA_URL = 'https://ippykisvjqmigobagzjt.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwcHlraXN2anFtaWdvYmFnemp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU5NDUsImV4cCI6MjEwMzM0MTk0NX0.m0TuMyIxW_UaW1H9HUiKVn_711PFrxIk8y-kFw-OhKc';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-const MISTRAL_API_KEY = 'ZTRxcvCHWXLZ4dq4K7yK9rQAu0KE1dbW';
-const MISTRAL_MODEL = 'mistral-small-latest';
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
-
-let empresa = null;
-let paginaConfig = {};
-let vagas = [];
+let empresaAtual = null;
+let vagasDisponiveis = [];
 let vagaSelecionada = null;
-let candidato = null;
-let candidatura = null;
-let searMensagens = [];
-let searPerguntasFeitas = 0;
-const SEAR_TOTAL_PERGUNTAS = 8;
-let searFinalizada = false;
+let candidatoLogado = null;
 
-const $ = id => document.getElementById(id);
+// ═══════════════════════════════════════════
+// INICIALIZAÇÃO
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  carregarEmpresa();
+  verificarCandidatoLogado();
+  aplicarMascaraCPF('candCPF');
+  aplicarMascaraCPF('loginCPF');
+});
 
-async function init() {
-  const params = new URLSearchParams(window.location.search);
-  const slug = params.get('e');
-  const chave = params.get('chave');
-  
-  if (!slug && !chave) { mostrarErro('Nenhuma empresa especificada no link.'); return; }
-  
+function aplicarMascaraCPF(id) {
+  const input = document.getElementById(id);
+  if (!input) return;
+  input.addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+    if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d+)/, '$1.$2.$3');
+    else if (v.length > 3) v = v.replace(/(\d{3})(\d+)/, '$1.$2');
+    e.target.value = v;
+  });
+}
+
+// ═══════════════════════════════════════════
+// CARREGAR EMPRESA E VAGAS
+// ═══════════════════════════════════════════
+async function carregarEmpresa() {
   try {
-    let emp = null;
-    if (slug) {
-      const { data } = await sb.from('empresas').select('*').eq('slug', slug.toLowerCase()).maybeSingle();
-      emp = data;
-    }
-    if (!emp && chave) {
-      const { data } = await sb.from('empresas').select('*').eq('chave_acesso', chave.toUpperCase()).maybeSingle();
-      emp = data;
-    }
+    // Pegar slug da URL
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('e');
     
-    if (!emp) { mostrarErro('Empresa não encontrada.'); return; }
-    if (emp.conta_ativa === false) { mostrarErro('Página indisponível.'); return; }
-    
-    empresa = emp;
-    
-    // Carregar personalização
-    const { data: config } = await sb.from('recrutamento_config').select('*').eq('empresa_id', emp.id).maybeSingle();
-    paginaConfig = config || {};
-    
-    if (paginaConfig.pagina_ativa === false) {
-      mostrarErro('A página de vagas desta empresa está desativada.');
+    if (!slug) {
+      document.getElementById('empresaNome').textContent = 'Empresa não especificada';
       return;
     }
     
-    aplicarPersonalizacao();
+    // Buscar empresa pelo slug
+    const { data: empresa, error } = await sb
+      .from('empresas')
+      .select('*')
+      .eq('slug', slug)
+      .maybeSingle();
+    
+    if (error || !empresa) {
+      document.getElementById('empresaNome').textContent = 'Empresa não encontrada';
+      return;
+    }
+    
+    empresaAtual = empresa;
+    
+    // Atualizar header
+    document.getElementById('empresaNome').textContent = empresa.nome || 'Empresa';
+    document.getElementById('empresaSlogan').textContent = empresa.slogan || 'Trabalhe Conosco';
+    
+    // Buscar configurações de recrutamento
+    const { data: config } = await sb
+      .from('recrutamento_config')
+      .select('*')
+      .eq('empresa_id', empresa.id)
+      .maybeSingle();
+    
+    if (config) {
+      if (config.titulo) document.getElementById('heroTitulo').textContent = config.titulo;
+      if (config.mensagem) document.getElementById('heroMensagem').textContent = config.mensagem;
+      if (config.logo_url) {
+        document.getElementById('empresaLogo').innerHTML = '<img src="' + config.logo_url + '" alt="Logo" class="w-full h-full object-cover rounded-xl">';
+      }
+    }
+    
+    // Carregar vagas
     await carregarVagas();
     
   } catch (err) {
-    console.error(err);
-    mostrarErro('Erro ao carregar a página.');
+    console.error('Erro ao carregar empresa:', err);
   }
-}
-
-function aplicarPersonalizacao(){
-  const cor1 = paginaConfig.cor_primaria || '#6366f1';
-  const cor2 = paginaConfig.cor_secundaria || '#8b5cf6';
-  
-  document.documentElement.style.setProperty('--cor-empresa', cor1);
-  document.documentElement.style.setProperty('--cor-empresa-2', cor2);
-  
-  document.title = `Trabalhe Conosco · ${empresa.nome}`;
-  $('empresaNome').textContent = empresa.nome;
-  $('heroTitulo').textContent = paginaConfig.titulo || `Faça parte do time ${empresa.nome}`;
-  $('heroMensagem').textContent = paginaConfig.mensagem || 'Conheça nossas oportunidades e candidate-se.';
-  
-  if (paginaConfig.logo_url) {
-    const img = $('headerLogoImg');
-    img.src = paginaConfig.logo_url;
-    img.classList.remove('hidden');
-    $('headerLogoIcon').classList.add('hidden');
-    img.onerror = () => { img.classList.add('hidden'); $('headerLogoIcon').classList.remove('hidden'); };
-  }
-}
-
-function mostrarErro(msg) {
-  $('loadingMsg').textContent = msg;
-  setTimeout(() => {
-    $('telaLoading').classList.add('hidden');
-    $('msgChaveInvalida').textContent = msg;
-    $('telaChaveInvalida').classList.remove('hidden');
-  }, 800);
 }
 
 async function carregarVagas() {
-  $('loadingMsg').textContent = 'Carregando vagas...';
+  if (!empresaAtual) return;
   
-  const { data, error } = await sb.from('vagas').select('*').eq('empresa_id', empresa.id).eq('status', 'aberta').order('criado_em', { ascending: false });
-  if (error) { mostrarErro('Erro ao carregar vagas.'); return; }
+  try {
+    const { data: vagas, error } = await sb
+      .from('vagas')
+      .select('*')
+      .eq('empresa_id', empresaAtual.id)
+      .eq('status', 'aberta')
+      .order('criado_em', { ascending: false });
+    
+    if (error) throw error;
+    
+    vagasDisponiveis = vagas || [];
+    renderizarVagas();
+    
+  } catch (err) {
+    console.error('Erro ao carregar vagas:', err);
+    document.getElementById('listaVagas').innerHTML = 
+      '<p class="text-rose-400 col-span-full text-center py-8">Erro ao carregar vagas.</p>';
+  }
+}
+
+function renderizarVagas() {
+  const container = document.getElementById('listaVagas');
   
-  vagas = data || [];
-  
-  // Filtrar por vagas_visiveis se configurado
-  if (paginaConfig.mostrar_todas_vagas === false && paginaConfig.vagas_visiveis && paginaConfig.vagas_visiveis.length > 0) {
-    vagas = vagas.filter(v => paginaConfig.vagas_visiveis.includes(v.id));
+  if (!vagasDisponiveis.length) {
+    container.innerHTML = '<p class="text-slate-400 col-span-full text-center py-8">Nenhuma vaga disponível no momento.</p>';
+    return;
   }
   
-  $('telaLoading').classList.add('hidden');
-  $('telaVagas').classList.remove('hidden');
-  renderVagas();
+  let html = '';
+  vagasDisponiveis.forEach(function(vaga) {
+    html += '<div class="panel vaga-card p-5" onclick="abrirCandidatura(\'' + vaga.id + '\')">';
+    html += '<div class="flex justify-between items-start mb-3">';
+    html += '<h4 class="font-display font-bold text-white text-lg">' + (vaga.titulo || 'Vaga') + '</h4>';
+    html += '<span class="badge bg-emerald-500/15 text-emerald-400">Aberta</span>';
+    html += '</div>';
+    
+    if (vaga.descricao) {
+      html += '<p class="text-sm text-slate-400 mb-3 line-clamp-2">' + vaga.descricao + '</p>';
+    }
+    
+    html += '<div class="space-y-1 text-sm text-slate-300 mb-4">';
+    if (vaga.local) html += '<p>📍 ' + vaga.local + '</p>';
+    if (vaga.tipo) html += '<p>📋 ' + vaga.tipo + '</p>';
+    if (vaga.modalidade) html += '<p>🏢 ' + vaga.modalidade + '</p>';
+    if (vaga.salario) html += '<p>💰 R$ ' + formatarSalario(vaga.salario) + '</p>';
+    html += '</div>';
+    
+    html += '<button class="btn-primary w-full px-4 py-2.5 rounded-lg text-sm font-bold">Candidatar-se →</button>';
+    html += '</div>';
+  });
+  
+  container.innerHTML = html;
 }
 
-function renderVagas() {
-  const grid = $('vagasGrid');
-  const empty = $('emptyVagas');
-  
-  if (!vagas.length) { grid.classList.add('hidden'); empty.classList.remove('hidden'); return; }
-  
-  $('vagasCount').textContent = `${vagas.length} vaga${vagas.length !== 1 ? 's' : ''}`;
-  
-  grid.innerHTML = vagas.map(v => `
-    <div class="vaga-card glass rounded-2xl p-6 flex flex-col" onclick="abrirInscricao('${v.id}')" style="border-color:rgba(255,255,255,.08)">
-      <div class="flex items-start justify-between mb-4">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold" style="background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.3)">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Aberta
-        </span>
-        <span class="text-[10px] text-slate-500">${v.modalidade || 'Presencial'}</span>
-      </div>
-      <h3 class="font-display font-bold text-lg mb-2">${v.titulo}</h3>
-      <p class="text-sm text-slate-400 line-clamp-2 mb-4 flex-1">${v.descricao || ''}</p>
-      <div class="space-y-1.5 mb-5 text-xs text-slate-500">
-        ${v.salario ? `<p class="flex items-center gap-2"><span>💰</span><span class="text-slate-300">${v.salario}</span></p>` : ''}
-        ${v.local ? `<p class="flex items-center gap-2"><span>📍</span><span class="text-slate-300">${v.local}</span></p>` : ''}
-        ${v.tipo ? `<p class="flex items-center gap-2"><span>📋</span><span class="text-slate-300">${v.tipo}</span></p>` : ''}
-      </div>
-      <button class="btn-gradient w-full py-3 rounded-xl text-sm" style="background:linear-gradient(135deg,var(--cor-empresa),var(--cor-empresa-2))">Candidatar-se →</button>
-    </div>
-  `).join('');
+function formatarSalario(valor) {
+  if (!valor) return '—';
+  return parseFloat(valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 }
 
-function abrirInscricao(vagaId) {
-  vagaSelecionada = vagas.find(v => v.id === vagaId);
+// ═══════════════════════════════════════════
+// CANDIDATURA
+// ═══════════════════════════════════════════
+function abrirCandidatura(vagaId) {
+  vagaSelecionada = vagasDisponiveis.find(function(v) { return v.id === vagaId; });
   if (!vagaSelecionada) return;
-  $('inscricaoVagaTitulo').textContent = vagaSelecionada.titulo;
-  $('inscricaoVagaInfo').textContent = `${vagaSelecionada.local || ''} · ${vagaSelecionada.modalidade || ''} · ${vagaSelecionada.tipo || ''}`;
-  $('telaVagas').classList.add('hidden');
-  $('telaInscricao').classList.remove('hidden');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function voltarParaVagas() {
-  $('telaInscricao').classList.add('hidden');
-  $('telaVagas').classList.remove('hidden');
-}
-
-$('candTelefone').addEventListener('input', e => {
-  let v = e.target.value.replace(/\D/g, '').slice(0, 11);
-  if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
-  else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
-  e.target.value = v;
-});
-
-$('candCPF').addEventListener('input', e => {
-  let v = e.target.value.replace(/\D/g, '').slice(0, 11);
-  if (v.length > 9) v = `${v.slice(0,3)}.${v.slice(3,6)}.${v.slice(6,9)}-${v.slice(9)}`;
-  else if (v.length > 6) v = `${v.slice(0,3)}.${v.slice(3,6)}.${v.slice(6)}`;
-  else if (v.length > 3) v = `${v.slice(0,3)}.${v.slice(3)}`;
-  e.target.value = v;
-});
-
-function validarCPF(cpf) {
-  cpf = cpf.replace(/\D/g, '');
-  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
-  let soma = 0;
-  for (let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
-  let resto = (soma * 10) % 11;
-  if (resto === 10) resto = 0;
-  if (resto !== parseInt(cpf[9])) return false;
-  soma = 0;
-  for (let i = 0; i < 10; i++) soma += parseInt(cpf[i]) * (11 - i);
-  resto = (soma * 10) % 11;
-  if (resto === 10) resto = 0;
-  return resto === parseInt(cpf[10]);
-}
-
-$('formInscricao').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const nome = $('candNome').value.trim();
-  const email = $('candEmail').value.trim().toLowerCase();
-  const telefone = $('candTelefone').value.trim();
-  const cpf = $('candCPF').value.trim();
-  const btn = $('btnIniciar');
-  const btnTexto = $('btnIniciarTexto');
-  const msgBox = $('inscricaoMsg');
-  msgBox.classList.add('hidden');
   
-  if (!validarCPF(cpf)) {
-    msgBox.textContent = '❌ CPF inválido.';
-    msgBox.className = 'mb-4 px-4 py-3 rounded-xl text-sm';
-    msgBox.style.background = 'rgba(239,68,68,.15)';
-    msgBox.style.color = '#fca5a5';
-    msgBox.classList.remove('hidden');
+  document.getElementById('tituloVagaCandidatura').textContent = 'Candidatar-se: ' + vagaSelecionada.titulo;
+  document.getElementById('candidaturaErro').classList.add('hidden');
+  document.getElementById('candidaturaSucesso').classList.add('hidden');
+  
+  // Limpar campos
+  document.getElementById('candNome').value = '';
+  document.getElementById('candCPF').value = '';
+  document.getElementById('candEmail').value = '';
+  document.getElementById('candTelefone').value = '';
+  
+  document.getElementById('modalCandidatura').classList.remove('hidden');
+}
+
+function fecharCandidatura() {
+  document.getElementById('modalCandidatura').classList.add('hidden');
+}
+
+async function enviarCandidatura() {
+  const nome = document.getElementById('candNome').value.trim();
+  const cpf = document.getElementById('candCPF').value.trim();
+  const email = document.getElementById('candEmail').value.trim();
+  const telefone = document.getElementById('candTelefone').value.trim();
+  
+  const erroDiv = document.getElementById('candidaturaErro');
+  const sucessoDiv = document.getElementById('candidaturaSucesso');
+  const btn = document.getElementById('btnEnviarCandidatura');
+  
+  erroDiv.classList.add('hidden');
+  sucessoDiv.classList.add('hidden');
+  
+  // Validações
+  if (!nome || nome.length < 3) {
+    erroDiv.textContent = '⚠️ Digite seu nome completo';
+    erroDiv.classList.remove('hidden');
+    return;
+  }
+  
+  if (!cpf || cpf.length < 14) {
+    erroDiv.textContent = '⚠️ Digite um CPF válido';
+    erroDiv.classList.remove('hidden');
+    return;
+  }
+  
+  if (!email || !email.includes('@')) {
+    erroDiv.textContent = '⚠️ Digite um email válido';
+    erroDiv.classList.remove('hidden');
     return;
   }
   
   btn.disabled = true;
-  btnTexto.innerHTML = '<div class="spinner"></div> Preparando...';
+  btn.textContent = 'Enviando...';
   
   try {
-    let { data: cand } = await sb.from('candidatos').select('*').eq('email', email).maybeSingle();
-    if (!cand) {
-      const ins = await sb.from('candidatos').insert({ nome, email, telefone, cpf }).select().single();
-      if (ins.error) throw ins.error;
-      cand = ins.data;
-    } else {
-      await sb.from('candidatos').update({ nome, telefone, cpf }).eq('id', cand.id);
-    }
-    candidato = cand;
+    // Verificar se candidato já existe
+    let { data: candidatoExistente } = await sb
+      .from('candidatos')
+      .select('*')
+      .eq('cpf', cpf)
+      .maybeSingle();
     
-    const { data: existente } = await sb.from('candidaturas').select('*').eq('vaga_id', vagaSelecionada.id).eq('candidato_id', cand.id).maybeSingle();
-    if (existente && existente.status !== 'reprovado') {
-      msgBox.textContent = 'ℹ️ Você já se candidatou para esta vaga.';
-      msgBox.style.background = 'rgba(59,130,246,.15)';
-      msgBox.style.color = '#93c5fd';
-      msgBox.classList.remove('hidden');
+    let candidatoId;
+    
+    if (candidatoExistente) {
+      candidatoId = candidatoExistente.id;
+      // Atualizar dados
+      await sb.from('candidatos')
+        .update({ nome: nome, email: email, telefone: telefone })
+        .eq('id', candidatoId);
+    } else {
+      // Criar novo candidato
+      const { data: novoCandidato, error } = await sb
+        .from('candidatos')
+        .insert({
+          nome: nome,
+          cpf: cpf,
+          email: email,
+          telefone: telefone
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      candidatoId = novoCandidato.id;
+    }
+    
+    // Verificar se já se candidatou para esta vaga
+    const { data: candidaturaExistente } = await sb
+      .from('candidaturas')
+      .select('*')
+      .eq('candidato_id', candidatoId)
+      .eq('vaga_id', vagaSelecionada.id)
+      .maybeSingle();
+    
+    if (candidaturaExistente) {
+      erroDiv.textContent = '⚠️ Você já se candidatou para esta vaga. Acompanhe na Área do Candidato.';
+      erroDiv.classList.remove('hidden');
       btn.disabled = false;
-      btnTexto.textContent = '🤖 Iniciar conversa com SEAR';
+      btn.textContent = '📤 Enviar Candidatura';
       return;
     }
     
-    const { data: novaCand, error: errCand } = await sb.from('candidaturas').insert({
-      empresa_id: empresa.id, vaga_id: vagaSelecionada.id, candidato_id: cand.id, status: 'pre_entrevista'
-    }).select().single();
-    if (errCand) throw errCand;
-    candidatura = novaCand;
-    iniciarSear();
+    // Criar candidatura
+    const { error: errorCandidatura } = await sb
+      .from('candidaturas')
+      .insert({
+        candidato_id: candidatoId,
+        vaga_id: vagaSelecionada.id,
+        empresa_id: empresaAtual.id,
+        status: 'aguardando_rh'
+      });
+    
+    if (errorCandidatura) throw errorCandidatura;
+    
+    // Sucesso
+    sucessoDiv.textContent = '✅ Candidatura enviada com sucesso! Você pode acompanhar o status na Área do Candidato.';
+    sucessoDiv.classList.remove('hidden');
+    
+    setTimeout(function() {
+      fecharCandidatura();
+      toast('🎉 Sucesso!', 'Candidatura enviada. Acompanhe na Área do Candidato.', 'success');
+    }, 2000);
     
   } catch (err) {
-    msgBox.textContent = '❌ Erro: ' + err.message;
-    msgBox.style.background = 'rgba(239,68,68,.15)';
-    msgBox.style.color = '#fca5a5';
-    msgBox.classList.remove('hidden');
+    console.error('Erro ao enviar candidatura:', err);
+    erroDiv.textContent = '❌ Erro ao enviar candidatura. Tente novamente.';
+    erroDiv.classList.remove('hidden');
+  } finally {
     btn.disabled = false;
-    btnTexto.textContent = '🤖 Iniciar conversa com SEAR';
+    btn.textContent = '📤 Enviar Candidatura';
   }
-});
-
-function iniciarSear() {
-  $('telaInscricao').classList.add('hidden');
-  $('telaSear').classList.remove('hidden');
-  searMensagens = [];
-  searPerguntasFeitas = 0;
-  searFinalizada = false;
-  $('searMessages').innerHTML = '';
-  const primeiroNome = candidato.nome.split(' ')[0];
-  
-  searMensagens.push({
-    role: 'system',
-    content: `Você é SEAR, recrutadora virtual da empresa ${empresa.nome}. Profissional, calorosa, empática.
-
-DADOS DO CANDIDATO (já coletados, NÃO pergunte novamente):
-- Nome: ${candidato.nome}
-- Email: ${candidato.email}
-- Vaga: ${vagaSelecionada.titulo}
-
-REGRAS:
-1. SEMPRE comente a resposta antes da próxima pergunta
-2. UMA pergunta por vez
-3. Respostas curtas (2-4 frases)
-4. Máximo 1-2 emojis
-5. Chame pelo primeiro nome: ${primeiroNome}
-
-PERGUNTAS (nesta ordem):
-1. Experiência profissional na área
-2. Um desafio que superou no trabalho
-3. Competências técnicas relevantes
-4. Motivação para esta vaga
-5. Ponto forte e ponto a desenvolver
-6. Disponibilidade de horário e início
-7. Pretensão salarial
-8. Algo mais que gostaria de compartilhar
-
-FINALIZAÇÃO: Após a pergunta 8, agradeça e finalize com:
-"Obrigado pela conversa, ${primeiroNome}! Suas respostas foram registradas. [ENTREVISTA_CONCLUIDA]"`
-  });
-  
-  setTimeout(() => {
-    chamarSear(`Inicie se apresentando como SEAR, recrutadora da ${empresa.nome}. Cumprimente ${primeiroNome} e pergunte sobre experiência profissional na área da vaga ${vagaSelecionada.titulo}.`);
-  }, 600);
 }
 
-function adicionarMensagemSear(texto, tipo) {
-  const container = $('searMessages');
-  const div = document.createElement('div');
-  div.className = `sear-msg ${tipo}`;
-  const bubble = document.createElement('div');
-  bubble.className = 'sear-bubble';
-  bubble.innerHTML = escapeHtml(texto).replace(/\n/g, '<br>');
-  if (tipo === 'user') bubble.style.background = 'linear-gradient(135deg, var(--cor-empresa), var(--cor-empresa-2))';
-  div.appendChild(bubble);
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
+// ═══════════════════════════════════════════
+// ÁREA DO CANDIDATO
+// ═══════════════════════════════════════════
+function abrirAreaCandidato() {
+  if (candidatoLogado) {
+    abrirCandidaturas();
+  } else {
+    document.getElementById('modalLoginCandidato').classList.remove('hidden');
+    document.getElementById('loginErro').classList.add('hidden');
+    document.getElementById('loginCPF').value = '';
+    document.getElementById('loginNome').value = '';
+  }
 }
 
-function mostrarDigitando() {
-  const container = $('searMessages');
-  const div = document.createElement('div');
-  div.className = 'sear-msg bot';
-  div.id = 'searTyping';
-  div.innerHTML = `<div class="sear-bubble flex items-center gap-2"><div class="flex gap-1"><div class="sear-dot" style="background:var(--cor-empresa)"></div><div class="sear-dot" style="background:var(--cor-empresa)"></div><div class="sear-dot" style="background:var(--cor-empresa)"></div></div><span class="text-xs text-slate-400 ml-2">SEAR está digitando...</span></div>`;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
+function fecharLoginCandidato() {
+  document.getElementById('modalLoginCandidato').classList.add('hidden');
 }
 
-function esconderDigitando() {
-  const el = $('searTyping');
-  if (el) el.remove();
+function fecharCandidaturas() {
+  document.getElementById('modalCandidaturas').classList.add('hidden');
 }
 
-function atualizarProgresso() {
-  const pct = Math.min(100, Math.round((searPerguntasFeitas / SEAR_TOTAL_PERGUNTAS) * 100));
-  $('searProgress').textContent = pct + '%';
-  $('searProgressBar').style.width = pct + '%';
-}
-
-async function chamarSear(mensagemExtra = null) {
-  const input = $('searInput');
-  const btn = $('searSendBtn');
-  input.disabled = true;
-  btn.disabled = true;
-  $('searStatus').textContent = 'Digitando...';
-  mostrarDigitando();
-  
-  const msgs = mensagemExtra ? [...searMensagens, { role: 'user', content: mensagemExtra }] : [...searMensagens];
-  
-  try {
-    const resposta = await fetch(MISTRAL_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${MISTRAL_API_KEY}` },
-      body: JSON.stringify({ model: MISTRAL_MODEL, messages: msgs, temperature: 0.7, max_tokens: 600 })
-    });
-    if (!resposta.ok) throw new Error(`API ${resposta.status}`);
-    const dados = await resposta.json();
-    let texto = dados.choices[0].message.content.trim();
-    esconderDigitando();
-    
-    const finalizada = texto.includes('[ENTREVISTA_CONCLUIDA]');
-    if (finalizada) texto = texto.replace(/\[ENTREVISTA_CONCLUIDA\]/g, '').trim();
-    
-    adicionarMensagemSear(texto, 'bot');
-    if (!mensagemExtra) searMensagens.push({ role: 'assistant', content: texto });
-    $('searStatus').textContent = 'Online agora';
-    
-    if (finalizada) {
-      searFinalizada = true;
-      $('searProgress').textContent = '100%';
-      $('searProgressBar').style.width = '100%';
-      setTimeout(() => finalizarEntrevista(), 2500);
-    } else {
-      input.disabled = false;
-      btn.disabled = false;
-      input.focus();
+function verificarCandidatoLogado() {
+  const salvo = sessionStorage.getItem('candidato_logado');
+  if (salvo) {
+    try {
+      candidatoLogado = JSON.parse(salvo);
+    } catch (e) {
+      sessionStorage.removeItem('candidato_logado');
     }
-  } catch (err) {
-    esconderDigitando();
-    adicionarMensagemSear('Desculpe, tive um problema técnico. Pode tentar novamente?', 'bot');
-    $('searStatus').textContent = 'Com erro';
-    input.disabled = false;
-    btn.disabled = false;
   }
 }
 
-function enviarMensagemSear() {
-  if (searFinalizada) return;
-  const input = $('searInput');
-  const texto = input.value.trim();
-  if (!texto) return;
-  adicionarMensagemSear(texto, 'user');
-  searMensagens.push({ role: 'user', content: texto });
-  searPerguntasFeitas++;
-  atualizarProgresso();
-  input.value = '';
-  chamarSear();
-}
-
-$('searInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMensagemSear(); }
-});
-
-function escapeHtml(texto) {
-  const div = document.createElement('div');
-  div.textContent = texto;
-  return div.innerHTML;
-}
-
-async function finalizarEntrevista() {
-  const transcricao = searMensagens.filter(m => m.role !== 'system').map(m => ({ role: m.role, texto: m.content, timestamp: new Date().toISOString() }));
-  const respostas = searMensagens.filter(m => m.role === 'user').map(m => m.content);
-  const nota = Math.min(100, respostas.length * 12);
+async function fazerLoginCandidato() {
+  const cpf = document.getElementById('loginCPF').value.trim();
+  const nome = document.getElementById('loginNome').value.trim();
+  const btn = document.getElementById('btnLoginCandidato');
+  const erroDiv = document.getElementById('loginErro');
+  
+  erroDiv.classList.add('hidden');
+  
+  if (!cpf || cpf.length < 14) {
+    erroDiv.textContent = '⚠️ Digite um CPF válido';
+    erroDiv.classList.remove('hidden');
+    return;
+  }
+  
+  if (!nome || nome.length < 3) {
+    erroDiv.textContent = '⚠️ Digite seu nome completo';
+    erroDiv.classList.remove('hidden');
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
   
   try {
-    const { error } = await sb.from('candidaturas').update({
-      status: 'aguardando_rh',
-      entrevista_chat: transcricao,
-      respostas_pre: respostas,
-      nota_pre: nota,
-      atualizado_em: new Date().toISOString()
-    }).eq('id', candidatura.id);
+    // Buscar candidato pelo CPF
+    const { data, error } = await sb
+      .from('candidatos')
+      .select('*')
+      .eq('cpf', cpf)
+      .maybeSingle();
+    
     if (error) throw error;
-    $('telaSear').classList.add('hidden');
-    $('confirmEmail').textContent = candidato.email;
-    $('telaConfirmacao').classList.remove('hidden');
+    
+    if (!data) {
+      erroDiv.textContent = '❌ CPF não encontrado. Verifique se você já se candidatou.';
+      erroDiv.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = '🔓 Entrar';
+      return;
+    }
+    
+    // Validar nome (comparação case-insensitive)
+    const nomeCadastrado = data.nome.toLowerCase().trim();
+    const nomeDigitado = nome.toLowerCase().trim();
+    
+    if (nomeCadastrado !== nomeDigitado) {
+      erroDiv.textContent = '❌ Nome não confere com o cadastro. Verifique e tente novamente.';
+      erroDiv.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = '🔓 Entrar';
+      return;
+    }
+    
+    // Login successful
+    candidatoLogado = data;
+    sessionStorage.setItem('candidato_logado', JSON.stringify(data));
+    
+    fecharLoginCandidato();
+    abrirCandidaturas();
+    
   } catch (err) {
-    alert('Erro ao salvar entrevista. Tente novamente.');
+    console.error('Erro no login:', err);
+    erroDiv.textContent = '❌ Erro ao verificar. Tente novamente.';
+    erroDiv.classList.remove('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔓 Entrar';
   }
 }
 
-init();
+function logoutCandidato() {
+  candidatoLogado = null;
+  sessionStorage.removeItem('candidato_logado');
+  fecharCandidaturas();
+  toast('👋 Até logo!', 'Você saiu da área do candidato.', 'info');
+}
+
+async function abrirCandidaturas() {
+  if (!candidatoLogado) {
+    abrirAreaCandidato();
+    return;
+  }
+  
+  document.getElementById('candidatoLogadoNome').textContent = 
+    'Olá, ' + candidatoLogado.nome.split(' ')[0] + '!';
+  
+  document.getElementById('modalCandidaturas').classList.remove('hidden');
+  document.getElementById('listaCandidaturas').innerHTML = 
+    '<p class="text-slate-400 text-center py-4">Carregando...</p>';
+  
+  try {
+    const { data: candidaturas, error } = await sb
+      .from('candidaturas')
+      .select('*, vagas(titulo, local, tipo, modalidade)')
+      .eq('candidato_id', candidatoLogado.id)
+      .order('criado_em', { ascending: false });
+    
+    if (error) throw error;
+    
+    if (!candidaturas || candidaturas.length === 0) {
+      document.getElementById('listaCandidaturas').innerHTML = 
+        '<p class="text-slate-400 text-center py-8">Você ainda não se candidatou a nenhuma vaga.</p>';
+      return;
+    }
+    
+    let html = '';
+    candidaturas.forEach(function(c) {
+      html += renderCandidaturaCard(c);
+    });
+    
+    document.getElementById('listaCandidaturas').innerHTML = html;
+    
+  } catch (err) {
+    console.error('Erro ao carregar candidaturas:', err);
+    document.getElementById('listaCandidaturas').innerHTML = 
+      '<p class="text-rose-400 text-center py-4">Erro ao carregar. Tente novamente.</p>';
+  }
+}
+
+function renderCandidaturaCard(c) {
+  const vaga = c.vagas || {};
+  const statusInfo = getStatusInfo(c.status);
+  
+  let html = '<div class="panel p-4 border-l-4" style="border-left-color: ' + statusInfo.cor + '">';
+  html += '<div class="flex justify-between items-start mb-2">';
+  html += '<div>';
+  html += '<h4 class="font-bold text-slate-100">' + (vaga.titulo || 'Vaga') + '</h4>';
+  html += '<p class="text-xs text-slate-500">' + (vaga.local || '') + ' · ' + (vaga.tipo || '') + '</p>';
+  html += '</div>';
+  html += '<span class="badge" style="background: ' + statusInfo.cor + '20; color: ' + statusInfo.cor + '">' + statusInfo.label + '</span>';
+  html += '</div>';
+  
+  // Timeline de progresso
+  html += '<div class="mt-3 pt-3 border-t border-slate-700/40">';
+  html += '<p class="text-xs font-bold text-slate-400 mb-2">📌 Próximos passos:</p>';
+  html += '<p class="text-sm text-slate-300">' + statusInfo.mensagem + '</p>';
+  
+  if (c.data_entrevista && c.status === 'entrevista_agendada') {
+    html += '<p class="text-sm text-amber-300 mt-1">📅 Entrevista: ' + formatarData(c.data_entrevista) + '</p>';
+  }
+  
+  if (c.data_integracao && c.status === 'integracao_marcada') {
+    html += '<p class="text-sm text-emerald-300 mt-1">🎯 Integração: ' + formatarData(c.data_integracao) + '</p>';
+  }
+  
+  html += '</div>';
+  html += '</div>';
+  
+  return html;
+}
+
+function getStatusInfo(status) {
+  const statusMap = {
+    'pre_entrevista': {
+      label: '⏳ Pré-entrevista',
+      cor: '#f59e0b',
+      mensagem: 'Complete a pré-entrevista com a SEAR para avançar no processo.'
+    },
+    'aguardando_rh': {
+      label: '⏳ Aguardando RH',
+      cor: '#f59e0b',
+      mensagem: 'Sua candidatura está sendo analisada pelo RH. Aguarde o retorno.'
+    },
+    'aprovado_pre': {
+      label: '✅ Pré-aprovado',
+      cor: '#10b981',
+      mensagem: 'Parabéns! Você foi pré-aprovado. Aguarde o contato para próxima etapa.'
+    },
+    'entrevista_agendada': {
+      label: '📅 Entrevista marcada',
+      cor: '#6366f1',
+      mensagem: 'Sua entrevista está agendada! Compareça no local e horário indicados.'
+    },
+    'ficha_preenchida': {
+      label: '📝 Ficha recebida',
+      cor: '#8b5cf6',
+      mensagem: 'Recebemos sua ficha cadastral. Aguardando aprovação do RH.'
+    },
+    'ficha_aprovada': {
+      label: '✅ Ficha aprovada',
+      cor: '#10b981',
+      mensagem: 'Sua ficha foi aprovada! Aguarde as próximas instruções.'
+    },
+    'integracao_marcada': {
+      label: '🎯 Integração marcada',
+      cor: '#10b981',
+      mensagem: 'Sua integração está marcada! Prepare-se para começar.'
+    },
+    'contratado': {
+      label: '🎉 Contratado',
+      cor: '#10b981',
+      mensagem: 'Parabéns! Você foi contratado! Bem-vindo à equipe!'
+    },
+    'reprovado': {
+      label: '❌ Não aprovado',
+      cor: '#ef4444',
+      mensagem: 'Infelizmente não foi desta vez. Continue acompanhando novas vagas!'
+    }
+  };
+  
+  return statusMap[status] || {
+    label: '📋 Inscrito',
+    cor: '#64748b',
+    mensagem: 'Sua candidatura foi recebida. Aguarde as próximas etapas.'
+  };
+}
+
+function formatarData(dataISO) {
+  if (!dataISO) return '—';
+  const d = new Date(dataISO);
+  return d.toLocaleDateString('pt-BR', { 
+    day: '2-digit', 
+    month: '2-digit', 
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function toast(titulo, msg, tipo) {
+  tipo = tipo || 'info';
+  const colors = {
+    success: 'border-emerald-400 bg-emerald-400',
+    error: 'border-rose-400 bg-rose-400',
+    info: 'border-sky-400 bg-sky-400',
+    warn: 'border-amber-400 bg-amber-400'
+  };
+  const el = document.createElement('div');
+  const cls = colors[tipo] || colors.info;
+  el.className = 'animate-fade-in panel !rounded-xl border-l-4 ' + cls.split(' ')[0] + ' overflow-hidden';
+  el.innerHTML = '<div class="flex items-start gap-3 px-4 py-3"><div class="flex-1 min-w-0"><p class="text-sm font-bold text-slate-100">' + titulo + '</p><p class="text-xs text-slate-400 mt-0.5">' + msg + '</p></div><button onclick="this.closest(\'div\').parentElement.remove()" class="text-slate-600 hover:text-slate-300">×</button></div><div class="h-0.5 ' + cls.split(' ')[1] + ' toast-bar"></div>';
+  document.getElementById('toastRoot').appendChild(el);
+  setTimeout(function() { el.remove(); }, 4000);
+}
 </script>
 </body>
 </html>
