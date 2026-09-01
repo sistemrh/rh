@@ -469,7 +469,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const pad = n => String(n).padStart(2,'0');
 const hoje = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const iniciais = n => (n||'?').split(' ').filter(Boolean).map(p=>p[0]).slice(0,2).join('').toUpperCase();
-const fmtISO = iso => { if(!iso) return '—'; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; };
+const fmtISO = iso => { if(!iso) return '—'; const parts = iso.split('-'); return `${parts[2]}/${parts[1]}/${parts[0]}`; };
 const fmtDataHora = iso => { if(!iso) return '—'; const d = new Date(iso); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); };
 const fmtMoeda = v => (+v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const mesAtual = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; };
@@ -513,13 +513,15 @@ document.addEventListener('click', e => {
   if(e.target.closest('.nav-btn')) toggleSidebar(false);
 });
 
-function toast(titulo, msg, tipo='info'){
+function toast(titulo, msg, tipo){
+  tipo = tipo || 'info';
   const colors = {success:'border-emerald-400 bg-emerald-400',error:'border-rose-400 bg-rose-400',info:'border-sky-400 bg-sky-400',warn:'border-amber-400 bg-amber-400'};
   const el = document.createElement('div');
-  el.className = `animate-toast-in panel !rounded-xl border-l-4 ${colors[tipo].split(' ')[0]} overflow-hidden`;
-  el.innerHTML = `<div class="flex items-start gap-3 px-4 py-3"><div class="flex-1 min-w-0"><p class="text-sm font-bold text-slate-100">${titulo}</p><p class="text-xs text-slate-400 mt-0.5">${msg}</p></div><button onclick="this.closest('div').parentElement.remove()" class="text-slate-600 hover:text-slate-300">×</button></div><div class="h-0.5 ${colors[tipo].split(' ')[1]} toast-bar"></div>`;
+  const cls = colors[tipo] || colors.info;
+  el.className = 'animate-toast-in panel !rounded-xl border-l-4 ' + cls.split(' ')[0] + ' overflow-hidden';
+  el.innerHTML = '<div class="flex items-start gap-3 px-4 py-3"><div class="flex-1 min-w-0"><p class="text-sm font-bold text-slate-100">' + titulo + '</p><p class="text-xs text-slate-400 mt-0.5">' + msg + '</p></div><button onclick="this.closest(\'div\').parentElement.remove()" class="text-slate-600 hover:text-slate-300">×</button></div><div class="h-0.5 ' + cls.split(' ')[1] + ' toast-bar"></div>';
   $('#toastRoot').appendChild(el);
-  setTimeout(()=>el.remove(), 4000);
+  setTimeout(function(){ el.remove(); }, 4000);
 }
 
 function enterApp(){
@@ -547,30 +549,30 @@ function abrirFerias(){
 }
 
 async function carregarBadgeFerias(){
-  if(!session?.empresa?.id) return;
+  if(!session || !session.empresa || !session.empresa.id) return;
   try {
-    const { count, error } = await sb
+    const res = await sb
       .from('ferias')
       .select('*', { count: 'exact', head: true })
       .eq('empresa_id', session.empresa.id)
       .eq('status', 'pendente');
-    if (error) {
-      console.warn('⚠️ Badge de férias não carregado:', error.message);
+    if (res.error) {
+      console.warn('Badge férias:', res.error.message);
       return;
     }
     const badge = document.getElementById('badgeFerias');
-    if(badge && count > 0){
-      badge.textContent = count;
+    if(badge && res.count > 0){
+      badge.textContent = res.count;
       badge.classList.remove('hidden');
     }
   } catch (err) {
-    console.warn('⚠️ Erro ao carregar badge de férias:', err);
+    console.warn('Erro badge férias:', err);
   }
 }
 
 async function carregarEmpresaAtual(){
-  const { data } = await sb.from('empresas').select('*').eq('id', session.empresa.id).maybeSingle();
-  empresaAtual = data;
+  const res = await sb.from('empresas').select('*').eq('id', session.empresa.id).maybeSingle();
+  empresaAtual = res.data;
   if (empresaAtual && !empresaAtual.slug) {
     const novoSlug = gerarSlug(empresaAtual.nome || 'empresa');
     await sb.from('empresas').update({ slug: novoSlug }).eq('id', empresaAtual.id);
@@ -584,11 +586,11 @@ function gerarSlug(nome){
 }
 
 const VIEWS = ['dashboard','solicitacoes','colaboradores','comunicados','espelho','vrvt','feriados','recrutamento','pagina'];
-$$('.nav-btn').forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
+$$('.nav-btn').forEach(function(b){ b.addEventListener('click', function(){ go(b.dataset.view); }); });
 
 function go(view){
-  VIEWS.forEach(v => $('#view-'+v).classList.toggle('hidden', v!==view));
-  $$('.nav-btn').forEach(b => {
+  VIEWS.forEach(function(v){ $('#view-'+v).classList.toggle('hidden', v!==view); });
+  $$('.nav-btn').forEach(function(b){
     b.className = 'nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ' +
       (b.dataset.view===view ? 'bg-sky-400/15 text-white ring-1 ring-inset ring-sky-400/25' : 'text-slate-400 hover:text-slate-100 hover:bg-white/5');
   });
@@ -599,9 +601,9 @@ function go(view){
 }
 
 async function refresh(){
-  if(!session || !session.empresa?.id) return;
+  if(!session || !session.empresa || !session.empresa.id) return;
   const eid = session.empresa.id;
-  const [cols, solic, pontos, coms, leituras, espelhos, humor, fer] = await Promise.all([
+  const results = await Promise.all([
     sb.from('colaboradores').select('*').eq('empresa_id', eid).order('nome'),
     sb.from('solicitacoes').select('*, colaboradores(nome,matricula)').eq('empresa_id', eid).order('criado_em',{ascending:false}),
     sb.from('pontos').select('*, colaboradores(nome,matricula)').eq('empresa_id', eid).order('criado_em',{ascending:false}).limit(100),
@@ -611,14 +613,14 @@ async function refresh(){
     sb.from('humor').select('*, colaboradores(nome)').eq('data', hoje()),
     sb.from('feriados').select('*').eq('empresa_id', eid).order('data')
   ]);
-  state.cols = cols.data || [];
-  state.solic = solic.data || [];
-  state.pontos = pontos.data || [];
-  state.coms = coms.data || [];
-  state.leituras = leituras.data || [];
-  state.espelhos = espelhos.data || [];
-  state.humor = humor.data || [];
-  state.fer = fer.data || [];
+  state.cols = results[0].data || [];
+  state.solic = results[1].data || [];
+  state.pontos = results[2].data || [];
+  state.coms = results[3].data || [];
+  state.leituras = results[4].data || [];
+  state.espelhos = results[5].data || [];
+  state.humor = results[6].data || [];
+  state.fer = results[7].data || [];
   render();
   await carregarRecrutamento();
 }
@@ -626,11 +628,11 @@ async function refresh(){
 function render(){ renderDashboard(); renderSolic(); renderColab(); renderCom(); renderEsp(); renderVrvt(); renderFer(); }
 
 function renderDashboard(){
-  const colsAtivos = state.cols.filter(c => c.status==='ativo');
-  const pend = state.solic.filter(s => s.status==='pendente').length;
-  const pontosHoje = state.pontos.filter(p => p.data===hoje()).length;
+  const colsAtivos = state.cols.filter(function(c){ return c.status==='ativo'; });
+  const pend = state.solic.filter(function(s){ return s.status==='pendente'; }).length;
+  const pontosHoje = state.pontos.filter(function(p){ return p.data===hoje(); }).length;
   const humorHoje = state.humor.length;
-  const candPend = candidaturas.filter(c => c.status==='aguardando_rh').length;
+  const candPend = candidaturas.filter(function(c){ return c.status==='aguardando_rh'; }).length;
   const kpis = [
     {lbl:'Colaboradores', v:colsAtivos.length, ico:'👥', tile:'bg-indigo-400/10 text-indigo-300', go:'colaboradores'},
     {lbl:'Solicitações', v:pend, ico:'📥', tile:'bg-amber-400/10 text-amber-300', go:'solicitacoes'},
@@ -639,178 +641,100 @@ function renderDashboard(){
     {lbl:'Espelhos Pend.', v:0, ico:'📄', tile:'bg-sky-400/10 text-sky-300', go:'espelho'},
     {lbl:'Candidatos (RH)', v:candPend, ico:'🎯', tile:'bg-rose-400/10 text-rose-300', go:'recrutamento'}
   ];
-  $('#kpiGrid').innerHTML = kpis.map(k => `
-    <button onclick="${k.go ? `go('${k.go}')` : ''}" class="panel card-hover kpi-clickable p-3 sm:p-5 ${!k.go?'cursor-default':''}">
-      <span class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${k.tile} grid place-items-center text-base sm:text-xl mb-2 sm:mb-3">${k.ico}</span>
-      <p class="font-display text-[22px] sm:text-[32px] leading-none font-bold tnum chrome-text">${k.v}</p>
-      <p class="text-[11px] sm:text-sm text-slate-300 mt-1 sm:mt-1.5 truncate">${k.lbl}</p>
-    </button>`).join('');
+  $('#kpiGrid').innerHTML = kpis.map(function(k){
+    return '<button onclick="' + (k.go ? "go('" + k.go + "')" : '') + '" class="panel card-hover kpi-clickable p-3 sm:p-5 ' + (!k.go?'cursor-default':'') + '"><span class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg ' + k.tile + ' grid place-items-center text-base sm:text-xl mb-2 sm:mb-3">' + k.ico + '</span><p class="font-display text-[22px] sm:text-[32px] leading-none font-bold tnum chrome-text">' + k.v + '</p><p class="text-[11px] sm:text-sm text-slate-300 mt-1 sm:mt-1.5 truncate">' + k.lbl + '</p></button>';
+  }).join('');
   $('#badgeSolic').textContent = pend;
   $('#badgeSolic').classList.toggle('hidden', !pend);
   $('#badgeRecrut').textContent = candPend;
   $('#badgeRecrut').classList.toggle('hidden', !candPend);
   if(pend){ $('#dashSolicCount').textContent = pend; $('#dashSolicCount').classList.remove('hidden'); }
   else $('#dashSolicCount').classList.add('hidden');
-  const pendS = state.solic.filter(s => s.status==='pendente').slice(0, 10);
-  $('#dashSolic').innerHTML = pendS.length ? pendS.map(s => `
-    <div class="flex items-center gap-3 p-2.5 rounded-lg border border-slate-700/40 hover:border-sky-400/40">
-      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(s.colaboradores?.nome || 'NC')}</div>
-      <div class="flex-1 min-w-0">
-        <p class="text-[13px] font-semibold text-slate-200 truncate">${s.colaboradores?.nome || 'Não encontrado'}</p>
-        <p class="text-[11px] text-slate-500 truncate">${s.tipo} · ${fmtISO(s.data_ausencia || hoje())}</p>
-      </div>
-      <div class="flex gap-1 shrink-0">
-        <button onclick="event.stopPropagation();aprovarSolic('${s.id}')" class="w-7 h-7 rounded bg-emerald-500 text-white grid place-items-center hover:bg-emerald-400">✓</button>
-        <button onclick="event.stopPropagation();openRejeitar('${s.id}')" class="w-7 h-7 rounded bg-rose-500 text-white grid place-items-center hover:bg-rose-400">×</button>
-      </div>
-    </div>`).join('') : '<p class="text-sm text-slate-500 text-center py-8">Nenhuma pendência 🎉</p>';
-  $('#dashPontos').innerHTML = state.pontos.slice(0,15).map(p => `
-    <div class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-white/5">
-      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(p.colaboradores?.nome || 'NC')}</div>
-      <div class="flex-1 min-w-0">
-        <p class="text-[13px] font-semibold text-slate-200 truncate">${p.colaboradores?.nome || 'Não encontrado'}</p>
-        <p class="text-[11px] text-slate-500 truncate">${p.tipo} · ${fmtISO(p.data)}</p>
-      </div>
-      <span class="font-mono text-xs text-slate-400 tnum shrink-0">${p.hora ? p.hora.substring(0,5) : '--:--'}</span>
-    </div>`).join('');
-  $('#dashHumor').innerHTML = state.humor.length ? state.humor.map(h => `
-    <div class="flex flex-col items-center gap-1 p-2 rounded-lg bg-white/[.03]">
-      <span class="text-xl sm:text-2xl">${h.voto}</span>
-      <span class="text-[10px] text-slate-400 truncate max-w-[80px]">${h.colaboradores?.nome?.split(' ')[0] || 'Anônimo'}</span>
-    </div>`).join('') : '<p class="text-sm text-slate-500">Ninguém registrou humor hoje ainda.</p>';
+  const pendS = state.solic.filter(function(s){ return s.status==='pendente'; }).slice(0, 10);
+  $('#dashSolic').innerHTML = pendS.length ? pendS.map(function(s){
+    return '<div class="flex items-center gap-3 p-2.5 rounded-lg border border-slate-700/40 hover:border-sky-400/40"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">' + iniciais((s.colaboradores && s.colaboradores.nome) || 'NC') + '</div><div class="flex-1 min-w-0"><p class="text-[13px] font-semibold text-slate-200 truncate">' + ((s.colaboradores && s.colaboradores.nome) || 'Não encontrado') + '</p><p class="text-[11px] text-slate-500 truncate">' + s.tipo + ' · ' + fmtISO(s.data_ausencia || hoje()) + '</p></div><div class="flex gap-1 shrink-0"><button onclick="event.stopPropagation();aprovarSolic(\'' + s.id + '\')" class="w-7 h-7 rounded bg-emerald-500 text-white grid place-items-center hover:bg-emerald-400">✓</button><button onclick="event.stopPropagation();openRejeitar(\'' + s.id + '\')" class="w-7 h-7 rounded bg-rose-500 text-white grid place-items-center hover:bg-rose-400">×</button></div></div>';
+  }).join('') : '<p class="text-sm text-slate-500 text-center py-8">Nenhuma pendência 🎉</p>';
+  $('#dashPontos').innerHTML = state.pontos.slice(0,15).map(function(p){
+    return '<div class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-white/5"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">' + iniciais((p.colaboradores && p.colaboradores.nome) || 'NC') + '</div><div class="flex-1 min-w-0"><p class="text-[13px] font-semibold text-slate-200 truncate">' + ((p.colaboradores && p.colaboradores.nome) || 'Não encontrado') + '</p><p class="text-[11px] text-slate-500 truncate">' + p.tipo + ' · ' + fmtISO(p.data) + '</p></div><span class="font-mono text-xs text-slate-400 tnum shrink-0">' + (p.hora ? p.hora.substring(0,5) : '--:--') + '</span></div>';
+  }).join('');
+  $('#dashHumor').innerHTML = state.humor.length ? state.humor.map(function(h){
+    return '<div class="flex flex-col items-center gap-1 p-2 rounded-lg bg-white/[.03]"><span class="text-xl sm:text-2xl">' + h.voto + '</span><span class="text-[10px] text-slate-400 truncate max-w-[80px]">' + ((h.colaboradores && h.colaboradores.nome && h.colaboradores.nome.split(' ')[0]) || 'Anônimo') + '</span></div>';
+  }).join('') : '<p class="text-sm text-slate-500">Ninguém registrou humor hoje ainda.</p>';
 }
 
 function renderSolic(){
-  const list = state.solic.filter(s => solicitFilter==='todos' || s.status===solicitFilter);
-  $('#solicBody').innerHTML = list.length ? list.map(s => {
+  const list = state.solic.filter(function(s){ return solicitFilter==='todos' || s.status===solicitFilter; });
+  $('#solicBody').innerHTML = list.length ? list.map(function(s){
     const badges = {pendente:'bg-amber-400/10 text-amber-300 border-amber-400/30',aprovado:'bg-emerald-400/10 text-emerald-300 border-emerald-400/30',rejeitado:'bg-rose-400/10 text-rose-300 border-rose-400/30'};
-    return `<tr>
-      <td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(s.colaboradores?.nome || 'NC')}</div><div class="min-w-0"><p class="font-semibold text-slate-200 truncate">${s.colaboradores?.nome || 'Não encontrado'}</p><p class="text-[11px] text-slate-500">${s.colaboradores?.matricula || '—'}</p></div></div></td>
-      <td class="text-slate-300">${s.tipo}</td>
-      <td class="text-slate-300 whitespace-nowrap">${fmtISO(s.data_ausencia || s.criado_em?.slice(0,10) || '')}</td>
-      <td class="text-slate-400 max-w-[200px] truncate">${s.motivo||'—'}</td>
-      <td><span class="inline-flex px-2 py-0.5 rounded-full border text-[11px] font-bold ${badges[s.status] || ''}">${s.status}</span></td>
-      <td class="text-right whitespace-nowrap">${s.status==='pendente'?`<button onclick="aprovarSolic('${s.id}')" class="btn-ghost px-3 py-1 rounded text-xs font-bold !border-emerald-400/40 text-emerald-300">Aprovar</button> <button onclick="openRejeitar('${s.id}')" class="btn-ghost px-3 py-1 rounded text-xs font-bold !border-rose-400/40 text-rose-300">Rejeitar</button>`:'<span class="text-slate-600">—</span>'}</td>
-    </tr>`;
+    const nome = (s.colaboradores && s.colaboradores.nome) || 'Não encontrado';
+    const mat = (s.colaboradores && s.colaboradores.matricula) || '—';
+    const acoes = s.status==='pendente' ? '<button onclick="aprovarSolic(\'' + s.id + '\')" class="btn-ghost px-3 py-1 rounded text-xs font-bold !border-emerald-400/40 text-emerald-300">Aprovar</button> <button onclick="openRejeitar(\'' + s.id + '\')" class="btn-ghost px-3 py-1 rounded text-xs font-bold !border-rose-400/40 text-rose-300">Rejeitar</button>' : '<span class="text-slate-600">—</span>';
+    return '<tr><td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">' + iniciais(nome) + '</div><div class="min-w-0"><p class="font-semibold text-slate-200 truncate">' + nome + '</p><p class="text-[11px] text-slate-500">' + mat + '</p></div></div></td><td class="text-slate-300">' + s.tipo + '</td><td class="text-slate-300 whitespace-nowrap">' + fmtISO(s.data_ausencia || (s.criado_em ? s.criado_em.slice(0,10) : '')) + '</td><td class="text-slate-400 max-w-[200px] truncate">' + (s.motivo||'—') + '</td><td><span class="inline-flex px-2 py-0.5 rounded-full border text-[11px] font-bold ' + (badges[s.status] || '') + '">' + s.status + '</span></td><td class="text-right whitespace-nowrap">' + acoes + '</td></tr>';
   }).join('') : '<tr><td colspan="6" class="text-center py-10 text-slate-500">Nenhuma solicitação</td></tr>';
 }
 function filterSolic(f){ solicitFilter = f; renderSolic(); }
 
 async function aprovarSolic(id){
-  const { error } = await sb.from('solicitacoes').update({status:'aprovado', decidido_por:session.user.nome, resposta_rh:'Aprovado pelo RH'}).eq('id', id);
-  if(error) return toast('Erro','Falha ao aprovar','error');
+  const res = await sb.from('solicitacoes').update({status:'aprovado', decidido_por:session.user.nome, resposta_rh:'Aprovado pelo RH'}).eq('id', id);
+  if(res.error) return toast('Erro','Falha ao aprovar','error');
   toast('✓ Aprovado','Solicitação aprovada','success');
   refresh();
 }
 
 function openRejeitar(id){
-  openModal(`<h3 class="font-display font-bold text-slate-100 mb-3">Rejeitar solicitação</h3>
-    <label class="lbl">Motivo da recusa *</label>
-    <textarea id="motivoRej" class="inp" rows="3" placeholder="Explique o motivo..."></textarea>
-    <div class="flex gap-2 mt-4">
-      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
-      <button onclick="rejeitarSolic('${id}')" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">Rejeitar</button>
-    </div>`);
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-3">Rejeitar solicitação</h3><label class="lbl">Motivo da recusa *</label><textarea id="motivoRej" class="inp" rows="3" placeholder="Explique o motivo..."></textarea><div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button><button onclick="rejeitarSolic(\'' + id + '\')" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">Rejeitar</button></div>');
 }
 async function rejeitarSolic(id){
   const motivo = $('#motivoRej').value.trim();
   if(motivo.length < 3) return toast('Motivo obrigatório','Descreva o motivo','error');
-  const { error } = await sb.from('solicitacoes').update({status:'rejeitado', decidido_por:session.user.nome, resposta_rh:motivo}).eq('id', id);
-  if(error) return toast('Erro','Falha ao rejeitar','error');
+  const res = await sb.from('solicitacoes').update({status:'rejeitado', decidido_por:session.user.nome, resposta_rh:motivo}).eq('id', id);
+  if(res.error) return toast('Erro','Falha ao rejeitar','error');
   closeModal(); toast('Rejeitada','O colaborador será notificado','warn'); refresh();
 }
 
 function renderColab(){
-  const q = ($('#searchCol')?.value || '').toLowerCase();
-  const list = state.cols.filter(c => !q || c.nome.toLowerCase().includes(q) || (c.matricula||'').toLowerCase().includes(q));
-  $('#colabBody').innerHTML = list.length ? list.map(c => {
+  const q = ($('#searchCol') && $('#searchCol').value || '').toLowerCase();
+  const list = state.cols.filter(function(c){ return !q || c.nome.toLowerCase().indexOf(q)!==-1 || (c.matricula||'').toLowerCase().indexOf(q)!==-1; });
+  $('#colabBody').innerHTML = list.length ? list.map(function(c){
     const b = c.beneficios || {};
-    const chip = (on, ico, v) => on ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-400/10 border border-emerald-400/30 text-[10px] font-bold text-emerald-300">${ico} ${fmtMoeda(v)}</span>` : `<span class="inline-flex px-1.5 py-0.5 rounded bg-slate-400/5 border border-slate-600/40 text-[10px] text-slate-600">${ico} —</span>`;
-    const statusBadge = c.status==='ativo' ? '<span class="inline-flex px-2 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/30 text-emerald-300 text-[11px] font-bold">Ativo</span>' : `<span class="inline-flex px-2 py-0.5 rounded-full bg-slate-400/10 border border-slate-500/30 text-slate-400 text-[11px] font-bold">${c.status}</span>`;
-    return `<tr>
-      <td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(c.nome)}</div><p class="font-semibold text-slate-200 truncate">${c.nome}</p></div></td>
-      <td class="text-slate-400">${c.cargo||'—'}</td>
-      <td class="text-slate-400">${c.dept||'—'}</td>
-      <td class="font-mono text-xs text-slate-300">${c.matricula}</td>
-      <td><div class="flex flex-wrap gap-1">${chip(b.vr?.on,'🍽️',b.vr?.valor)}${chip(b.va?.on,'🛒',b.va?.valor)}${chip(b.vt?.on,'🚌',b.vt?.valor)}</div></td>
-      <td>${statusBadge}</td>
-    </tr>`;
+    const chipVr = b.vr && b.vr.on ? '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-400/10 border border-emerald-400/30 text-[10px] font-bold text-emerald-300">🍽️ ' + fmtMoeda(b.vr.valor) + '</span>' : '<span class="inline-flex px-1.5 py-0.5 rounded bg-slate-400/5 border border-slate-600/40 text-[10px] text-slate-600">🍽️ —</span>';
+    const chipVa = b.va && b.va.on ? '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-400/10 border border-emerald-400/30 text-[10px] font-bold text-emerald-300">🛒 ' + fmtMoeda(b.va.valor) + '</span>' : '<span class="inline-flex px-1.5 py-0.5 rounded bg-slate-400/5 border border-slate-600/40 text-[10px] text-slate-600">🛒 —</span>';
+    const chipVt = b.vt && b.vt.on ? '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-400/10 border border-emerald-400/30 text-[10px] font-bold text-emerald-300">🚌 ' + fmtMoeda(b.vt.valor) + '</span>' : '<span class="inline-flex px-1.5 py-0.5 rounded bg-slate-400/5 border border-slate-600/40 text-[10px] text-slate-600">🚌 —</span>';
+    const statusBadge = c.status==='ativo' ? '<span class="inline-flex px-2 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/30 text-emerald-300 text-[11px] font-bold">Ativo</span>' : '<span class="inline-flex px-2 py-0.5 rounded-full bg-slate-400/10 border border-slate-500/30 text-slate-400 text-[11px] font-bold">' + c.status + '</span>';
+    return '<tr><td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">' + iniciais(c.nome) + '</div><p class="font-semibold text-slate-200 truncate">' + c.nome + '</p></div></td><td class="text-slate-400">' + (c.cargo||'—') + '</td><td class="text-slate-400">' + (c.dept||'—') + '</td><td class="font-mono text-xs text-slate-300">' + c.matricula + '</td><td><div class="flex flex-wrap gap-1">' + chipVr + chipVa + chipVt + '</div></td><td>' + statusBadge + '</td></tr>';
   }).join('') : '<tr><td colspan="6" class="text-center py-10 text-slate-500">Nenhum colaborador</td></tr>';
   if($('#searchCol')) $('#searchCol').oninput = renderColab;
 }
 
 function openColabModal(){
-  openModal(`<h3 class="font-display font-bold text-slate-100 mb-4">Cadastrar Colaborador</h3>
-    <div class="space-y-3">
-      <div><label class="lbl">Nome completo *</label><input id="cNome" class="inp"></div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="lbl">Matrícula *</label><input id="cMat" class="inp" placeholder="VL-0999"></div>
-        <div><label class="lbl">Senha *</label><input id="cSenha" class="inp" placeholder="123456"></div>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="lbl">Cargo</label><input id="cCargo" class="inp"></div>
-        <div><label class="lbl">Departamento</label><input id="cDept" class="inp"></div>
-      </div>
-      <div><label class="lbl">Admissão</label><input id="cAdm" type="date" class="inp" value="${hoje()}"></div>
-    </div>
-    <div class="flex gap-2 mt-4">
-      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
-      <button onclick="salvarColab()" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">Cadastrar</button>
-    </div>`);
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-4">Cadastrar Colaborador</h3><div class="space-y-3"><div><label class="lbl">Nome completo *</label><input id="cNome" class="inp"></div><div class="grid grid-cols-2 gap-3"><div><label class="lbl">Matrícula *</label><input id="cMat" class="inp" placeholder="VL-0999"></div><div><label class="lbl">Senha *</label><input id="cSenha" class="inp" placeholder="123456"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="lbl">Cargo</label><input id="cCargo" class="inp"></div><div><label class="lbl">Departamento</label><input id="cDept" class="inp"></div></div><div><label class="lbl">Admissão</label><input id="cAdm" type="date" class="inp" value="' + hoje() + '"></div></div><div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button><button onclick="salvarColab()" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">Cadastrar</button></div>');
 }
 async function salvarColab(){
   const nome = $('#cNome').value.trim(), mat = $('#cMat').value.trim(), senha = $('#cSenha').value;
   if(!nome || !mat || !senha) return toast('Campos obrigatórios','Preencha nome, matrícula e senha','error');
-  const { error } = await sb.from('colaboradores').insert({empresa_id:session.empresa.id, nome, matricula:mat, senha, cargo:$('#cCargo').value, dept:$('#cDept').value, admissao:$('#cAdm').value, status:'ativo'});
-  if(error) return toast('Erro', error.message.includes('duplicate')?'Matrícula já existe':'Falha ao cadastrar','error');
-  closeModal(); toast('✓ Cadastrado', `${nome} agora pode logar no app`,'success'); refresh();
+  const res = await sb.from('colaboradores').insert({empresa_id:session.empresa.id, nome:nome, matricula:mat, senha:senha, cargo:$('#cCargo').value, dept:$('#cDept').value, admissao:$('#cAdm').value, status:'ativo'});
+  if(res.error) return toast('Erro', res.error.message.indexOf('duplicate')!==-1?'Matrícula já existe':'Falha ao cadastrar','error');
+  closeModal(); toast('✓ Cadastrado', nome + ' agora pode logar no app','success'); refresh();
 }
 
 function renderCom(){
-  $('#comList').innerHTML = state.coms.length ? state.coms.map(c => {
-    const leit = state.leituras.filter(l => l.comunicado_id===c.id).length;
-    const totalCols = state.cols.filter(co => co.status==='ativo').length;
+  $('#comList').innerHTML = state.coms.length ? state.coms.map(function(c){
+    const leit = state.leituras.filter(function(l){ return l.comunicado_id===c.id; }).length;
+    const totalCols = state.cols.filter(function(co){ return co.status==='ativo'; }).length;
     const pct = totalCols ? Math.round(leit/totalCols*100) : 0;
-    return `<div class="panel p-5 card-hover">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex-1 min-w-0">
-          <div class="flex flex-wrap items-center gap-2 mb-1">
-            <h3 class="font-display font-bold text-slate-100 truncate">${c.titulo}</h3>
-            ${c.urgente?'<span class="px-2 py-0.5 rounded-full bg-rose-400/10 border border-rose-400/30 text-rose-300 text-[10px] font-bold shrink-0">🔥 Urgente</span>':''}
-            <span class="text-[11px] text-slate-500 shrink-0">${c.categoria} · ${fmtISO(c.criado_em?.slice(0,10))}</span>
-          </div>
-          <p class="text-sm text-slate-400 leading-relaxed">${c.mensagem}</p>
-          <div class="mt-3 max-w-sm">
-            <div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Leituras</span><span class="tnum text-slate-300">${leit}/${totalCols} · ${pct}%</span></div>
-            <div class="h-1.5 rounded-full bg-slate-500/15 overflow-hidden"><div class="h-full bg-gradient-to-r from-sky-400 to-indigo-400" style="width:${pct}%"></div></div>
-          </div>
-        </div>
-        <button onclick="excluirCom('${c.id}')" class="btn-ghost px-2 py-1 rounded text-xs shrink-0">🗑</button>
-      </div>
-    </div>`;
+    const urgBadge = c.urgente ? '<span class="px-2 py-0.5 rounded-full bg-rose-400/10 border border-rose-400/30 text-rose-300 text-[10px] font-bold shrink-0">🔥 Urgente</span>' : '';
+    return '<div class="panel p-5 card-hover"><div class="flex items-start justify-between gap-4"><div class="flex-1 min-w-0"><div class="flex flex-wrap items-center gap-2 mb-1"><h3 class="font-display font-bold text-slate-100 truncate">' + c.titulo + '</h3>' + urgBadge + '<span class="text-[11px] text-slate-500 shrink-0">' + c.categoria + ' · ' + fmtISO(c.criado_em ? c.criado_em.slice(0,10) : '') + '</span></div><p class="text-sm text-slate-400 leading-relaxed">' + c.mensagem + '</p><div class="mt-3 max-w-sm"><div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Leituras</span><span class="tnum text-slate-300">' + leit + '/' + totalCols + ' · ' + pct + '%</span></div><div class="h-1.5 rounded-full bg-slate-500/15 overflow-hidden"><div class="h-full bg-gradient-to-r from-sky-400 to-indigo-400" style="width:' + pct + '%"></div></div></div></div><button onclick="excluirCom(\'' + c.id + '\')" class="btn-ghost px-2 py-1 rounded text-xs shrink-0">🗑</button></div></div>';
   }).join('') : '<div class="panel p-10 text-center text-slate-500">Nenhum comunicado</div>';
 }
 
 function openComModal(){
-  openModal(`<h3 class="font-display font-bold text-slate-100 mb-4">Novo Comunicado</h3>
-    <div class="space-y-3">
-      <div><label class="lbl">Título *</label><input id="coTit" class="inp"></div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="lbl">Categoria</label><select id="coCat" class="inp"><option>Geral</option><option>RH</option><option>Sistema</option><option>Evento</option><option>Operacional</option></select></div>
-        <div><label class="lbl">Urgente?</label><select id="coUrg" class="inp"><option value="false">Não</option><option value="true">Sim 🔥</option></select></div>
-      </div>
-      <div><label class="lbl">Mensagem *</label><textarea id="coMsg" class="inp" rows="4"></textarea></div>
-    </div>
-    <div class="flex gap-2 mt-4">
-      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
-      <button onclick="publicarCom()" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">📢 Publicar</button>
-    </div>`);
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-4">Novo Comunicado</h3><div class="space-y-3"><div><label class="lbl">Título *</label><input id="coTit" class="inp"></div><div class="grid grid-cols-2 gap-3"><div><label class="lbl">Categoria</label><select id="coCat" class="inp"><option>Geral</option><option>RH</option><option>Sistema</option><option>Evento</option><option>Operacional</option></select></div><div><label class="lbl">Urgente?</label><select id="coUrg" class="inp"><option value="false">Não</option><option value="true">Sim 🔥</option></select></div></div><div><label class="lbl">Mensagem *</label><textarea id="coMsg" class="inp" rows="4"></textarea></div></div><div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button><button onclick="publicarCom()" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">📢 Publicar</button></div>');
 }
 async function publicarCom(){
   const titulo = $('#coTit').value.trim(), mensagem = $('#coMsg').value.trim();
   if(!titulo || !mensagem) return toast('Campos obrigatórios','Preencha título e mensagem','error');
-  const { error } = await sb.from('comunicados').insert({empresa_id:session.empresa.id, titulo, mensagem, categoria:$('#coCat').value, urgente:$('#coUrg').value==='true', destino:'todos'});
-  if(error) return toast('Erro','Falha ao publicar','error');
+  const res = await sb.from('comunicados').insert({empresa_id:session.empresa.id, titulo:titulo, mensagem:mensagem, categoria:$('#coCat').value, urgente:$('#coUrg').value==='true', destino:'todos'});
+  if(res.error) return toast('Erro','Falha ao publicar','error');
   closeModal(); toast('📢 Publicado','Comunicado entregue','success'); refresh();
 }
 async function excluirCom(id){
@@ -820,58 +744,44 @@ async function excluirCom(id){
 }
 
 function renderEsp(){
-  $('#espColab').innerHTML = state.cols.filter(c=>c.status==='ativo').map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  $('#espColab').innerHTML = state.cols.filter(function(c){ return c.status==='ativo'; }).map(function(c){ return '<option value="' + c.id + '">' + c.nome + '</option>'; }).join('');
   if(!$('#espMes').value) $('#espMes').value = mesAtual();
-  $('#espBody').innerHTML = state.espelhos.length ? state.espelhos.map(e => {
+  $('#espBody').innerHTML = state.espelhos.length ? state.espelhos.map(function(e){
     const badges = {enviado:'bg-sky-400/10 text-sky-300',visualizado:'bg-emerald-400/10 text-emerald-300',assinado:'bg-emerald-400/10 text-emerald-300',contestado:'bg-rose-400/10 text-rose-300'};
-    return `<tr>
-      <td class="text-slate-200">${e.colaboradores?.nome||'—'}</td>
-      <td class="capitalize text-slate-300">${e.mes_referencia}</td>
-      <td class="text-slate-400 whitespace-nowrap">${e.enviado_em ? fmtISO(e.enviado_em.slice(0,10)) : '—'}</td>
-      <td><span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold ${badges[e.status]||''}">${e.status}</span></td>
-      <td class="font-mono text-[10px] text-slate-500 truncate max-w-[200px]">${e.hash||'—'}</td>
-    </tr>`;
+    return '<tr><td class="text-slate-200">' + ((e.colaboradores && e.colaboradores.nome) || '—') + '</td><td class="capitalize text-slate-300">' + e.mes_referencia + '</td><td class="text-slate-400 whitespace-nowrap">' + (e.enviado_em ? fmtISO(e.enviado_em.slice(0,10)) : '—') + '</td><td><span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold ' + (badges[e.status]||'') + '">' + e.status + '</span></td><td class="font-mono text-[10px] text-slate-500 truncate max-w-[200px]">' + (e.hash||'—') + '</td></tr>';
   }).join('') : '<tr><td colspan="5" class="text-center py-10 text-slate-500">Nenhum espelho enviado</td></tr>';
 }
 async function enviarEspelho(){
   const cid = $('#espColab').value, mes = $('#espMes').value;
   if(!cid || !mes) return toast('Selecione','Escolha colaborador e mês','error');
-  const { error } = await sb.from('espelhos').upsert({colaborador_id:cid, empresa_id:session.empresa.id, mes_referencia:mes, status:'enviado'}, {onConflict:'colaborador_id,mes_referencia'});
-  if(error) return toast('Erro', error.message, 'error');
+  const res = await sb.from('espelhos').upsert({colaborador_id:cid, empresa_id:session.empresa.id, mes_referencia:mes, status:'enviado'}, {onConflict:'colaborador_id,mes_referencia'});
+  if(res.error) return toast('Erro', res.error.message, 'error');
   toast('📲 Enviado','Espelho enviado ao app','success'); refresh();
 }
 async function enviarTodos(){
   const mes = $('#espMes').value || mesAtual();
-  const ativos = state.cols.filter(c => c.status==='ativo' && !state.espelhos.find(e => e.colaborador_id===c.id && e.mes_referencia===mes));
+  const ativos = state.cols.filter(function(c){ return c.status==='ativo' && !state.espelhos.find(function(e){ return e.colaborador_id===c.id && e.mes_referencia===mes; }); });
   if(!ativos.length) return toast('Nada a enviar','Todos já receberam','warn');
-  const { error } = await sb.from('espelhos').insert(ativos.map(c => ({colaborador_id:c.id, empresa_id:session.empresa.id, mes_referencia:mes, status:'enviado'})));
-  if(error) return toast('Erro', error.message, 'error');
-  toast(`📲 ${ativos.length} enviados`,'Espelhos entregues','success'); refresh();
+  const res = await sb.from('espelhos').insert(ativos.map(function(c){ return {colaborador_id:c.id, empresa_id:session.empresa.id, mes_referencia:mes, status:'enviado'}; }));
+  if(res.error) return toast('Erro', res.error.message, 'error');
+  toast('📲 ' + ativos.length + ' enviados','Espelhos entregues','success'); refresh();
 }
 
 function renderVrvt(){
-  const at = state.cols.filter(c=>c.status==='ativo');
-  const soma = t => at.reduce((s,c) => s + ((c.beneficios?.[t]?.on ? c.beneficios[t].valor : 0)), 0);
-  $('#vrvtResumo').innerHTML = `
-    <div class="flex items-center gap-2"><span class="text-xl">🍽️</span><div><p class="text-slate-500 text-[11px]">VR Total</p><p class="font-bold chrome-text font-display">${fmtMoeda(soma('vr')*22)}</p></div></div>
-    <div class="flex items-center gap-2"><span class="text-xl">🛒</span><div><p class="text-slate-500 text-[11px]">VA Total</p><p class="font-bold chrome-text font-display">${fmtMoeda(soma('va')*22)}</p></div></div>
-    <div class="flex items-center gap-2"><span class="text-xl">🚌</span><div><p class="text-slate-500 text-[11px]">VT Total</p><p class="font-bold chrome-text font-display">${fmtMoeda(soma('vt')*22)}</p></div></div>
-    <div class="ml-auto text-right"><p class="text-slate-500 text-[11px]">Custo Mensal</p><p class="font-display text-2xl font-bold chrome-text">${fmtMoeda((soma('vr')+soma('va')+soma('vt'))*22)}</p></div>`;
-  $('#vrvtBody').innerHTML = at.map(c => {
+  const at = state.cols.filter(function(c){ return c.status==='ativo'; });
+  const soma = function(t){ return at.reduce(function(s,c){ return s + ((c.beneficios && c.beneficios[t] && c.beneficios[t].on) ? c.beneficios[t].valor : 0); }, 0); };
+  $('#vrvtResumo').innerHTML = '<div class="flex items-center gap-2"><span class="text-xl">🍽️</span><div><p class="text-slate-500 text-[11px]">VR Total</p><p class="font-bold chrome-text font-display">' + fmtMoeda(soma('vr')*22) + '</p></div></div><div class="flex items-center gap-2"><span class="text-xl">🛒</span><div><p class="text-slate-500 text-[11px]">VA Total</p><p class="font-bold chrome-text font-display">' + fmtMoeda(soma('va')*22) + '</p></div></div><div class="flex items-center gap-2"><span class="text-xl">🚌</span><div><p class="text-slate-500 text-[11px]">VT Total</p><p class="font-bold chrome-text font-display">' + fmtMoeda(soma('vt')*22) + '</p></div></div><div class="ml-auto text-right"><p class="text-slate-500 text-[11px]">Custo Mensal</p><p class="font-display text-2xl font-bold chrome-text">' + fmtMoeda((soma('vr')+soma('va')+soma('vt'))*22) + '</p></div>';
+  $('#vrvtBody').innerHTML = at.map(function(c){
     const b = c.beneficios || {};
-    const chip = t => {
+    const chip = function(t){
       const v = b[t] || {on:false, valor:0};
-      return `<div class="flex items-center gap-2"><span class="font-mono text-xs tnum w-16 text-slate-300">${v.on?fmtMoeda(v.valor):'—'}</span><label class="relative inline-flex cursor-pointer"><input type="checkbox" ${v.on?'checked':''} onchange="toggleBen('${c.id}','${t}')" class="peer sr-only"><div class="w-9 h-5 ${v.on?'bg-emerald-500':'bg-slate-600'} rounded-full"></div><div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${v.on?'translate-x-4':''}"></div></label></div>`;
+      return '<div class="flex items-center gap-2"><span class="font-mono text-xs tnum w-16 text-slate-300">' + (v.on?fmtMoeda(v.valor):'—') + '</span><label class="relative inline-flex cursor-pointer"><input type="checkbox" ' + (v.on?'checked':'') + ' onchange="toggleBen(\'' + c.id + '\',\'' + t + '\')" class="peer sr-only"><div class="w-9 h-5 ' + (v.on?'bg-emerald-500':'bg-slate-600') + ' rounded-full"></div><div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform ' + (v.on?'translate-x-4':'') + '"></div></label></div>';
     };
-    return `<tr>
-      <td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(c.nome)}</div><p class="font-semibold text-slate-200 truncate">${c.nome}</p></div></td>
-      <td>${chip('vr')}</td><td>${chip('va')}</td><td>${chip('vt')}</td>
-      <td class="text-right"><button onclick="editVrvt('${c.id}')" class="btn-ghost px-3 py-1 rounded text-xs">Editar valores</button></td>
-    </tr>`;
+    return '<tr><td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">' + iniciais(c.nome) + '</div><p class="font-semibold text-slate-200 truncate">' + c.nome + '</p></div></td><td>' + chip('vr') + '</td><td>' + chip('va') + '</td><td>' + chip('vt') + '</td><td class="text-right"><button onclick="editVrvt(\'' + c.id + '\')" class="btn-ghost px-3 py-1 rounded text-xs">Editar valores</button></td></tr>';
   }).join('');
 }
 async function toggleBen(cid, t){
-  const c = state.cols.find(x => x.id===cid);
+  const c = state.cols.find(function(x){ return x.id===cid; });
   const b = c.beneficios || {};
   b[t] = b[t] || {on:false, valor:0};
   b[t].on = !b[t].on;
@@ -879,23 +789,19 @@ async function toggleBen(cid, t){
   refresh();
 }
 function editVrvt(cid){
-  const c = state.cols.find(x => x.id===cid);
+  const c = state.cols.find(function(x){ return x.id===cid; });
   const b = c.beneficios || {};
-  openModal(`<h3 class="font-display font-bold text-slate-100 mb-4">Editar benefícios — ${c.nome}</h3>
-    ${['vr','va','vt'].map(t => `
-      <div class="flex items-center gap-3 mb-3">
-        <span class="w-16 text-sm">${t==='vr'?'🍽️ VR':t==='va'?'🛒 VA':'🚌 VT'}</span>
-        <label class="flex items-center gap-2 flex-1"><input type="checkbox" id="e_${t}_on" ${b[t]?.on?'checked':''} class="w-4 h-4">Ativo</label>
-        <input id="e_${t}_v" type="number" step="0.5" value="${b[t]?.valor||0}" class="inp !w-24">
-      </div>`).join('')}
-    <div class="flex gap-2 mt-4">
-      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg">Cancelar</button>
-      <button onclick="salvarVrvt('${cid}')" class="btn-chrome flex-1 px-4 py-2 rounded-lg">Salvar</button>
-    </div>`);
+  const labelVr = '🍽️ VR', labelVa = '🛒 VA', labelVt = '🚌 VT';
+  const rowVr = '<div class="flex items-center gap-3 mb-3"><span class="w-16 text-sm">' + labelVr + '</span><label class="flex items-center gap-2 flex-1"><input type="checkbox" id="e_vr_on" ' + (b.vr && b.vr.on ? 'checked' : '') + ' class="w-4 h-4">Ativo</label><input id="e_vr_v" type="number" step="0.5" value="' + (b.vr ? b.vr.valor || 0 : 0) + '" class="inp !w-24"></div>';
+  const rowVa = '<div class="flex items-center gap-3 mb-3"><span class="w-16 text-sm">' + labelVa + '</span><label class="flex items-center gap-2 flex-1"><input type="checkbox" id="e_va_on" ' + (b.va && b.va.on ? 'checked' : '') + ' class="w-4 h-4">Ativo</label><input id="e_va_v" type="number" step="0.5" value="' + (b.va ? b.va.valor || 0 : 0) + '" class="inp !w-24"></div>';
+  const rowVt = '<div class="flex items-center gap-3 mb-3"><span class="w-16 text-sm">' + labelVt + '</span><label class="flex items-center gap-2 flex-1"><input type="checkbox" id="e_vt_on" ' + (b.vt && b.vt.on ? 'checked' : '') + ' class="w-4 h-4">Ativo</label><input id="e_vt_v" type="number" step="0.5" value="' + (b.vt ? b.vt.valor || 0 : 0) + '" class="inp !w-24"></div>';
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-4">Editar benefícios — ' + c.nome + '</h3>' + rowVr + rowVa + rowVt + '<div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg">Cancelar</button><button onclick="salvarVrvt(\'' + cid + '\')" class="btn-chrome flex-1 px-4 py-2 rounded-lg">Salvar</button></div>');
 }
 async function salvarVrvt(cid){
   const b = {};
-  ['vr','va','vt'].forEach(t => { b[t] = { on:$('#e_'+t+'_on').checked, valor:+$('#e_'+t+'_v').value||0 }; });
+  b.vr = { on:$('#e_vr_on').checked, valor:+$('#e_vr_v').value||0 };
+  b.va = { on:$('#e_va_on').checked, valor:+$('#e_va_v').value||0 };
+  b.vt = { on:$('#e_vt_on').checked, valor:+$('#e_vt_v').value||0 };
   await sb.from('colaboradores').update({beneficios:b}).eq('id', cid);
   closeModal(); toast('✓ Atualizado','Benefícios salvos','success'); refresh();
 }
@@ -906,7 +812,7 @@ function renderFer(){
     return;
   }
   var rows = '';
-  state.fer.forEach(function(f) {
+  state.fer.forEach(function(f){
     rows += '<tr>';
     rows += '<td class="font-mono text-slate-200 whitespace-nowrap">' + fmtISO(f.data) + '</td>';
     rows += '<td class="text-slate-200">' + f.nome + '</td>';
@@ -917,24 +823,14 @@ function renderFer(){
   });
   $('#ferBody').innerHTML = rows;
 }
-}
+
 function openFerModal(){
-  openModal(`<h3 class="font-display font-bold text-slate-100 mb-4">Novo Feriado</h3>
-    <div class="space-y-3">
-      <div><label class="lbl">Data *</label><input id="fData" type="date" class="inp"></div>
-      <div><label class="lbl">Nome *</label><input id="fNome" class="inp"></div>
-      <div><label class="lbl">Tipo</label><select id="fTipo" class="inp"><option>nacional</option><option>estadual</option><option>municipal</option><option>ponto-facultativo</option></select></div>
-      <label class="flex items-center gap-2 text-sm text-slate-300"><input id="fRec" type="checkbox" checked class="w-4 h-4">Recorrente (todo ano)</label>
-    </div>
-    <div class="flex gap-2 mt-4">
-      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg">Cancelar</button>
-      <button onclick="salvarFer()" class="btn-chrome flex-1 px-4 py-2 rounded-lg">Salvar</button>
-    </div>`);
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-4">Novo Feriado</h3><div class="space-y-3"><div><label class="lbl">Data *</label><input id="fData" type="date" class="inp"></div><div><label class="lbl">Nome *</label><input id="fNome" class="inp"></div><div><label class="lbl">Tipo</label><select id="fTipo" class="inp"><option>nacional</option><option>estadual</option><option>municipal</option><option>ponto-facultativo</option></select></div><label class="flex items-center gap-2 text-sm text-slate-300"><input id="fRec" type="checkbox" checked class="w-4 h-4">Recorrente (todo ano)</label></div><div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg">Cancelar</button><button onclick="salvarFer()" class="btn-chrome flex-1 px-4 py-2 rounded-lg">Salvar</button></div>');
 }
 async function salvarFer(){
   const data = $('#fData').value, nome = $('#fNome').value.trim();
   if(!data || !nome) return toast('Campos obrigatórios','Preencha data e nome','error');
-  await sb.from('feriados').insert({empresa_id:session.empresa.id, data, nome, tipo:$('#fTipo').value, recorrente:$('#fRec').checked});
+  await sb.from('feriados').insert({empresa_id:session.empresa.id, data:data, nome:nome, tipo:$('#fTipo').value, recorrente:$('#fRec').checked});
   closeModal(); toast('✓ Cadastrado','Feriado adicionado','success'); refresh();
 }
 async function excluirFer(id){
@@ -943,22 +839,22 @@ async function excluirFer(id){
 }
 
 async function carregarRecrutamento(){
-  if(!session || !session.empresa?.id) return;
+  if(!session || !session.empresa || !session.empresa.id) return;
   const eid = session.empresa.id;
-  const [vagasRes, candRes, configRes] = await Promise.all([
+  const results = await Promise.all([
     sb.from('vagas').select('*').eq('empresa_id', eid).order('criado_em',{ascending:false}),
     sb.from('candidaturas').select('*, vagas(titulo), candidatos(nome,email,telefone,cpf)').eq('empresa_id', eid).order('criado_em',{ascending:false}),
     sb.from('recrutamento_config').select('*').eq('empresa_id', eid).maybeSingle()
   ]);
-  vagas = vagasRes.data || [];
-  candidaturas = candRes.data || [];
-  recrutConfig = configRes.data || { pagina_ativa: true };
+  vagas = results[0].data || [];
+  candidaturas = results[1].data || [];
+  recrutConfig = results[2].data || { pagina_ativa: true };
   renderRecrutamento();
 }
 
 function renderRecrutamento(){
-  const abertas = vagas.filter(v => v.status==='aberta');
-  const aguardando = candidaturas.filter(c => c.status==='aguardando_rh');
+  const abertas = vagas.filter(function(v){ return v.status==='aberta'; });
+  const aguardando = candidaturas.filter(function(c){ return c.status==='aguardando_rh'; });
   $('#vagasAbertasCount').textContent = abertas.length;
   $('#totalCandidaturas').textContent = candidaturas.length;
   $('#candAguardando').textContent = aguardando.length;
@@ -979,54 +875,27 @@ function setRecrutTab(tab){
 }
 
 function renderVagasAdmin(){
-  $('#vagasAdminList').innerHTML = vagas.length ? vagas.map(v => {
-    const cands = candidaturas.filter(c => c.vaga_id===v.id);
-    const aguardando = cands.filter(c => c.status==='aguardando_rh').length;
-    return `<div class="panel p-5 card-hover ${aguardando > 0 ? 'border-amber-400/40' : ''}">
-      <div class="flex items-start justify-between mb-2">
-        <span class="badge badge-sm ${v.status==='aberta'?'bg-emerald-400/10 text-emerald-300 border border-emerald-400/30':'bg-slate-400/10 text-slate-400 border border-slate-500/30'}">${v.status==='aberta'?'Aberta':'Fechada'}</span>
-        <div class="flex gap-1">
-          <button onclick="openVagaModal('${v.id}')" class="btn-ghost px-2 py-1 rounded text-xs">✏️</button>
-          <button onclick="toggleVaga('${v.id}')" class="btn-ghost px-2 py-1 rounded text-xs">${v.status==='aberta'?'🔒':'🔓'}</button>
-          <button onclick="excluirVaga('${v.id}')" class="btn-ghost px-2 py-1 rounded text-xs">🗑</button>
-        </div>
-      </div>
-      <h3 class="font-display font-bold text-slate-100 mb-1">${v.titulo}</h3>
-      <p class="text-xs text-slate-400 line-clamp-2 mb-3">${v.descricao||''}</p>
-      <div class="flex flex-wrap gap-2 text-[11px] text-slate-500 mb-3">
-        <span>💰 ${v.salario||'A combinar'}</span>
-        <span>📍 ${v.local||'—'}</span>
-        <span>📋 ${v.tipo||'CLT'}</span>
-      </div>
-      ${aguardando > 0 ? `<div class="p-2 mb-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">⏳ ${aguardando} aguardando aprovação</div>` : ''}
-      <div class="flex items-center justify-between pt-3 border-t border-slate-700/40">
-        <span class="text-xs text-slate-500">${cands.length} candidatura${cands.length!==1?'s':''}</span>
-        <button onclick="setRecrutTab('candidatos');filterRecrut('todos')" class="btn-ghost px-3 py-1 rounded text-xs">Ver candidatos</button>
-      </div>
-    </div>`;
+  $('#vagasAdminList').innerHTML = vagas.length ? vagas.map(function(v){
+    const cands = candidaturas.filter(function(c){ return c.vaga_id===v.id; });
+    const aguardando = cands.filter(function(c){ return c.status==='aguardando_rh'; }).length;
+    const statusBadge = v.status==='aberta' ? '<span class="badge badge-sm bg-emerald-400/10 text-emerald-300 border border-emerald-400/30">Aberta</span>' : '<span class="badge badge-sm bg-slate-400/10 text-slate-400 border border-slate-500/30">Fechada</span>';
+    const toggleIcon = v.status==='aberta' ? '🔒' : '🔓';
+    const aguarBadge = aguardando > 0 ? '<div class="p-2 mb-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">⏳ ' + aguardando + ' aguardando aprovação</div>' : '';
+    return '<div class="panel p-5 card-hover ' + (aguardando > 0 ? 'border-amber-400/40' : '') + '"><div class="flex items-start justify-between mb-2">' + statusBadge + '<div class="flex gap-1"><button onclick="openVagaModal(\'' + v.id + '\')" class="btn-ghost px-2 py-1 rounded text-xs">✏️</button><button onclick="toggleVaga(\'' + v.id + '\')" class="btn-ghost px-2 py-1 rounded text-xs">' + toggleIcon + '</button><button onclick="excluirVaga(\'' + v.id + '\')" class="btn-ghost px-2 py-1 rounded text-xs">🗑</button></div></div><h3 class="font-display font-bold text-slate-100 mb-1">' + v.titulo + '</h3><p class="text-xs text-slate-400 line-clamp-2 mb-3">' + (v.descricao||'') + '</p><div class="flex flex-wrap gap-2 text-[11px] text-slate-500 mb-3"><span>💰 ' + (v.salario||'A combinar') + '</span><span>📍 ' + (v.local||'—') + '</span><span>📋 ' + (v.tipo||'CLT') + '</span></div>' + aguarBadge + '<div class="flex items-center justify-between pt-3 border-t border-slate-700/40"><span class="text-xs text-slate-500">' + cands.length + ' candidatura' + (cands.length!==1?'s':'') + '</span><button onclick="setRecrutTab(\'candidatos\');filterRecrut(\'todos\')" class="btn-ghost px-3 py-1 rounded text-xs">Ver candidatos</button></div></div>';
   }).join('') : '<div class="col-span-full panel p-10 text-center text-slate-500">Nenhuma vaga cadastrada.</div>';
 }
 
 function openVagaModal(id){
-  const v = id ? vagas.find(x=>x.id===id) : null;
-  openModal(`<h3 class="font-display font-bold text-slate-100 mb-4">${v?'Editar Vaga':'Nova Vaga'}</h3>
-    <div class="space-y-3">
-      <div><label class="lbl">Título *</label><input id="vTitulo" class="inp" value="${v?.titulo||''}"></div>
-      <div><label class="lbl">Descrição</label><textarea id="vDesc" class="inp" rows="2">${v?.descricao||''}</textarea></div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="lbl">Salário</label><input id="vSalario" class="inp" value="${v?.salario||''}"></div>
-        <div><label class="lbl">Local</label><input id="vLocal" class="inp" value="${v?.local||''}"></div>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="lbl">Tipo</label><select id="vTipo" class="inp"><option ${v?.tipo==='CLT'?'selected':''}>CLT</option><option ${v?.tipo==='PJ'?'selected':''}>PJ</option><option ${v?.tipo==='Estágio'?'selected':''}>Estágio</option></select></div>
-        <div><label class="lbl">Modalidade</label><select id="vMod" class="inp"><option ${v?.modalidade==='Presencial'?'selected':''}>Presencial</option><option ${v?.modalidade==='Remoto'?'selected':''}>Remoto</option><option ${v?.modalidade==='Híbrido'?'selected':''}>Híbrido</option></select></div>
-      </div>
-      <div><label class="lbl">Requisitos</label><textarea id="vReq" class="inp" rows="2">${v?.requisitos||''}</textarea></div>
-    </div>
-    <div class="flex gap-2 mt-4">
-      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
-      <button onclick="salvarVaga('${id||''}')" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">${v?'Salvar':'Criar Vaga'}</button>
-    </div>`);
+  const v = id ? vagas.find(function(x){ return x.id===id; }) : null;
+  const tit = v ? 'Editar Vaga' : 'Nova Vaga';
+  const btnText = v ? 'Salvar' : 'Criar Vaga';
+  const tipoClt = (v && v.tipo==='CLT') ? 'selected' : '';
+  const tipoPj = (v && v.tipo==='PJ') ? 'selected' : '';
+  const tipoEst = (v && v.tipo==='Estágio') ? 'selected' : '';
+  const modPres = (v && v.modalidade==='Presencial') ? 'selected' : '';
+  const modRem = (v && v.modalidade==='Remoto') ? 'selected' : '';
+  const modHib = (v && v.modalidade==='Híbrido') ? 'selected' : '';
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-4">' + tit + '</h3><div class="space-y-3"><div><label class="lbl">Título *</label><input id="vTitulo" class="inp" value="' + (v ? v.titulo||'' : '') + '"></div><div><label class="lbl">Descrição</label><textarea id="vDesc" class="inp" rows="2">' + (v ? v.descricao||'' : '') + '</textarea></div><div class="grid grid-cols-2 gap-3"><div><label class="lbl">Salário</label><input id="vSalario" class="inp" value="' + (v ? v.salario||'' : '') + '"></div><div><label class="lbl">Local</label><input id="vLocal" class="inp" value="' + (v ? v.local||'' : '') + '"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="lbl">Tipo</label><select id="vTipo" class="inp"><option ' + tipoClt + '>CLT</option><option ' + tipoPj + '>PJ</option><option ' + tipoEst + '>Estágio</option></select></div><div><label class="lbl">Modalidade</label><select id="vMod" class="inp"><option ' + modPres + '>Presencial</option><option ' + modRem + '>Remoto</option><option ' + modHib + '>Híbrido</option></select></div></div><div><label class="lbl">Requisitos</label><textarea id="vReq" class="inp" rows="2">' + (v ? v.requisitos||'' : '') + '</textarea></div></div><div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button><button onclick="salvarVaga(\'' + (id||'') + '\')" class="btn-chrome flex-1 px-4 py-2 rounded-lg text-sm">' + btnText + '</button></div>');
 }
 
 async function salvarVaga(id){
@@ -1041,10 +910,10 @@ async function salvarVaga(id){
     requisitos: $('#vReq').value.trim()
   };
   if(!dados.titulo) return toast('Título obrigatório','Informe o título','error');
-  let error;
-  if(id){ ({ error } = await sb.from('vagas').update(dados).eq('id', id)); }
-  else { ({ error } = await sb.from('vagas').insert({...dados, status:'aberta'})); }
-  if(error) return toast('Erro', error.message, 'error');
+  let res;
+  if(id){ res = await sb.from('vagas').update(dados).eq('id', id); }
+  else { res = await sb.from('vagas').insert({titulo:dados.titulo, descricao:dados.descricao, salario:dados.salario, local:dados.local, tipo:dados.tipo, modalidade:dados.modalidade, requisitos:dados.requisitos, empresa_id:dados.empresa_id, status:'aberta'}); }
+  if(res.error) return toast('Erro', res.error.message, 'error');
   closeModal();
   toast(id?'✓ Vaga atualizada':'✓ Vaga criada', dados.titulo, 'success');
   await carregarRecrutamento();
@@ -1052,7 +921,7 @@ async function salvarVaga(id){
 }
 
 async function toggleVaga(id){
-  const v = vagas.find(x=>x.id===id);
+  const v = vagas.find(function(x){ return x.id===id; });
   const novo = v.status==='aberta' ? 'fechada' : 'aberta';
   await sb.from('vagas').update({status:novo}).eq('id', id);
   toast(novo==='aberta'?'🔓 Vaga reaberta':'🔒 Vaga fechada', v.titulo, novo==='aberta'?'success':'warn');
@@ -1069,7 +938,7 @@ async function excluirVaga(id){
 function filterRecrut(f){ recrutFilter = f; renderCandidatosAdmin(); }
 
 function renderCandidatosAdmin(){
-  const list = recrutFilter==='todos' ? candidaturas : candidaturas.filter(c => c.status===recrutFilter);
+  const list = recrutFilter==='todos' ? candidaturas : candidaturas.filter(function(c){ return c.status===recrutFilter; });
   const statusLabels = {
     inscrito:{l:'Inscrito',c:'bg-slate-400/10 text-slate-300 border-slate-500/30'},
     pre_entrevista:{l:'⏳ Pré-entrevista',c:'bg-amber-400/10 text-amber-300 border-amber-400/30'},
@@ -1082,178 +951,150 @@ function renderCandidatosAdmin(){
     contratado:{l:'🎉 Contratado',c:'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'},
     reprovado:{l:'❌ Reprovado',c:'bg-rose-400/10 text-rose-300 border-rose-400/30'}
   };
-  $('#recrutBody').innerHTML = list.length ? list.map(c => {
+  $('#recrutBody').innerHTML = list.length ? list.map(function(c){
     const st = statusLabels[c.status] || statusLabels.inscrito;
     const isAguardando = c.status === 'aguardando_rh' || c.status === 'pre_entrevista';
     const rowClass = isAguardando ? 'cand-row-aguardando' : '';
-    let actions = `<button onclick="verCandidato('${c.id}')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">👁 Ver</button>`;
+    let actions = '<button onclick="verCandidato(\'' + c.id + '\')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">👁 Ver</button>';
     if(c.status === 'aguardando_rh' || c.status === 'pre_entrevista'){
-      actions += `<button onclick="aprovarPre('${c.id}')" class="btn-success px-3 py-1.5 rounded text-xs font-bold mr-1">✓ Aprovar</button>
-        <button onclick="reprovarCandidato('${c.id}')" class="btn-danger px-3 py-1.5 rounded text-xs font-bold">✕ Reprovar</button>`;
+      actions += '<button onclick="aprovarPre(\'' + c.id + '\')" class="btn-success px-3 py-1.5 rounded text-xs font-bold mr-1">✓ Aprovar</button><button onclick="reprovarCandidato(\'' + c.id + '\')" class="btn-danger px-3 py-1.5 rounded text-xs font-bold">✕ Reprovar</button>';
     } else if(c.status === 'aprovado_pre' || c.status === 'entrevista_agendada'){
-      actions += `<button onclick="agendarEntrevista('${c.id}')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">📅 Agendar</button>
-        <button onclick="reprovarCandidato('${c.id}')" class="btn-danger px-2 py-1 rounded text-xs">✕</button>`;
+      actions += '<button onclick="agendarEntrevista(\'' + c.id + '\')" class="btn-ghost px-2 py-1 rounded text-xs mr-1">📅 Agendar</button><button onclick="reprovarCandidato(\'' + c.id + '\')" class="btn-danger px-2 py-1 rounded text-xs">✕</button>';
     } else if(c.status === 'ficha_preenchida'){
-      actions += `<button onclick="aprovarFicha('${c.id}')" class="btn-success px-2 py-1 rounded text-xs mr-1">✓ Ficha</button>`;
+      actions += '<button onclick="aprovarFicha(\'' + c.id + '\')" class="btn-success px-2 py-1 rounded text-xs mr-1">✓ Ficha</button>';
     } else if(c.status === 'ficha_aprovada'){
-      actions += `<button onclick="marcarIntegracao('${c.id}')" class="btn-chrome px-2 py-1 rounded text-xs mr-1">🎯 Integrar</button>`;
+      actions += '<button onclick="marcarIntegracao(\'' + c.id + '\')" class="btn-chrome px-2 py-1 rounded text-xs mr-1">🎯 Integrar</button>';
     }
-    return `<tr class="${rowClass}">
-      <td><div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 grid place-items-center text-[11px] font-bold text-white">${iniciais(c.candidatos?.nome||'?')}</div>
-        <div class="min-w-0"><p class="font-semibold text-slate-200 truncate">${c.candidatos?.nome||'—'}</p><p class="text-[11px] text-slate-500 truncate">${c.candidatos?.email||''}</p></div>
-      </div></td>
-      <td class="text-slate-300 max-w-[140px] truncate">${c.vagas?.titulo||'—'}</td>
-      <td><span class="badge badge-sm ${st.c}">${st.l}</span></td>
-      <td class="text-slate-400 text-xs whitespace-nowrap">${c.data_entrevista ? fmtDataHora(c.data_entrevista) : '—'}</td>
-      <td class="text-right whitespace-nowrap">${actions}</td>
-    </tr>`;
+    const nome = (c.candidatos && c.candidatos.nome) || '—';
+    const email = (c.candidatos && c.candidatos.email) || '';
+    const vaga = (c.vagas && c.vagas.titulo) || '—';
+    return '<tr class="' + rowClass + '"><td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 grid place-items-center text-[11px] font-bold text-white">' + iniciais(nome) + '</div><div class="min-w-0"><p class="font-semibold text-slate-200 truncate">' + nome + '</p><p class="text-[11px] text-slate-500 truncate">' + email + '</p></div></div></td><td class="text-slate-300 max-w-[140px] truncate">' + vaga + '</td><td><span class="badge badge-sm ' + st.c + '">' + st.l + '</span></td><td class="text-slate-400 text-xs whitespace-nowrap">' + (c.data_entrevista ? fmtDataHora(c.data_entrevista) : '—') + '</td><td class="text-right whitespace-nowrap">' + actions + '</td></tr>';
   }).join('') : '<tr><td colspan="5" class="text-center py-10 text-slate-500">Nenhum candidato</td></tr>';
 }
 
 function verCandidato(id){
-  const c = candidaturas.find(x => x.id===id);
+  const c = candidaturas.find(function(x){ return x.id===id; });
   if(!c) return;
   const ficha = c.ficha_cadastro;
-  let html = `<h3 class="font-display font-bold text-slate-100 text-lg mb-4">${c.candidatos?.nome || 'Candidato'}</h3>`;
-  html += `<div class="space-y-2 text-sm mb-4">
-    <p><span class="text-slate-500">E-mail:</span> <span class="text-slate-200">${c.candidatos?.email||'—'}</span></p>
-    <p><span class="text-slate-500">Telefone:</span> <span class="text-slate-200">${c.candidatos?.telefone||'—'}</span></p>
-    <p><span class="text-slate-500">CPF:</span> <span class="text-slate-200">${c.candidatos?.cpf||'—'}</span></p>
-    <p><span class="text-slate-500">Vaga:</span> <span class="text-slate-200">${c.vagas?.titulo||'—'}</span></p>
-    <p><span class="text-slate-500">Status:</span> <span class="text-slate-200 capitalize">${c.status.replace(/_/g,' ')}</span></p>
-    ${c.observacao_rh?`<p><span class="text-slate-500">Observação:</span> <span class="text-slate-200">${c.observacao_rh}</span></p>`:''}
-  </div>`;
+  let html = '<h3 class="font-display font-bold text-slate-100 text-lg mb-4">' + ((c.candidatos && c.candidatos.nome) || 'Candidato') + '</h3>';
+  html += '<div class="space-y-2 text-sm mb-4">';
+  html += '<p><span class="text-slate-500">E-mail:</span> <span class="text-slate-200">' + ((c.candidatos && c.candidatos.email) || '—') + '</span></p>';
+  html += '<p><span class="text-slate-500">Telefone:</span> <span class="text-slate-200">' + ((c.candidatos && c.candidatos.telefone) || '—') + '</span></p>';
+  html += '<p><span class="text-slate-500">CPF:</span> <span class="text-slate-200">' + ((c.candidatos && c.candidatos.cpf) || '—') + '</span></p>';
+  html += '<p><span class="text-slate-500">Vaga:</span> <span class="text-slate-200">' + ((c.vagas && c.vagas.titulo) || '—') + '</span></p>';
+  html += '<p><span class="text-slate-500">Status:</span> <span class="text-slate-200 capitalize">' + c.status.replace(/_/g,' ') + '</span></p>';
+  if(c.observacao_rh) html += '<p><span class="text-slate-500">Observação:</span> <span class="text-slate-200">' + c.observacao_rh + '</span></p>';
+  html += '</div>';
   if(ficha){
-    html += `<div class="mb-4"><p class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">📋 Ficha Cadastral</p>
-    <div class="panel p-3 text-sm space-y-1">
-      ${Object.entries(ficha).filter(([k,v])=>v).map(([k,v]) => `<p><span class="text-slate-500 capitalize">${k}:</span> <span class="text-slate-200">${v}</span></p>`).join('')}
-    </div></div>`;
+    html += '<div class="mb-4"><p class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">📋 Ficha Cadastral</p><div class="panel p-3 text-sm space-y-1">';
+    Object.keys(ficha).forEach(function(k){
+      if(ficha[k]) html += '<p><span class="text-slate-500 capitalize">' + k + ':</span> <span class="text-slate-200">' + ficha[k] + '</span></p>';
+    });
+    html += '</div></div>';
   }
-  html += `<div class="flex gap-2 mt-4">
-    <button onclick="closeModal()" class="btn-ghost flex-1 py-2 rounded-lg text-sm">Fechar</button>
-    ${c.status==='aguardando_rh'||c.status==='pre_entrevista'?`<button onclick="aprovarPre('${c.id}');closeModal()" class="btn-success flex-1 py-2 rounded-lg text-sm font-bold">✓ Aprovar</button>`:''}
-    ${c.status==='aguardando_rh'||c.status==='pre_entrevista'?`<button onclick="reprovarCandidato('${c.id}');closeModal()" class="btn-danger py-2 px-3 rounded-lg text-sm">✕ Reprovar</button>`:''}
-  </div>`;
+  let botoes = '<div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 py-2 rounded-lg text-sm">Fechar</button>';
+  if(c.status==='aguardando_rh'||c.status==='pre_entrevista'){
+    botoes += '<button onclick="aprovarPre(\'' + c.id + '\');closeModal()" class="btn-success flex-1 py-2 rounded-lg text-sm font-bold">✓ Aprovar</button>';
+    botoes += '<button onclick="reprovarCandidato(\'' + c.id + '\');closeModal()" class="btn-danger py-2 px-3 rounded-lg text-sm">✕ Reprovar</button>';
+  }
+  botoes += '</div>';
+  html += botoes;
   openModal(html);
 }
 
 function aprovarPre(id){
-  openModal(`<h3 class="font-display font-bold text-slate-100 mb-3">✓ Aprovar candidato</h3>
-    <label class="lbl">Mensagem (opcional)</label>
-    <textarea id="msgAprov" class="inp" rows="2" placeholder="Parabéns! Entraremos em contato."></textarea>
-    <div class="flex gap-2 mt-4">
-      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
-      <button onclick="confirmarAprovPre('${id}')" class="btn-success flex-1 px-4 py-2 rounded-lg text-sm font-bold">✓ Aprovar</button>
-    </div>`);
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-3">✓ Aprovar candidato</h3><label class="lbl">Mensagem (opcional)</label><textarea id="msgAprov" class="inp" rows="2" placeholder="Parabéns! Entraremos em contato."></textarea><div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button><button onclick="confirmarAprovPre(\'' + id + '\')" class="btn-success flex-1 px-4 py-2 rounded-lg text-sm font-bold">✓ Aprovar</button></div>');
 }
 async function confirmarAprovPre(id){
-  const msg = $('#msgAprov')?.value || '';
-  const { error } = await sb.from('candidaturas').update({status:'aprovado_pre', observacao_rh:msg, atualizado_em:new Date().toISOString()}).eq('id', id);
-  if(error) return toast('Erro','Falha ao aprovar','error');
+  const msg = $('#msgAprov') ? $('#msgAprov').value : '';
+  const res = await sb.from('candidaturas').update({status:'aprovado_pre', observacao_rh:msg, atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(res.error) return toast('Erro','Falha ao aprovar','error');
   closeModal(); toast('✅ Candidato aprovado','','success');
   await carregarRecrutamento();
 }
 
 function agendarEntrevista(id){
-  openModal(`<h3 class="font-display font-bold text-slate-100 mb-3">📅 Agendar entrevista</h3>
-    <div class="space-y-3">
-      <div><label class="lbl">Data e hora *</label><input type="datetime-local" id="entData" class="inp"></div>
-      <div><label class="lbl">Observações</label><textarea id="entObs" class="inp" rows="2"></textarea></div>
-    </div>
-    <div class="flex gap-2 mt-4">
-      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
-      <button onclick="confirmarAgendar('${id}')" class="btn-primary flex-1 px-4 py-2 rounded-lg text-sm">Agendar</button>
-    </div>`);
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-3">📅 Agendar entrevista</h3><div class="space-y-3"><div><label class="lbl">Data e hora *</label><input type="datetime-local" id="entData" class="inp"></div><div><label class="lbl">Observações</label><textarea id="entObs" class="inp" rows="2"></textarea></div></div><div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button><button onclick="confirmarAgendar(\'' + id + '\')" class="btn-primary flex-1 px-4 py-2 rounded-lg text-sm">Agendar</button></div>');
 }
 async function confirmarAgendar(id){
   const data = $('#entData').value;
   const obs = $('#entObs').value;
   if(!data) return toast('Informe a data','','error');
-  const { error } = await sb.from('candidaturas').update({status:'entrevista_agendada', data_entrevista:data, observacao_rh:obs, atualizado_em:new Date().toISOString()}).eq('id', id);
-  if(error) return toast('Erro','Falha ao agendar','error');
+  const res = await sb.from('candidaturas').update({status:'entrevista_agendada', data_entrevista:data, observacao_rh:obs, atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(res.error) return toast('Erro','Falha ao agendar','error');
   closeModal(); toast('📅 Entrevista agendada','','success');
   await carregarRecrutamento();
 }
 
 async function aprovarFicha(id){
-  const { error } = await sb.from('candidaturas').update({status:'ficha_aprovada', atualizado_em:new Date().toISOString()}).eq('id', id);
-  if(error) return toast('Erro','Falha','error');
+  const res = await sb.from('candidaturas').update({status:'ficha_aprovada', atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(res.error) return toast('Erro','Falha','error');
   toast('✅ Ficha aprovada','','success');
   await carregarRecrutamento();
 }
 
 function marcarIntegracao(id){
-  openModal(`<h3 class="font-display font-bold text-slate-100 mb-3">🎯 Marcar integração</h3>
-    <div class="space-y-3">
-      <div><label class="lbl">Data integração *</label><input type="date" id="intData" class="inp"></div>
-      <div><label class="lbl">Data início *</label><input type="date" id="iniData" class="inp"></div>
-    </div>
-    <div class="flex gap-2 mt-4">
-      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg">Cancelar</button>
-      <button onclick="confirmarIntegracao('${id}')" class="btn-primary flex-1 px-4 py-2 rounded-lg text-sm">Confirmar</button>
-    </div>`);
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-3">🎯 Marcar integração</h3><div class="space-y-3"><div><label class="lbl">Data integração *</label><input type="date" id="intData" class="inp"></div><div><label class="lbl">Data início *</label><input type="date" id="iniData" class="inp"></div></div><div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg">Cancelar</button><button onclick="confirmarIntegracao(\'' + id + '\')" class="btn-primary flex-1 px-4 py-2 rounded-lg text-sm">Confirmar</button></div>');
 }
 async function confirmarIntegracao(id){
   const intData = $('#intData').value;
   const iniData = $('#iniData').value;
   if(!intData || !iniData) return toast('Preencha as datas','','error');
-  const { error } = await sb.from('candidaturas').update({status:'integracao_marcada', data_integracao:intData, data_inicio:iniData, atualizado_em:new Date().toISOString()}).eq('id', id);
-  if(error) return toast('Erro','Falha','error');
+  const res = await sb.from('candidaturas').update({status:'integracao_marcada', data_integracao:intData, data_inicio:iniData, atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(res.error) return toast('Erro','Falha','error');
   closeModal(); toast('🎯 Integração marcada','','success');
   await carregarRecrutamento();
 }
 
 function reprovarCandidato(id){
-  openModal(`<h3 class="font-display font-bold text-slate-100 mb-3">❌ Reprovar candidato</h3>
-    <label class="lbl">Motivo *</label>
-    <textarea id="motivoRep" class="inp" rows="3" placeholder="Explique o motivo..."></textarea>
-    <div class="flex gap-2 mt-4">
-      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button>
-      <button onclick="confirmarReprovar('${id}')" class="bg-rose-500 text-white flex-1 py-2 rounded-lg text-sm font-bold hover:bg-rose-600">✕ Reprovar</button>
-    </div>`);
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-3">❌ Reprovar candidato</h3><label class="lbl">Motivo *</label><textarea id="motivoRep" class="inp" rows="3" placeholder="Explique o motivo..."></textarea><div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2 rounded-lg text-sm">Cancelar</button><button onclick="confirmarReprovar(\'' + id + '\')" class="bg-rose-500 text-white flex-1 py-2 rounded-lg text-sm font-bold hover:bg-rose-600">✕ Reprovar</button></div>');
 }
 async function confirmarReprovar(id){
   const motivo = $('#motivoRep').value.trim();
   if(!motivo) return toast('Informe o motivo','','error');
-  const { error } = await sb.from('candidaturas').update({status:'reprovado', observacao_rh:motivo, atualizado_em:new Date().toISOString()}).eq('id', id);
-  if(error) return toast('Erro','Falha','error');
+  const res = await sb.from('candidaturas').update({status:'reprovado', observacao_rh:motivo, atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(res.error) return toast('Erro','Falha','error');
   closeModal(); toast('Candidato reprovado','','warn');
   await carregarRecrutamento();
 }
 
 function exportarCandidatosCSV(){
-  const list = recrutFilter==='todos' ? candidaturas : candidaturas.filter(c => c.status===recrutFilter);
+  const list = recrutFilter==='todos' ? candidaturas : candidaturas.filter(function(c){ return c.status===recrutFilter; });
   if(!list.length) return toast('Nada a exportar','','warn');
   const header = 'Nome,Email,Telefone,CPF,Vaga,Status,Data\n';
-  const rows = list.map(c => 
-    `"${(c.candidatos?.nome||'').replace(/"/g,'""')}","${c.candidatos?.email||''}","${c.candidatos?.telefone||''}","${c.candidatos?.cpf||''}","${(c.vagas?.titulo||'').replace(/"/g,'""')}","${c.status}","${c.criado_em||''}"`
-  ).join('\n');
+  const rows = list.map(function(c){
+    const nome = ((c.candidatos && c.candidatos.nome) || '').replace(/"/g,'""');
+    const email = (c.candidatos && c.candidatos.email) || '';
+    const tel = (c.candidatos && c.candidatos.telefone) || '';
+    const cpf = (c.candidatos && c.candidatos.cpf) || '';
+    const vaga = ((c.vagas && c.vagas.titulo) || '').replace(/"/g,'""');
+    return '"' + nome + '","' + email + '","' + tel + '","' + cpf + '","' + vaga + '","' + c.status + '","' + (c.criado_em||'') + '"';
+  }).join('\n');
   const blob = new Blob(['\ufeff'+header+rows], {type:'text/csv;charset=utf-8'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `candidatos_facige_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = 'candidatos_facige_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
   URL.revokeObjectURL(url);
   toast('📥 CSV exportado','','success');
 }
 
 async function carregarPaginaRecrutamento(){
-  if(!session?.empresa?.id) return;
+  if(!session || !session.empresa || !session.empresa.id) return;
   const eid = session.empresa.id;
   if (!empresaAtual) await carregarEmpresaAtual();
-  const { data: config } = await sb.from('recrutamento_config').select('*').eq('empresa_id', eid).maybeSingle();
-  paginaConfig = config || { empresa_id: eid, pagina_ativa: false, mostrar_todas_vagas: true };
+  const res = await sb.from('recrutamento_config').select('*').eq('empresa_id', eid).maybeSingle();
+  paginaConfig = res.data || { empresa_id: eid, pagina_ativa: false, mostrar_todas_vagas: true };
   $('#pgAtiva').checked = paginaConfig.pagina_ativa === true;
-  $('#pgTitulo').value = paginaConfig.titulo || (empresaAtual?.nome ? `Vem ser ${empresaAtual.nome}!` : '');
+  $('#pgTitulo').value = paginaConfig.titulo || (empresaAtual && empresaAtual.nome ? 'Vem ser ' + empresaAtual.nome + '!' : '');
   $('#pgMensagem').value = paginaConfig.mensagem || '';
   $('#pgCorPrimaria').value = paginaConfig.cor_primaria || '#6366f1';
   $('#pgCorPrimariaText').value = paginaConfig.cor_primaria || '#6366f1';
   $('#pgCorSecundaria').value = paginaConfig.cor_secundaria || '#8b5cf6';
   $('#pgCorSecundariaText').value = paginaConfig.cor_secundaria || '#8b5cf6';
   $('#pgLogo').value = paginaConfig.logo_url || '';
-  $('#pgSlug').value = empresaAtual?.slug || '';
+  $('#pgSlug').value = (empresaAtual && empresaAtual.slug) || '';
   const todas = paginaConfig.mostrar_todas_vagas !== false;
   $('#pgTodasVagas').checked = todas;
   toggleModoVagas();
@@ -1272,12 +1113,12 @@ function atualizarStatusLabel(){
 
 async function togglePaginaRecrutamento(){
   const ativa = $('#pgAtiva').checked;
-  const { error } = await sb.from('recrutamento_config').upsert({
+  const res = await sb.from('recrutamento_config').upsert({
     empresa_id: session.empresa.id,
     pagina_ativa: ativa,
     atualizado_em: new Date().toISOString()
   }, { onConflict: 'empresa_id' });
-  if (error) {
+  if (res.error) {
     toast('Erro', 'Falha ao atualizar status', 'error');
     $('#pgAtiva').checked = !ativa;
     return;
@@ -1311,41 +1152,35 @@ function toggleModoVagas(){
 }
 
 function renderVagasSelecao(){
-  const abertas = vagas.filter(v => v.status === 'aberta');
+  const abertas = vagas.filter(function(v){ return v.status === 'aberta'; });
   const visiveis = paginaConfig.vagas_visiveis || [];
   if (!abertas.length) {
     $('#pgVagasList').innerHTML = '<p class="text-sm text-slate-500">Nenhuma vaga aberta. Crie vagas na seção 🎯 Recrutamento.</p>';
     return;
   }
-  $('#pgVagasList').innerHTML = abertas.map(v => {
-    const checked = visiveis.includes(v.id) ? 'checked' : '';
-    return `<label class="vaga-check-item flex items-center gap-3 p-3 rounded-lg border border-slate-700">
-      <input type="checkbox" class="w-4 h-4 accent-indigo-500 pgVagaCheck" value="${v.id}" ${checked}>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-slate-200 truncate">${v.titulo}</p>
-        <p class="text-[11px] text-slate-500">${v.local || ''} · ${v.tipo || ''}</p>
-      </div>
-    </label>`;
+  $('#pgVagasList').innerHTML = abertas.map(function(v){
+    const checked = visiveis.indexOf(v.id) !== -1 ? 'checked' : '';
+    return '<label class="vaga-check-item flex items-center gap-3 p-3 rounded-lg border border-slate-700"><input type="checkbox" class="w-4 h-4 accent-indigo-500 pgVagaCheck" value="' + v.id + '" ' + checked + '><div class="flex-1 min-w-0"><p class="text-sm font-semibold text-slate-200 truncate">' + v.titulo + '</p><p class="text-[11px] text-slate-500">' + (v.local || '') + ' · ' + (v.tipo || '') + '</p></div></label>';
   }).join('');
 }
 
 function atualizarPreviewPagina(){
-  const titulo = $('#pgTitulo').value || (empresaAtual?.nome || 'Sua empresa');
+  const titulo = $('#pgTitulo').value || ((empresaAtual && empresaAtual.nome) || 'Sua empresa');
   const mensagem = $('#pgMensagem').value || 'Sua mensagem de boas-vindas aparecerá aqui';
   const cor1 = $('#pgCorPrimariaText').value || '#6366f1';
   const cor2 = $('#pgCorSecundariaText').value || '#8b5cf6';
   const logo = $('#pgLogo').value;
   $('#previewTitulo').textContent = titulo;
   $('#previewMensagem').textContent = mensagem;
-  $('#previewLogoBox').style.background = `linear-gradient(135deg, ${cor1}, ${cor2})`;
-  $('#previewHero').style.background = `linear-gradient(180deg, ${cor1}22, transparent)`;
+  $('#previewLogoBox').style.background = 'linear-gradient(135deg, ' + cor1 + ', ' + cor2 + ')';
+  $('#previewHero').style.background = 'linear-gradient(180deg, ' + cor1 + '22, transparent)';
   const logoImg = $('#previewLogoImg');
   const logoIcon = $('#previewLogoIcon');
   if (logo) {
     logoImg.src = logo;
     logoImg.classList.remove('hidden');
     logoIcon.classList.add('hidden');
-    logoImg.onerror = () => { logoImg.classList.add('hidden'); logoIcon.classList.remove('hidden'); };
+    logoImg.onerror = function(){ logoImg.classList.add('hidden'); logoIcon.classList.remove('hidden'); };
   } else {
     logoImg.classList.add('hidden');
     logoIcon.classList.remove('hidden');
@@ -1353,9 +1188,9 @@ function atualizarPreviewPagina(){
 }
 
 function atualizarLinkPreview(){
-  const slug = $('#pgSlug').value.trim().toLowerCase() || (empresaAtual?.slug || 'sua-empresa');
+  const slug = $('#pgSlug').value.trim().toLowerCase() || ((empresaAtual && empresaAtual.slug) || 'sua-empresa');
   const baseUrl = window.location.origin;
-  const link = `${baseUrl}/rh/vagas.html?e=${encodeURIComponent(slug)}`;
+  const link = baseUrl + '/rh/vagas.html?e=' + encodeURIComponent(slug);
   $('#pgLinkPreview').textContent = link;
 }
 
@@ -1372,9 +1207,9 @@ async function verificarSlug(){
     feedback.className = 'text-[11px] mt-1 text-rose-400';
     return;
   }
-  const { data: existente } = await sb.from('empresas').select('id, nome').eq('slug', slug).maybeSingle();
-  if (existente && existente.id !== session.empresa.id) {
-    feedback.textContent = `❌ Slug já usado por "${existente.nome}"`;
+  const res = await sb.from('empresas').select('id, nome').eq('slug', slug).maybeSingle();
+  if (res.data && res.data.id !== session.empresa.id) {
+    feedback.textContent = '❌ Slug já usado por "' + res.data.nome + '"';
     feedback.className = 'text-[11px] mt-1 text-rose-400';
   } else {
     feedback.textContent = '✅ Slug disponível';
@@ -1388,8 +1223,8 @@ async function salvarPaginaRecrutamento(){
   btn.innerHTML = '<span>Salvando...</span>';
   const slug = $('#pgSlug').value.trim().toLowerCase();
   if (slug) {
-    const { data: existente } = await sb.from('empresas').select('id').eq('slug', slug).maybeSingle();
-    if (existente && existente.id !== session.empresa.id) {
+    const res = await sb.from('empresas').select('id').eq('slug', slug).maybeSingle();
+    if (res.data && res.data.id !== session.empresa.id) {
       toast('Slug indisponível', 'Este endereço já está em uso por outra empresa', 'error');
       btn.disabled = false;
       btn.innerHTML = '<span>💾</span> Salvar alterações';
@@ -1398,7 +1233,7 @@ async function salvarPaginaRecrutamento(){
   }
   let vagasVisiveis = null;
   if (!$('#pgTodasVagas').checked) {
-    vagasVisiveis = [...document.querySelectorAll('.pgVagaCheck:checked')].map(cb => cb.value);
+    vagasVisiveis = [...document.querySelectorAll('.pgVagaCheck:checked')].map(function(cb){ return cb.value; });
   }
   const dados = {
     titulo: $('#pgTitulo').value.trim(),
@@ -1410,21 +1245,28 @@ async function salvarPaginaRecrutamento(){
     vagas_visiveis: vagasVisiveis,
     atualizado_em: new Date().toISOString()
   };
-  const { error: errConfig } = await sb.from('recrutamento_config').upsert({
+  const resConfig = await sb.from('recrutamento_config').upsert({
     empresa_id: session.empresa.id,
-    ...dados
+    titulo: dados.titulo,
+    mensagem: dados.mensagem,
+    cor_primaria: dados.cor_primaria,
+    cor_secundaria: dados.cor_secundaria,
+    logo_url: dados.logo_url,
+    mostrar_todas_vagas: dados.mostrar_todas_vagas,
+    vagas_visiveis: dados.vagas_visiveis,
+    atualizado_em: dados.atualizado_em
   }, { onConflict: 'empresa_id' });
-  if (errConfig) {
-    toast('Erro', errConfig.message, 'error');
+  if (resConfig.error) {
+    toast('Erro', resConfig.error.message, 'error');
     btn.disabled = false;
     btn.innerHTML = '<span>💾</span> Salvar alterações';
     return;
   }
   if (slug && empresaAtual) {
-    await sb.from('empresas').update({ slug }).eq('id', empresaAtual.id);
+    await sb.from('empresas').update({ slug: slug }).eq('id', empresaAtual.id);
     empresaAtual.slug = slug;
   }
-  paginaConfig = { ...paginaConfig, ...dados };
+  paginaConfig = Object.assign({}, paginaConfig, dados);
   atualizarLinkPreview();
   btn.disabled = false;
   btn.innerHTML = '<span>💾</span> Salvar alterações';
@@ -1433,7 +1275,7 @@ async function salvarPaginaRecrutamento(){
 
 function copiarLinkPagina(){
   const link = $('#pgLinkPreview').textContent;
-  navigator.clipboard.writeText(link).then(() => {
+  navigator.clipboard.writeText(link).then(function(){
     toast('📋 Link copiado', link, 'success');
   });
 }
@@ -1444,31 +1286,31 @@ function previewPagina(){
 }
 
 function atualizarEstatisticasPagina(){
-  const abertas = vagas.filter(v => v.status === 'aberta');
+  const abertas = vagas.filter(function(v){ return v.status === 'aberta'; });
   let exibidas = abertas.length;
   if (!$('#pgTodasVagas').checked) {
     const visiveis = paginaConfig.vagas_visiveis || [];
-    exibidas = abertas.filter(v => visiveis.includes(v.id)).length;
+    exibidas = abertas.filter(function(v){ return visiveis.indexOf(v.id) !== -1; }).length;
   }
   $('#statVagasExibidas').textContent = exibidas;
   $('#statCandidaturas').textContent = candidaturas.length;
-  $('#statAguardando').textContent = candidaturas.filter(c => c.status === 'aguardando_rh').length;
+  $('#statAguardando').textContent = candidaturas.filter(function(c){ return c.status === 'aguardando_rh'; }).length;
 }
 
 function openModal(html){ $('#modalContent').innerHTML = html; $('#modal').classList.remove('hidden'); }
 function closeModal(){ $('#modal').classList.add('hidden'); }
-$('#modal').addEventListener('click', e => { if(e.target.id==='modal') closeModal(); });
+$('#modal').addEventListener('click', function(e){ if(e.target.id==='modal') closeModal(); });
 
 function subscribeRealtime(){
-  if(!session?.empresa?.id) return;
+  if(!session || !session.empresa || !session.empresa.id) return;
   sb.channel('facige-rh-'+session.empresa.id)
-    .on('postgres_changes', {event:'*', schema:'public', filter:`empresa_id=eq.${session.empresa.id}`}, () => { refresh(); })
+    .on('postgres_changes', {event:'*', schema:'public', filter:'empresa_id=eq.'+session.empresa.id}, function(){ refresh(); })
     .subscribe();
 }
 
 function tick(){
   const d = new Date();
-  $('#clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  $('#clock').textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
 }
 setInterval(tick, 1000); tick();
 
