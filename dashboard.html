@@ -22,6 +22,7 @@ tailwind.config={theme:{extend:{
   body{background:#070d19;background-image:radial-gradient(900px 480px at 82% -10%,rgba(37,99,235,.2),transparent 60%),radial-gradient(700px 420px at -8% 35%,rgba(14,165,233,.09),transparent 55%),radial-gradient(rgba(148,163,184,.07) 1px,transparent 1px);background-size:auto,auto,22px 22px;color:#cbd5e1}
   .view-in{animation:fadeUp .35s ease both}
   .chrome-text{background:linear-gradient(180deg,#fff,#e6edf5 34%,#93a5bd 58%,#e2e9f2 78%,#64748b);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sun-text{background:linear-gradient(120deg,#fde68a,#fbbf24,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}
   .panel{background:linear-gradient(180deg,rgba(24,36,62,.92),rgba(12,20,37,.96));border:1px solid rgba(82,106,150,.35);box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);border-radius:.85rem}
   .card-hover{transition:all .2s}.card-hover:hover{transform:translateY(-2px);border-color:rgba(125,211,252,.45)}
   .kpi-clickable{cursor:pointer;transition:all .2s ease;text-align:left;width:100%}
@@ -34,6 +35,8 @@ tailwind.config={theme:{extend:{
   .btn-chrome:hover{filter:brightness(1.08);transform:translateY(-1px)}
   .btn-primary{background:linear-gradient(135deg,#4f46e5,#7c3aed,#ec4899);color:#fff;font-weight:700;box-shadow:0 4px 14px rgba(79,70,229,.4);transition:all .2s}
   .btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+  .btn-sun{background:linear-gradient(135deg,#f59e0b,#f97316);color:#1a1206;font-weight:700;box-shadow:0 4px 16px rgba(245,158,11,.35);transition:all .2s}
+  .btn-sun:hover{filter:brightness(1.1);transform:translateY(-1px)}
   .btn-ghost{border:1px solid rgba(125,145,180,.4);color:#cbd5e1;background:rgba(255,255,255,.03)}
   .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(125,211,252,.5)}
   .btn-danger{border:1px solid rgba(244,63,94,.4);color:#fda4af;background:rgba(244,63,94,.05)}
@@ -63,6 +66,18 @@ tailwind.config={theme:{extend:{
   input[type="color"]{-webkit-appearance:none;appearance:none;background:none;padding:0}
   input[type="color"]::-webkit-color-swatch-wrapper{padding:2px}
   input[type="color"]::-webkit-color-swatch{border-radius:8px;border:none}
+  .cal-cell{min-height:96px;transition:all .15s;position:relative}
+  .cal-cell:hover{background:rgba(251,191,36,.05);border-color:rgba(251,191,36,.3)}
+  .cal-today{background:rgba(251,191,36,.07)!important}
+  .cal-today .cal-day{background:linear-gradient(135deg,#f59e0b,#f97316);color:#1a1206}
+  .fer-chip{font-size:9px;padding:2px 6px;border-radius:6px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;cursor:pointer;transition:all .15s}
+  .fer-chip:hover{filter:brightness(1.3)}
+  .fer-aprovada{background:rgba(16,185,129,.15);color:#6ee7b7;border-left:2px solid #10b981}
+  .fer-pendente{background:rgba(245,158,11,.15);color:#fcd34d;border-left:2px solid #f59e0b}
+  .stat-bar{transition:width .8s cubic-bezier(.4,0,.2,1)}
+  .tab-btn{transition:all .2s}
+  .tab-btn.active{background:linear-gradient(135deg,rgba(251,191,36,.18),rgba(249,115,22,.12));color:#fde68a;border-color:rgba(251,191,36,.45)}
+  .fbtn.active{border-color:rgba(251,191,36,.6)!important;color:#fcd34d!important}
 </style>
 </head>
 <body class="font-sans antialiased">
@@ -96,7 +111,7 @@ tailwind.config={theme:{extend:{
       <button data-view="espelho" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">📄 Espelhos</button>
       <button data-view="vrvt" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">💳 VR · VA · VT</button>
       <button data-view="feriados" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">🎌 Feriados</button>
-      <button onclick="abrirFerias()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">🏖️ Férias <span id="badgeFerias" class="ml-auto hidden px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold"></span></button>
+      <button data-view="ferias" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">🏖️ Férias <span id="badgeFerias" class="ml-auto hidden px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold"></span></button>
       <button data-view="recrutamento" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">🎯 Recrutamento <span id="badgeRecrut" class="ml-auto hidden px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold"></span></button>
       <button data-view="pagina" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5">🌐 Página de Recrutamento</button>
     </nav>
@@ -243,6 +258,164 @@ tailwind.config={theme:{extend:{
             </table>
           </div>
         </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           VIEW: FÉRIAS (MÓDULO INTEGRADO)
+           ═══════════════════════════════════════════ -->
+      <section id="view-ferias" class="hidden view-in">
+        
+        <!-- Banner -->
+        <div class="panel overflow-hidden relative mb-6" style="background:linear-gradient(120deg,rgba(120,53,15,.35),rgba(15,23,42,.6))">
+          <div class="absolute -top-10 -right-10 w-48 h-48 rounded-full" style="background:radial-gradient(circle,rgba(251,191,36,.2),transparent 70%)"></div>
+          <div class="relative px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 class="font-display text-xl sm:text-2xl font-bold sun-text">🏖️ Controle de Férias da Equipe</h2>
+              <p class="text-sm text-slate-400 mt-1">Aprove solicitações, visualize o calendário e acompanhe os saldos.</p>
+            </div>
+            <button onclick="openNovaFerias()" class="btn-sun px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shrink-0">
+              <span class="text-lg leading-none">+</span> Nova Solicitação
+            </button>
+          </div>
+        </div>
+
+        <!-- KPIs de Férias -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          <div class="panel card-hover p-4 sm:p-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg grid place-items-center text-lg sm:text-xl bg-orange-400/10 text-orange-300">🏖️</span>
+              <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></span>
+            </div>
+            <p class="font-display text-2xl sm:text-3xl font-bold tnum chrome-text" id="kpiFerHoje">0</p>
+            <p class="text-[11px] sm:text-xs text-slate-400 mt-1">De férias hoje</p>
+          </div>
+          <div class="panel card-hover p-4 sm:p-5 cursor-pointer" onclick="setFeriasTab('solicitacoes');setFeriasFilter('pendente')">
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg grid place-items-center text-lg sm:text-xl bg-amber-400/10 text-amber-300">📥</span>
+              <span id="kpiFerPendBadge" class="hidden px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-bold">0</span>
+            </div>
+            <p class="font-display text-2xl sm:text-3xl font-bold tnum chrome-text" id="kpiFerPendentes">0</p>
+            <p class="text-[11px] sm:text-xs text-slate-400 mt-1">Aguardando aprovação</p>
+          </div>
+          <div class="panel card-hover p-4 sm:p-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg grid place-items-center text-lg sm:text-xl bg-sky-400/10 text-sky-300">📅</span>
+            </div>
+            <p class="font-display text-2xl sm:text-3xl font-bold tnum chrome-text" id="kpiFerProximas">0</p>
+            <p class="text-[11px] sm:text-xs text-slate-400 mt-1">Começam em 30 dias</p>
+          </div>
+          <div class="panel card-hover p-4 sm:p-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg grid place-items-center text-lg sm:text-xl bg-emerald-400/10 text-emerald-300">✅</span>
+            </div>
+            <p class="font-display text-2xl sm:text-3xl font-bold tnum chrome-text" id="kpiFerAprovadas">0</p>
+            <p class="text-[11px] sm:text-xs text-slate-400 mt-1">Aprovadas no mês</p>
+          </div>
+        </div>
+
+        <!-- Tabs de Férias -->
+        <div class="flex gap-2 mb-4 flex-wrap">
+          <button onclick="setFeriasTab('solicitacoes')" id="tabFerSolic" class="tab-btn active btn-ghost px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">📥 Solicitações</button>
+          <button onclick="setFeriasTab('calendario')" id="tabFerCal" class="tab-btn btn-ghost px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">📅 Calendário</button>
+          <button onclick="setFeriasTab('saldos')" id="tabFerSaldos" class="tab-btn btn-ghost px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">👥 Saldos</button>
+          <button onclick="setFeriasTab('resumo')" id="tabFerResumo" class="tab-btn btn-ghost px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">📊 Resumo Anual</button>
+        </div>
+
+        <!-- TAB: SOLICITAÇÕES -->
+        <div id="feriasTabSolic">
+          <div class="flex gap-2 mb-4 flex-wrap items-center">
+            <button onclick="setFeriasFilter('todas')" data-f="todas" class="fbtn active btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Todas</button>
+            <button onclick="setFeriasFilter('pendente')" data-f="pendente" class="fbtn btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Pendentes</button>
+            <button onclick="setFeriasFilter('aprovada')" data-f="aprovada" class="fbtn btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Aprovadas</button>
+            <button onclick="setFeriasFilter('rejeitada')" data-f="rejeitada" class="fbtn btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Rejeitadas</button>
+            <div class="flex-1"></div>
+            <input type="text" id="searchFerias" class="inp !w-full sm:!w-56 !py-2" placeholder="🔍 Buscar colaborador...">
+          </div>
+          <div class="panel overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="tbl min-w-[860px]">
+                <thead>
+                  <tr>
+                    <th>Colaborador</th><th>Período</th><th>Dias</th><th>Tipo</th><th>Abono</th><th>Solicitado em</th><th>Status</th><th class="!text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="feriasBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: CALENDÁRIO -->
+        <div id="feriasTabCalendario" class="hidden">
+          <div class="panel p-5">
+            <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3 text-xs text-slate-400">
+                  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Aprovada</span>
+                  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Pendente</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="mudarMesFerias(-1)" class="btn-ghost w-9 h-9 rounded-lg grid place-items-center font-bold">←</button>
+                <span class="font-display font-bold text-slate-100 min-w-[150px] text-center" id="calFerTitulo">—</span>
+                <button onclick="mudarMesFerias(1)" class="btn-ghost w-9 h-9 rounded-lg grid place-items-center font-bold">→</button>
+                <button onclick="mesAtualCalFerias()" class="btn-ghost px-3 h-9 rounded-lg text-xs font-bold ml-1">Hoje</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-7 gap-1.5 mb-1.5">
+              <div class="text-center text-[10px] font-bold uppercase text-slate-500 py-1">Dom</div>
+              <div class="text-center text-[10px] font-bold uppercase text-slate-500 py-1">Seg</div>
+              <div class="text-center text-[10px] font-bold uppercase text-slate-500 py-1">Ter</div>
+              <div class="text-center text-[10px] font-bold uppercase text-slate-500 py-1">Qua</div>
+              <div class="text-center text-[10px] font-bold uppercase text-slate-500 py-1">Qui</div>
+              <div class="text-center text-[10px] font-bold uppercase text-slate-500 py-1">Sex</div>
+              <div class="text-center text-[10px] font-bold uppercase text-slate-500 py-1">Sáb</div>
+            </div>
+            <div class="grid grid-cols-7 gap-1.5" id="calFerGrid"></div>
+          </div>
+        </div>
+
+        <!-- TAB: SALDOS -->
+        <div id="feriasTabSaldos" class="hidden">
+          <div class="panel overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-700/40 flex items-center justify-between flex-wrap gap-2">
+              <h3 class="font-display font-bold text-slate-100">Saldo de Férias por Colaborador</h3>
+              <p class="text-xs text-slate-500">Base: 30 dias por período aquisitivo (12 meses)</p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="tbl min-w-[760px]">
+                <thead>
+                  <tr>
+                    <th>Colaborador</th><th>Admissão</th><th>Período Aquisitivo</th><th>Direito</th><th>Gozados</th><th>Saldo</th>
+                  </tr>
+                </thead>
+                <tbody id="saldosFerBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: RESUMO ANUAL -->
+        <div id="feriasTabResumo" class="hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="panel p-5 lg:col-span-2">
+              <h3 class="font-display font-bold text-slate-100 mb-1">Dias de Férias por Mês</h3>
+              <p class="text-xs text-slate-500 mb-5">Somente férias aprovadas · Ano atual</p>
+              <div class="flex items-end justify-between gap-1.5 h-48" id="chartFerMeses"></div>
+            </div>
+            <div class="panel p-5">
+              <h3 class="font-display font-bold text-slate-100 mb-4">Distribuição</h3>
+              <div class="space-y-4" id="distFerStatus"></div>
+              <div class="mt-6 pt-4 border-t border-slate-700/40">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-slate-400">Total de dias no ano</span>
+                  <span class="font-display font-bold text-amber-300 tnum" id="totalFerDiasAno">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <!-- VIEW: RECRUTAMENTO -->
@@ -473,6 +646,8 @@ const fmtISO = iso => { if(!iso) return '—'; const parts = iso.split('-'); ret
 const fmtDataHora = iso => { if(!iso) return '—'; const d = new Date(iso); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); };
 const fmtMoeda = v => (+v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const mesAtual = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; };
+const MESES_ANO = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MESES_ABREV = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
 let session = null;
 let state = { cols:[], solic:[], pontos:[], coms:[], leituras:[], espelhos:[], humor:[], fer:[] };
@@ -484,6 +659,12 @@ let candidaturas = [];
 let recrutConfig = { pagina_ativa: true };
 let paginaConfig = {};
 let empresaAtual = null;
+
+// Estado de Férias
+let feriasList = [];
+let feriasFilter = 'todas';
+let feriasTabAtual = 'solicitacoes';
+let calFerOffset = 0;
 
 function verificarSessao() {
   const salvo = sessionStorage.getItem('facige_session');
@@ -533,41 +714,11 @@ function enterApp(){
   carregarEmpresaAtual();
   refresh();
   subscribeRealtime();
-  carregarBadgeFerias();
 }
 
 function logout(){
   sessionStorage.removeItem('facige_session');
   window.location.href = LOGIN_URL;
-}
-
-// ═══════════════════════════════════════════
-// 🏖️ ACESSO À PÁGINA DE FÉRIAS
-// ═══════════════════════════════════════════
-function abrirFerias(){
-  window.location.href = 'ferias.html';
-}
-
-async function carregarBadgeFerias(){
-  if(!session || !session.empresa || !session.empresa.id) return;
-  try {
-    const res = await sb
-      .from('ferias')
-      .select('*', { count: 'exact', head: true })
-      .eq('empresa_id', session.empresa.id)
-      .eq('status', 'pendente');
-    if (res.error) {
-      console.warn('Badge férias:', res.error.message);
-      return;
-    }
-    const badge = document.getElementById('badgeFerias');
-    if(badge && res.count > 0){
-      badge.textContent = res.count;
-      badge.classList.remove('hidden');
-    }
-  } catch (err) {
-    console.warn('Erro badge férias:', err);
-  }
 }
 
 async function carregarEmpresaAtual(){
@@ -585,7 +736,7 @@ function gerarSlug(nome){
     .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'empresa';
 }
 
-const VIEWS = ['dashboard','solicitacoes','colaboradores','comunicados','espelho','vrvt','feriados','recrutamento','pagina'];
+const VIEWS = ['dashboard','solicitacoes','colaboradores','comunicados','espelho','vrvt','feriados','ferias','recrutamento','pagina'];
 $$('.nav-btn').forEach(function(b){ b.addEventListener('click', function(){ go(b.dataset.view); }); });
 
 function go(view){
@@ -594,10 +745,11 @@ function go(view){
     b.className = 'nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ' +
       (b.dataset.view===view ? 'bg-sky-400/15 text-white ring-1 ring-inset ring-sky-400/25' : 'text-slate-400 hover:text-slate-100 hover:bg-white/5');
   });
-  const titles = {dashboard:'Dashboard',solicitacoes:'Solicitações',colaboradores:'Colaboradores',comunicados:'Comunicados',espelho:'Espelho de Ponto',vrvt:'VR · VA · VT',feriados:'Feriados',recrutamento:'Recrutamento',pagina:'Página de Recrutamento'};
+  const titles = {dashboard:'Dashboard',solicitacoes:'Solicitações',colaboradores:'Colaboradores',comunicados:'Comunicados',espelho:'Espelho de Ponto',vrvt:'VR · VA · VT',feriados:'Feriados',ferias:'Gestão de Férias',recrutamento:'Recrutamento',pagina:'Página de Recrutamento'};
   $('#pageTitle').textContent = titles[view] || view;
   window.scrollTo({top:0, behavior:'smooth'});
   if (view === 'pagina') carregarPaginaRecrutamento();
+  if (view === 'ferias') carregarFerias();
 }
 
 async function refresh(){
@@ -623,6 +775,7 @@ async function refresh(){
   state.fer = results[7].data || [];
   render();
   await carregarRecrutamento();
+  await carregarFerias();
 }
 
 function render(){ renderDashboard(); renderSolic(); renderColab(); renderCom(); renderEsp(); renderVrvt(); renderFer(); }
@@ -838,6 +991,389 @@ async function excluirFer(id){
   await sb.from('feriados').delete().eq('id', id); refresh();
 }
 
+// ═══════════════════════════════════════════
+// 🏖️ MÓDULO DE FÉRIAS (INTEGRADO)
+// ═══════════════════════════════════════════
+async function carregarFerias(){
+  if(!session || !session.empresa || !session.empresa.id) return;
+  try {
+    const res = await sb
+      .from('ferias')
+      .select('*, colaboradores(nome, matricula, dept, admissao)')
+      .eq('empresa_id', session.empresa.id)
+      .order('data_inicio', { ascending: false });
+    if(res.error) {
+      console.warn('Férias:', res.error.message);
+      return;
+    }
+    feriasList = res.data || [];
+    renderFeriasAll();
+    atualizarBadgeFerias();
+  } catch(err) {
+    console.warn('Erro férias:', err);
+  }
+}
+
+function renderFeriasAll(){
+  renderFeriasKPIs();
+  renderFeriasList();
+  renderCalendarioFerias();
+  renderSaldosFerias();
+  renderResumoFerias();
+}
+
+function renderFeriasKPIs(){
+  const hojeD = new Date(); hojeD.setHours(0,0,0,0);
+  const emFerias = feriasList.filter(function(f){
+    if(f.status!=='aprovada') return false;
+    const ini = new Date(f.data_inicio), fim = new Date(f.data_fim);
+    return hojeD >= ini && hojeD <= fim;
+  }).length;
+  const pend = feriasList.filter(function(f){ return f.status==='pendente'; }).length;
+  const prox = feriasList.filter(function(f){
+    if(f.status!=='aprovada') return false;
+    const d = Math.ceil((new Date(f.data_inicio) - hojeD)/86400000);
+    return d > 0 && d <= 30;
+  }).length;
+  const aprovMes = feriasList.filter(function(f){
+    if(f.status!=='aprovada') return false;
+    const ini = new Date(f.data_inicio);
+    return ini.getMonth()===hojeD.getMonth() && ini.getFullYear()===hojeD.getFullYear();
+  }).length;
+  $('#kpiFerHoje').textContent = emFerias;
+  $('#kpiFerPendentes').textContent = pend;
+  $('#kpiFerProximas').textContent = prox;
+  $('#kpiFerAprovadas').textContent = aprovMes;
+  const b = $('#kpiFerPendBadge');
+  if(pend>0){ b.textContent = pend; b.classList.remove('hidden'); }
+  else b.classList.add('hidden');
+}
+
+function setFeriasTab(tab){
+  feriasTabAtual = tab;
+  $('#feriasTabSolic').classList.toggle('hidden', tab!=='solicitacoes');
+  $('#feriasTabCalendario').classList.toggle('hidden', tab!=='calendario');
+  $('#feriasTabSaldos').classList.toggle('hidden', tab!=='saldos');
+  $('#feriasTabResumo').classList.toggle('hidden', tab!=='resumo');
+  $('#tabFerSolic').classList.toggle('active', tab==='solicitacoes');
+  $('#tabFerCal').classList.toggle('active', tab==='calendario');
+  $('#tabFerSaldos').classList.toggle('active', tab==='saldos');
+  $('#tabFerResumo').classList.toggle('active', tab==='resumo');
+}
+
+function setFeriasFilter(f){
+  feriasFilter = f;
+  renderFeriasList();
+}
+
+function renderFeriasList(){
+  const busca = ($('#searchFerias') && $('#searchFerias').value || '').toLowerCase();
+  let list = feriasList.filter(function(x){ return feriasFilter==='todas' || x.status===feriasFilter; });
+  if(busca) list = list.filter(function(x){ return (x.colaboradores && x.colaboradores.nome && x.colaboradores.nome.toLowerCase().indexOf(busca)!==-1); });
+
+  $$('.fbtn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.f === feriasFilter);
+  });
+
+  const badges = {
+    pendente:'bg-amber-400/10 text-amber-300 border-amber-400/30',
+    aprovada:'bg-emerald-400/10 text-emerald-300 border-emerald-400/30',
+    rejeitada:'bg-rose-400/10 text-rose-300 border-rose-400/30',
+    cancelada:'bg-slate-400/10 text-slate-400 border-slate-500/30',
+    gozada:'bg-sky-400/10 text-sky-300 border-sky-400/30'
+  };
+
+  $('#feriasBody').innerHTML = list.length ? list.map(function(f){
+    const nome = (f.colaboradores && f.colaboradores.nome) || '—';
+    const mat = (f.colaboradores && f.colaboradores.matricula) || '';
+    const dept = (f.colaboradores && f.colaboradores.dept) || '';
+    let acoes = '';
+    if(f.status==='pendente'){
+      acoes = '<button onclick="aprovarFerias(\'' + f.id + '\')" class="btn-success px-3 py-1.5 rounded text-xs font-bold mr-1">✓ Aprovar</button><button onclick="openRejeitarFerias(\'' + f.id + '\')" class="btn-danger px-3 py-1.5 rounded text-xs font-bold">✕</button>';
+    } else if(f.status==='aprovada'){
+      acoes = '<button onclick="cancelarFerias(\'' + f.id + '\')" class="btn-ghost px-3 py-1.5 rounded text-xs">Cancelar</button>';
+    } else {
+      acoes = '<button onclick="verDetalhesFerias(\'' + f.id + '\')" class="btn-ghost px-3 py-1.5 rounded text-xs">👁 Ver</button>';
+    }
+    const abono = f.abono_pecuniario ? '<span class="text-amber-300 font-semibold">💰 ' + f.dias_abono + 'd</span>' : '<span class="text-slate-600">—</span>';
+    return '<tr>' +
+      '<td><div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 grid place-items-center text-[11px] font-bold text-slate-900 shrink-0">' + iniciais(nome) + '</div><div class="min-w-0"><p class="font-semibold text-slate-200 truncate">' + nome + '</p><p class="text-[11px] text-slate-500">' + mat + ' · ' + dept + '</p></div></div></td>' +
+      '<td class="whitespace-nowrap"><span class="text-slate-200 font-semibold">' + fmtISO(f.data_inicio) + '</span> <span class="text-slate-600">→</span> <span class="text-slate-200 font-semibold">' + fmtISO(f.data_fim) + '</span></td>' +
+      '<td class="font-bold text-slate-200 tnum">' + f.dias_solicitados + '</td>' +
+      '<td class="text-slate-400 capitalize">' + f.tipo + '</td>' +
+      '<td>' + abono + '</td>' +
+      '<td class="text-slate-500 text-xs whitespace-nowrap">' + fmtDataHora(f.criado_em) + '</td>' +
+      '<td><span class="badge border ' + (badges[f.status]||'') + '">' + f.status + '</span></td>' +
+      '<td class="text-right whitespace-nowrap">' + acoes + ' <button onclick="verDetalhesFerias(\'' + f.id + '\')" class="btn-ghost px-2 py-1.5 rounded text-xs ml-1">👁</button></td>' +
+      '</tr>';
+  }).join('') : '<tr><td colspan="8" class="text-center py-12 text-slate-500">🏖️ Nenhuma solicitação encontrada</td></tr>';
+}
+
+if(document.getElementById('searchFerias')){
+  document.getElementById('searchFerias').addEventListener('input', renderFeriasList);
+}
+
+async function aprovarFerias(id){
+  const res = await sb.from('ferias').update({
+    status:'aprovada',
+    decidido_por: session.user.nome,
+    decidido_em: new Date().toISOString(),
+    atualizado_em: new Date().toISOString()
+  }).eq('id', id);
+  if(res.error) return toast('Erro','Falha ao aprovar','error');
+  toast('✅ Férias aprovadas','Período confirmado','success');
+  carregarFerias();
+}
+
+function openRejeitarFerias(id){
+  openModal('<h3 class="font-display font-bold text-slate-100 mb-3">Rejeitar Férias</h3><label class="lbl">Motivo da recusa *</label><textarea id="fMotivoRej" class="inp" rows="3" placeholder="Explique o motivo..."></textarea><div class="flex gap-2 mt-4"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2.5 rounded-lg text-sm">Cancelar</button><button onclick="confirmarRejeitarFerias(\'' + id + '\')" class="btn-danger flex-1 px-4 py-2.5 rounded-lg text-sm font-bold">Rejeitar</button></div>');
+}
+
+async function confirmarRejeitarFerias(id){
+  const motivo = $('#fMotivoRej').value.trim();
+  if(motivo.length < 3) return toast('Motivo obrigatório','Descreva o motivo','error');
+  const res = await sb.from('ferias').update({
+    status:'rejeitada',
+    decidido_por: session.user.nome,
+    decidido_em: new Date().toISOString(),
+    observacao_rh: motivo,
+    atualizado_em: new Date().toISOString()
+  }).eq('id', id);
+  if(res.error) return toast('Erro','Falha ao rejeitar','error');
+  closeModal(); toast('Férias rejeitadas','O colaborador será notificado','warn');
+  carregarFerias();
+}
+
+async function cancelarFerias(id){
+  if(!confirm('Cancelar estas férias aprovadas?')) return;
+  const res = await sb.from('ferias').update({
+    status:'cancelada',
+    atualizado_em: new Date().toISOString()
+  }).eq('id', id);
+  if(res.error) return toast('Erro','Falha ao cancelar','error');
+  toast('Férias canceladas','','warn');
+  carregarFerias();
+}
+
+function verDetalhesFerias(id){
+  const f = feriasList.find(function(x){ return x.id===id; });
+  if(!f) return;
+  const badges = {
+    pendente:'bg-amber-400/10 text-amber-300 border-amber-400/30',
+    aprovada:'bg-emerald-400/10 text-emerald-300 border-emerald-400/30',
+    rejeitada:'bg-rose-400/10 text-rose-300 border-rose-400/30',
+    cancelada:'bg-slate-400/10 text-slate-400 border-slate-500/30'
+  };
+  const nome = (f.colaboradores && f.colaboradores.nome) || '—';
+  let html = '<div class="flex items-center justify-between mb-4"><h3 class="font-display font-bold text-slate-100">Detalhes das Férias</h3><span class="badge border ' + (badges[f.status]||'') + '">' + f.status + '</span></div>';
+  html += '<div class="flex items-center gap-3 mb-5"><div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 grid place-items-center font-bold text-slate-900">' + iniciais(nome) + '</div><div><p class="font-semibold text-slate-100">' + nome + '</p><p class="text-xs text-slate-500">' + ((f.colaboradores && f.colaboradores.matricula) || '') + ' · ' + ((f.colaboradores && f.colaboradores.dept) || '') + '</p></div></div>';
+  html += '<div class="grid grid-cols-2 gap-3 mb-4">';
+  html += '<div class="panel !rounded-lg p-3"><p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Início</p><p class="text-slate-200 font-semibold">' + fmtISO(f.data_inicio) + '</p></div>';
+  html += '<div class="panel !rounded-lg p-3"><p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Fim</p><p class="text-slate-200 font-semibold">' + fmtISO(f.data_fim) + '</p></div>';
+  html += '<div class="panel !rounded-lg p-3"><p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Dias</p><p class="text-amber-300 font-bold">' + f.dias_solicitados + ' dias</p></div>';
+  html += '<div class="panel !rounded-lg p-3"><p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Abono</p><p class="text-slate-200 font-semibold">' + (f.abono_pecuniario ? f.dias_abono + ' dias' : '—') + '</p></div>';
+  html += '</div>';
+  if(f.observacao_colaborador) html += '<div class="mb-3"><p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Observação do colaborador</p><p class="text-sm text-slate-300">' + f.observacao_colaborador + '</p></div>';
+  if(f.observacao_rh) html += '<div class="mb-3"><p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Observação do RH</p><p class="text-sm text-slate-300">' + f.observacao_rh + '</p></div>';
+  if(f.decidido_por) html += '<p class="text-xs text-slate-500">Decidido por <span class="text-slate-300">' + f.decidido_por + '</span> em ' + fmtDataHora(f.decidido_em) + '</p>';
+  html += '<button onclick="closeModal()" class="btn-ghost w-full px-4 py-2.5 rounded-lg text-sm mt-4">Fechar</button>';
+  openModal(html);
+}
+
+function openNovaFerias(){
+  const ativos = state.cols.filter(function(c){ return c.status==='ativo'; });
+  if(!ativos.length){ toast('Atenção','Cadastre colaboradores primeiro','warn'); return; }
+  let opts = '';
+  ativos.forEach(function(c){
+    opts += '<option value="' + c.id + '">' + c.nome + ' (' + (c.matricula||'—') + ')</option>';
+  });
+  let html = '<h3 class="font-display font-bold text-slate-100 mb-1">🏖️ Nova Solicitação de Férias</h3>';
+  html += '<p class="text-xs text-slate-500 mb-5">Crie uma solicitação em nome de um colaborador.</p>';
+  html += '<div class="space-y-4">';
+  html += '<div><label class="lbl">Colaborador *</label><select id="nfColab" class="inp">' + opts + '</select></div>';
+  html += '<div class="grid grid-cols-2 gap-3"><div><label class="lbl">Início *</label><input type="date" id="nfInicio" class="inp" onchange="calcDiasFerias()"></div><div><label class="lbl">Fim *</label><input type="date" id="nfFim" class="inp" onchange="calcDiasFerias()"></div></div>';
+  html += '<div class="panel !rounded-lg p-3 flex items-center justify-between" style="background:rgba(251,191,36,.06)"><span class="text-sm text-slate-300">Dias de férias</span><span class="font-display font-bold text-amber-300 text-lg tnum" id="nfDias">0</span></div>';
+  html += '<div class="grid grid-cols-2 gap-3"><div><label class="lbl">Tipo</label><select id="nfTipo" class="inp"><option value="individual">Individual</option><option value="coletiva">Coletiva</option></select></div><div><label class="lbl">Abono (vender dias)</label><select id="nfAbono" class="inp"><option value="0">Não</option><option value="10">10 dias (1/3)</option></select></div></div>';
+  html += '<div><label class="lbl">Observação</label><textarea id="nfObs" class="inp" rows="2" placeholder="Opcional..."></textarea></div>';
+  html += '</div>';
+  html += '<div class="flex gap-2 mt-5"><button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2.5 rounded-lg text-sm">Cancelar</button><button onclick="salvarNovaFerias()" class="btn-sun flex-1 px-4 py-2.5 rounded-lg text-sm">Criar Solicitação</button></div>';
+  openModal(html);
+}
+
+function calcDiasFerias(){
+  const i = $('#nfInicio').value, f = $('#nfFim').value;
+  if(!i || !f){ $('#nfDias').textContent = '0'; return; }
+  const dias = Math.round((new Date(f) - new Date(i))/86400000) + 1;
+  $('#nfDias').textContent = dias > 0 ? dias : 0;
+}
+
+async function salvarNovaFerias(){
+  const cid = $('#nfColab').value;
+  const inicio = $('#nfInicio').value;
+  const fim = $('#nfFim').value;
+  if(!inicio || !fim) return toast('Campos obrigatórios','Preencha as datas','error');
+  const dias = Math.round((new Date(fim) - new Date(inicio))/86400000) + 1;
+  if(dias <= 0) return toast('Datas inválidas','O fim deve ser após o início','error');
+  if(dias > 30) return toast('Limite excedido','Máximo de 30 dias por solicitação','error');
+  const abono = parseInt($('#nfAbono').value) || 0;
+  const res = await sb.from('ferias').insert({
+    empresa_id: session.empresa.id,
+    colaborador_id: cid,
+    data_inicio: inicio,
+    data_fim: fim,
+    dias_solicitados: dias,
+    tipo: $('#nfTipo').value,
+    abono_pecuniario: abono > 0,
+    dias_abono: abono,
+    status: 'pendente',
+    observacao_colaborador: $('#nfObs').value.trim(),
+    criado_por: 'rh'
+  });
+  if(res.error) return toast('Erro', res.error.message, 'error');
+  closeModal();
+  toast('✅ Solicitação criada','Aguardando aprovação','success');
+  carregarFerias();
+}
+
+function renderCalendarioFerias(){
+  const base = new Date();
+  base.setDate(1);
+  base.setMonth(base.getMonth() + calFerOffset);
+  const ano = base.getFullYear(), mes = base.getMonth();
+  $('#calFerTitulo').textContent = MESES_ANO[mes] + ' ' + ano;
+
+  const primeiroDia = new Date(ano, mes, 1).getDay();
+  const diasNoMes = new Date(ano, mes+1, 0).getDate();
+  const hojeD = new Date(); hojeD.setHours(0,0,0,0);
+
+  let html = '';
+  for(let i=0; i<primeiroDia; i++) html += '<div></div>';
+
+  for(let d=1; d<=diasNoMes; d++){
+    const dataRef = new Date(ano, mes, d);
+    dataRef.setHours(0,0,0,0);
+    const isHoje = dataRef.getTime() === hojeD.getTime();
+    const doDia = feriasList.filter(function(f){
+      return (f.status==='aprovada' || f.status==='pendente') &&
+             new Date(f.data_inicio) <= dataRef &&
+             new Date(f.data_fim) >= dataRef;
+    });
+    let chips = '';
+    doDia.slice(0,3).forEach(function(f){
+      const cls = f.status==='aprovada' ? 'fer-aprovada' : 'fer-pendente';
+      const nome = (f.colaboradores && f.colaboradores.nome) ? f.colaboradores.nome.split(' ')[0] : '?';
+      chips += '<span class="fer-chip ' + cls + '" onclick="verDetalhesFerias(\'' + f.id + '\')" title="' + ((f.colaboradores && f.colaboradores.nome)||'') + ' · ' + f.dias_solicitados + ' dias">' + nome + '</span>';
+    });
+    const extra = doDia.length > 3 ? '<span class="block text-[9px] text-slate-500 mt-1 pl-1">+' + (doDia.length-3) + ' outros</span>' : '';
+    html += '<div class="cal-cell panel !rounded-lg p-2 border-slate-700/30 ' + (isHoje?'cal-today':'') + '"><span class="cal-day inline-grid place-items-center w-6 h-6 rounded-full text-xs font-bold text-slate-300">' + d + '</span>' + chips + extra + '</div>';
+  }
+  $('#calFerGrid').innerHTML = html;
+}
+
+function mudarMesFerias(d){ calFerOffset += d; renderCalendarioFerias(); }
+function mesAtualCalFerias(){ calFerOffset = 0; renderCalendarioFerias(); }
+
+function calcularSaldoFerias(c){
+  if(!c.admissao) return {direito:0, gozados:0, saldo:0, periodo:'—'};
+  const adm = new Date(c.admissao);
+  const hojeD = new Date();
+  const meses = Math.floor((hojeD - adm)/(86400000*30.44));
+  const periodos = Math.floor(meses/12);
+  const pInicio = new Date(adm);
+  pInicio.setFullYear(pInicio.getFullYear() + periodos);
+  const pFim = new Date(pInicio);
+  pFim.setFullYear(pFim.getFullYear() + 1);
+  pFim.setDate(pFim.getDate() - 1);
+  const direito = periodos * 30;
+  const gozados = feriasList.filter(function(f){
+    return f.colaborador_id === c.id && (f.status==='aprovada' || f.status==='gozada');
+  }).reduce(function(s,f){ return s + f.dias_solicitados; }, 0);
+  return {
+    direito: direito,
+    gozados: gozados,
+    saldo: Math.max(0, direito - gozados),
+    periodo: fmtISO(pInicio.toISOString().split('T')[0]) + ' → ' + fmtISO(pFim.toISOString().split('T')[0])
+  };
+}
+
+function renderSaldosFerias(){
+  const ativos = state.cols.filter(function(c){ return c.status==='ativo'; });
+  $('#saldosFerBody').innerHTML = ativos.length ? ativos.map(function(c){
+    const s = calcularSaldoFerias(c);
+    const corSaldo = s.saldo >= 15 ? 'text-emerald-300' : (s.saldo > 0 ? 'text-amber-300' : 'text-slate-500');
+    return '<tr>' +
+      '<td><div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">' + iniciais(c.nome) + '</div><div><p class="font-semibold text-slate-200">' + c.nome + '</p><p class="text-[11px] text-slate-500">' + (c.matricula||'') + '</p></div></div></td>' +
+      '<td class="text-slate-400">' + fmtISO(c.admissao) + '</td>' +
+      '<td class="text-slate-400 text-xs">' + s.periodo + '</td>' +
+      '<td class="text-slate-300 tnum">' + s.direito + 'd</td>' +
+      '<td class="text-slate-300 tnum">' + s.gozados + 'd</td>' +
+      '<td class="font-bold tnum ' + corSaldo + '">' + s.saldo + 'd</td>' +
+      '</tr>';
+  }).join('') : '<tr><td colspan="6" class="text-center py-12 text-slate-500">Nenhum colaborador ativo</td></tr>';
+}
+
+function renderResumoFerias(){
+  const anoAtual = new Date().getFullYear();
+  const aprovadas = feriasList.filter(function(f){
+    return f.status==='aprovada' && new Date(f.data_inicio).getFullYear()===anoAtual;
+  });
+  const porMes = [0,0,0,0,0,0,0,0,0,0,0,0];
+  aprovadas.forEach(function(f){
+    const ini = new Date(f.data_inicio), fim = new Date(f.data_fim);
+    let cur = new Date(ini);
+    while(cur <= fim){
+      if(cur.getFullYear()===anoAtual) porMes[cur.getMonth()]++;
+      cur.setDate(cur.getDate()+1);
+    }
+  });
+  const max = Math.max.apply(null, porMes.concat([1]));
+  let chartHtml = '';
+  porMes.forEach(function(v,i){
+    const h = Math.max(4, Math.round((v/max)*100));
+    chartHtml += '<div class="flex-1 flex flex-col items-center justify-end gap-1.5 group">';
+    chartHtml += '<span class="text-[10px] font-bold text-amber-300 tnum opacity-0 group-hover:opacity-100 transition-opacity">' + v + '</span>';
+    chartHtml += '<div class="stat-bar w-full rounded-t-md bg-gradient-to-t from-orange-500/60 to-amber-400" style="height:' + h + '%"></div>';
+    chartHtml += '<span class="text-[10px] text-slate-500">' + MESES_ABREV[i] + '</span>';
+    chartHtml += '</div>';
+  });
+  $('#chartFerMeses').innerHTML = chartHtml;
+
+  const counts = {pendente:0, aprovada:0, rejeitada:0, cancelada:0};
+  feriasList.forEach(function(f){
+    if(counts[f.status] !== undefined) counts[f.status]++;
+  });
+  const total = feriasList.length || 1;
+  const conf = {
+    pendente:{l:'Pendentes', c:'bg-amber-400'},
+    aprovada:{l:'Aprovadas', c:'bg-emerald-400'},
+    rejeitada:{l:'Rejeitadas', c:'bg-rose-400'},
+    cancelada:{l:'Canceladas', c:'bg-slate-500'}
+  };
+  let distHtml = '';
+  Object.keys(counts).forEach(function(k){
+    const pct = Math.round((counts[k]/total)*100);
+    distHtml += '<div><div class="flex justify-between text-xs mb-1.5"><span class="text-slate-400">' + conf[k].l + '</span><span class="font-bold text-slate-200 tnum">' + counts[k] + '</span></div><div class="h-2 rounded-full bg-slate-700/40 overflow-hidden"><div class="stat-bar h-full rounded-full ' + conf[k].c + '" style="width:' + pct + '%"></div></div></div>';
+  });
+  $('#distFerStatus').innerHTML = distHtml;
+
+  const totalDias = aprovadas.reduce(function(s,f){ return s + f.dias_solicitados; }, 0);
+  $('#totalFerDiasAno').textContent = totalDias;
+}
+
+function atualizarBadgeFerias(){
+  const pend = feriasList.filter(function(f){ return f.status==='pendente'; }).length;
+  const badge = document.getElementById('badgeFerias');
+  if(badge && pend > 0){
+    badge.textContent = pend;
+    badge.classList.remove('hidden');
+  } else if(badge) {
+    badge.classList.add('hidden');
+  }
+}
+
+// ═══════════════════════════════════════════
+// RECRUTAMENTO
+// ═══════════════════════════════════════════
 async function carregarRecrutamento(){
   if(!session || !session.empresa || !session.empresa.id) return;
   const eid = session.empresa.id;
