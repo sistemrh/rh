@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Facige · Ajustes de Ponto</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+tailwind.config={theme:{extend:{
+  fontFamily:{sans:['"IBM Plex Sans"','sans-serif'],display:['Sora','sans-serif'],mono:['"IBM Plex Mono"','monospace']},
+  keyframes:{
+    fadeUp:{from:{opacity:0,transform:'translateY(12px)'},to:{opacity:1,transform:'translateY(0)'}},
+    toastIn:{from:{opacity:0,transform:'translateX(26px)'},to:{opacity:1,transform:'translateX(0)'}},
+    bar:{from:{width:'100%'},to:{width:'0%'}},
+    spin:{to:{transform:'rotate(360deg)'}}
+  },
+  animation:{'fade-up':'fadeUp .4s ease both','toast-in':'toastIn .25s ease both'}
+}}}
+</script>
+<style>
+  body{background:#070d19;background-image:radial-gradient(1000px 500px at 85% -10%,rgba(59,130,246,.08),transparent 60%),radial-gradient(800px 450px at -5% 30%,rgba(99,102,241,.12),transparent 55%),radial-gradient(rgba(148,163,184,.06) 1px,transparent 1px);background-size:auto,auto,22px 22px;color:#cbd5e1}
+  .chrome-text{background:linear-gradient(180deg,#fff,#e6edf5 34%,#93a5bd 58%,#e2e9f2 78%,#64748b);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .panel{background:linear-gradient(180deg,rgba(24,36,62,.92),rgba(12,20,37,.96));border:1px solid rgba(82,106,150,.35);box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);border-radius:.85rem}
+  .card-hover{transition:all .22s}
+  .card-hover:hover{transform:translateY(-3px);border-color:rgba(96,165,250,.4);box-shadow:0 14px 30px rgba(0,0,0,.45)}
+  .btn-chrome{background:linear-gradient(180deg,#fff,#dbe3ee 38%,#9fb0c6 52%,#e8eef5);color:#0b1322;font-weight:700;border:1px solid rgba(255,255,255,.7);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 4px 14px rgba(2,6,23,.55);transition:all .15s}
+  .btn-chrome:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-ghost{border:1px solid rgba(125,145,180,.4);color:#cbd5e1;background:rgba(255,255,255,.03);transition:all .2s}
+  .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(96,165,250,.5)}
+  .btn-success{border:1px solid rgba(16,185,129,.4);color:#6ee7b7;background:rgba(16,185,129,.06);transition:all .2s}
+  .btn-success:hover{background:rgba(16,185,129,.16)}
+  .btn-danger{border:1px solid rgba(244,63,94,.4);color:#fda4af;background:rgba(244,63,94,.06);transition:all .2s}
+  .btn-danger:hover{background:rgba(244,63,94,.16)}
+  .inp{background:#0e1830;border:1px solid rgba(82,106,150,.45);color:#e2e8f0;border-radius:.5rem;padding:.6rem .75rem;font-size:.875rem;outline:none;width:100%}
+  .inp:focus{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.15)}
+  .inp::placeholder{color:#46587a}
+  select.inp option{background:#0e1830;color:#e2e8f0}
+  .lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5c7295;margin-bottom:6px}
+  .tbl{width:100%;font-size:.875rem}
+  .tbl thead tr{border-bottom:1px solid rgba(82,106,150,.35);background:rgba(255,255,255,.02)}
+  .tbl th{padding:.75rem 1rem;text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#5c7295;font-weight:700;white-space:nowrap}
+  .tbl td{padding:.8rem 1rem;border-bottom:1px solid rgba(82,106,150,.12);vertical-align:middle}
+  .tbl tbody tr{transition:background .15s}
+  .tbl tbody tr:hover{background:rgba(96,165,250,.05)}
+  .toast-bar{animation:bar 4s linear forwards}
+  .tnum{font-variant-numeric:tabular-nums}
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .spin{animation:spin 1s linear infinite}
+  .afbtn.active{border-color:rgba(251,191,36,.6)!important;color:#fcd34d!important}
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#2c3d5f;border-radius:8px}
+  .timeline-item{position:relative;padding-left:24px;padding-bottom:16px;border-left:2px solid rgba(96,165,250,.3)}
+  .timeline-item:last-child{border-left-color:transparent}
+  .timeline-dot{position:absolute;left:-6px;top:2px;width:12px;height:12px;border-radius:50%;background:#60a5fa;border:2px solid #070d19}
+  .timeline-dot.approved{background:#10b981}
+  .timeline-dot.rejected{background:#f43f5e}
+  .timeline-dot.pending{background:#f59e0b}
+</style>
+</head>
+<body class="font-sans antialiased min-h-screen">
+
+<!-- LOADING -->
+<div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center" style="background:#070d19">
+  <div class="text-center">
+    <div class="w-14 h-14 mx-auto mb-4 rounded-full border-4 border-blue-400/30 border-t-blue-400 spin"></div>
+    <p class="text-slate-400" id="loadingMsg">Carregando ajustes...</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appShell" class="hidden">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-30 backdrop-blur border-b border-blue-500/20" style="background:rgba(7,13,25,.85)">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
+      <a href="dashboard.html" class="btn-ghost px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shrink-0">← Dashboard</a>
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl grid place-items-center shrink-0 bg-gradient-to-br from-blue-500 to-indigo-600">
+          <span class="text-xl">📝</span>
+        </div>
+        <div class="min-w-0">
+          <h1 class="font-display font-bold text-base sm:text-lg chrome-text truncate">Ajustes de Ponto</h1>
+          <p class="text-[10px] uppercase tracking-[0.18em] text-blue-400/80" id="headerEmpresa">—</p>
+        </div>
+      </div>
+      <div class="flex-1"></div>
+      <span id="clock" class="font-mono text-sm chrome-text tnum hidden md:block">--:--:--</span>
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 grid place-items-center text-[11px] font-bold text-white shrink-0" id="userInit">--</div>
+        <div class="min-w-0 hidden sm:block">
+          <p class="text-[13px] font-semibold text-slate-100 truncate" id="userName">—</p>
+          <p class="text-[10px] text-slate-500 truncate">Gestor de RH</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- BANNER -->
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 pt-6">
+    <div class="panel overflow-hidden relative" style="background:linear-gradient(120deg,rgba(29,78,216,.25),rgba(15,23,42,.6))">
+      <div class="absolute -top-10 -right-10 w-48 h-48 rounded-full" style="background:radial-gradient(circle,rgba(96,165,250,.2),transparent 70%)"></div>
+      <div class="relative px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="font-display text-xl sm:text-2xl font-bold chrome-text">Gestão de Ajustes de Ponto</h2>
+          <p class="text-sm text-slate-400 mt-1">Analise, aprove ou rejeite solicitações de ajuste de ponto dos colaboradores.</p>
+        </div>
+        <button onclick="openNovoAjuste()" class="btn-chrome px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shrink-0">
+          <span class="text-lg leading-none">+</span> Novo Ajuste
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 pt-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="panel card-hover p-4 sm:p-5 cursor-pointer" onclick="setFilter('pendente')">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg grid place-items-center text-lg sm:text-xl bg-amber-400/10 text-amber-300">⏳</span>
+          <span id="kpiPendBadge" class="hidden px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-bold">0</span>
+        </div>
+        <p class="font-display text-2xl sm:text-3xl font-bold tnum chrome-text" id="kpiPendentes">0</p>
+        <p class="text-[11px] sm:text-xs text-slate-400 mt-1">Aguardando análise</p>
+      </div>
+      <div class="panel card-hover p-4 sm:p-5 cursor-pointer" onclick="setFilter('aprovado')">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg grid place-items-center text-lg sm:text-xl bg-emerald-400/10 text-emerald-300">✅</span>
+        </div>
+        <p class="font-display text-2xl sm:text-3xl font-bold tnum chrome-text" id="kpiAprovados">0</p>
+        <p class="text-[11px] sm:text-xs text-slate-400 mt-1">Aprovados</p>
+      </div>
+      <div class="panel card-hover p-4 sm:p-5 cursor-pointer" onclick="setFilter('rejeitado')">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg grid place-items-center text-lg sm:text-xl bg-rose-400/10 text-rose-300">❌</span>
+        </div>
+        <p class="font-display text-2xl sm:text-3xl font-bold tnum chrome-text" id="kpiRejeitados">0</p>
+        <p class="text-[11px] sm:text-xs text-slate-400 mt-1">Rejeitados</p>
+      </div>
+      <div class="panel card-hover p-4 sm:p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg grid place-items-center text-lg sm:text-xl bg-blue-400/10 text-blue-300">📊</span>
+        </div>
+        <p class="font-display text-2xl sm:text-3xl font-bold tnum chrome-text" id="kpiTotal">0</p>
+        <p class="text-[11px] sm:text-xs text-slate-400 mt-1">Total no período</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 pt-6">
+    <div class="flex gap-2 flex-wrap items-center mb-4">
+      <button onclick="setFilter('todos')" data-af="todos" class="afbtn btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">Todos</button>
+      <button onclick="setFilter('pendente')" data-af="pendente" class="afbtn active btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">⏳ Pendentes</button>
+      <button onclick="setFilter('aprovado')" data-af="aprovado" class="afbtn btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">✅ Aprovados</button>
+      <button onclick="setFilter('rejeitado')" data-af="rejeitado" class="afbtn btn-ghost px-3 py-1.5 rounded-lg text-xs font-bold">❌ Rejeitados</button>
+      <div class="flex-1"></div>
+      <input type="month" id="filtroMes" class="inp !w-40 !py-1.5">
+      <input type="text" id="buscaAjuste" class="inp !w-full sm:!w-56 !py-1.5" placeholder="🔍 Buscar colaborador...">
+    </div>
+  </div>
+
+  <!-- TABELA -->
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 pb-8">
+    <div class="panel overflow-hidden animate-fade-up">
+      <div class="overflow-x-auto">
+        <table class="tbl min-w-[1000px]">
+          <thead>
+            <tr>
+              <th>Colaborador</th>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Horário Original</th>
+              <th>Horário Ajustado</th>
+              <th>Motivo</th>
+              <th>Solicitado em</th>
+              <th>Status</th>
+              <th class="!text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="ajustesBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="modalContent" class="panel !rounded-2xl max-w-xl w-full p-6 max-h-[90vh] overflow-y-auto"></div>
+</div>
+
+<!-- TOASTS -->
+<div id="toastRoot" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2.5 w-[min(380px,calc(100vw-40px))]"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG SUPABASE
+// ═══════════════════════════════════════════
+const SUPA_URL='https://ippykisvjqmigobagzjt.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwcHlraXN2anFtaWdvYmFnemp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NjU5NDUsImV4cCI6MjEwMzM0MTk0NX0.m0TuMyIxW_UaW1H9HUiKVn_711PFrxIk8y-kFw-OhKc';
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+const LOGIN_URL='/rh/index.html';
+
+// ═══ HELPERS ═══
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const pad=n=>String(n).padStart(2,'0');
+const hojeISO=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const mesAtual=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}`};
+const fmtISO=iso=>{if(!iso)return '—';const parts=iso.split('-');return `${parts[2]}/${parts[1]}/${parts[0]}`};
+const fmtDataHora=iso=>{if(!iso)return '—';const d=new Date(iso);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+const iniciais=n=>(n||'?').split(' ').filter(Boolean).map(p=>p[0]).slice(0,2).join('').toUpperCase();
+
+const TIPO_LABELS={
+  'entrada':'🟢 Entrada',
+  'saida':'🔴 Saída',
+  'almoco_saida':'🍽️ Saída Almoço',
+  'almoco_retorno':'🍽️ Retorno Almoço'
+};
+
+// ═══ ESTADO ═══
+let session=null;
+let colaboradores=[];
+let ajustes=[];
+let filtro='pendente';
+let isLoading=false;
+let debounceTimer=null;
+
+// ═══════════════════════════════════════════
+// SESSÃO
+// ═══════════════════════════════════════════
+function verificarSessao(){
+  const salvo=sessionStorage.getItem('facige_session');
+  if(!salvo){window.location.href=LOGIN_URL;return false}
+  try{
+    const d=JSON.parse(salvo);
+    if(!d.user||!d.empresa||!d.empresa.id){sessionStorage.removeItem('facige_session');window.location.href=LOGIN_URL;return false}
+    session=d;return true;
+  }catch(e){sessionStorage.removeItem('facige_session');window.location.href=LOGIN_URL;return false}
+}
+
+// ═══════════════════════════════════════════
+// CARREGAMENTO COM PROTEÇÃO CONTRA LOOP
+// ═══════════════════════════════════════════
+async function carregarTudo(){
+  if(isLoading){
+    console.log('Já carregando, ignorando chamada duplicada');
+    return;
+  }
+  
+  isLoading=true;
+  const eid=session.empresa.id;
+  
+  try{
+    const [cols, aj]=await Promise.all([
+      sb.from('colaboradores').select('*').eq('empresa_id',eid).order('nome'),
+      sb.from('ajustes_ponto').select('*, colaboradores(nome, matricula, dept)').eq('empresa_id',eid).order('criado_em',{ascending:false})
+    ]);
+    
+    colaboradores=cols.data||[];
+    ajustes=aj.data||[];
+    renderAll();
+  }catch(e){
+    console.error('Erro ao carregar:',e);
+  }finally{
+    isLoading=false;
+  }
+}
+
+function carregarComDebounce(){
+  if(debounceTimer)clearTimeout(debounceTimer);
+  debounceTimer=setTimeout(()=>{
+    carregarTudo();
+  },500);
+}
+
+function renderAll(){
+  renderKPIs();
+  renderTabela();
+}
+
+// ═══════════════════════════════════════════
+// KPIs
+// ═══════════════════════════════════════════
+function renderKPIs(){
+  const pend=ajustes.filter(a=>a.status==='pendente').length;
+  const aprov=ajustes.filter(a=>a.status==='aprovado').length;
+  const rej=ajustes.filter(a=>a.status==='rejeitado').length;
+  const total=ajustes.length;
+  
+  $('#kpiPendentes').textContent=pend;
+  $('#kpiAprovados').textContent=aprov;
+  $('#kpiRejeitados').textContent=rej;
+  $('#kpiTotal').textContent=total;
+  
+  const b=$('#kpiPendBadge');
+  if(pend>0){b.textContent=pend;b.classList.remove('hidden')}
+  else b.classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════
+// FILTROS
+// ═══════════════════════════════════════════
+function setFilter(f){
+  filtro=f;
+  $$('.afbtn').forEach(b=>{
+    b.classList.toggle('active',b.dataset.af===f);
+  });
+  renderTabela();
+}
+
+// ═══════════════════════════════════════════
+// TABELA
+// ═══════════════════════════════════════════
+function renderTabela(){
+  const busca=($('#buscaAjuste')?.value||'').toLowerCase();
+  const mesFiltro=$('#filtroMes')?.value||'';
+  
+  let list=ajustes.filter(a=>{
+    if(filtro!=='todos'&&a.status!==filtro)return false;
+    if(mesFiltro&&a.data&&a.data.substring(0,7)!==mesFiltro)return false;
+    if(busca){
+      const nome=(a.colaboradores?.nome||'').toLowerCase();
+      const mat=(a.colaboradores?.matricula||'').toLowerCase();
+      if(!nome.includes(busca)&&!mat.includes(busca))return false;
+    }
+    return true;
+  });
+  
+  const badges={
+    pendente:'bg-amber-400/10 text-amber-300 border-amber-400/30',
+    aprovado:'bg-emerald-400/10 text-emerald-300 border-emerald-400/30',
+    rejeitado:'bg-rose-400/10 text-rose-300 border-rose-400/30'
+  };
+  
+  $('#ajustesBody').innerHTML=list.length?list.map(a=>{
+    const nome=(a.colaboradores?.nome)||'—';
+    const mat=(a.colaboradores?.matricula)||'';
+    const dept=(a.colaboradores?.dept)||'';
+    
+    let acoes='';
+    if(a.status==='pendente'){
+      acoes=`<button onclick="aprovarAjuste('${a.id}')" class="btn-success px-3 py-1.5 rounded text-xs font-bold mr-1">✓ Aprovar</button>
+             <button onclick="openRejeitar('${a.id}')" class="btn-danger px-3 py-1.5 rounded text-xs font-bold">✕</button>`;
+    }else{
+      acoes=`<button onclick="verDetalhes('${a.id}')" class="btn-ghost px-3 py-1.5 rounded text-xs">👁 Ver</button>`;
+    }
+    
+    const horOrig=a.horario_original?a.horario_original.substring(0,5):'—';
+    const horAjus=a.horario_ajustado?`<span class="text-amber-300 font-bold">${a.horario_ajustado.substring(0,5)}</span>`:'—';
+    
+    return `<tr>
+      <td><div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 grid place-items-center text-[11px] font-bold text-white shrink-0">${iniciais(nome)}</div>
+        <div class="min-w-0"><p class="font-semibold text-slate-200 truncate">${nome}</p><p class="text-[11px] text-slate-500">${mat} · ${dept}</p></div>
+      </div></td>
+      <td class="text-slate-300 whitespace-nowrap font-semibold">${fmtISO(a.data)}</td>
+      <td class="text-slate-300">${TIPO_LABELS[a.tipo]||a.tipo}</td>
+      <td class="font-mono text-slate-400">${horOrig}</td>
+      <td class="font-mono">${horAjus}</td>
+      <td class="text-slate-400 max-w-[200px] truncate" title="${a.motivo||''}">${a.motivo||'—'}</td>
+      <td class="text-slate-500 text-xs whitespace-nowrap">${fmtDataHora(a.criado_em)}</td>
+      <td><span class="badge border ${badges[a.status]||''}">${a.status}</span></td>
+      <td class="text-right whitespace-nowrap">${acoes}</td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="9" class="text-center py-12 text-slate-500">📝 Nenhum ajuste encontrado</td></tr>';
+}
+
+// ═══════════════════════════════════════════
+// AÇÕES
+// ═══════════════════════════════════════════
+async function aprovarAjuste(id){
+  if(!confirm('Aprovar este ajuste de ponto?'))return;
+  const res=await sb.from('ajustes_ponto').update({
+    status:'aprovado',
+    decidido_por:session.user.nome,
+    decidido_em:new Date().toISOString(),
+    atualizado_em:new Date().toISOString()
+  }).eq('id',id);
+  if(res.error)return toast('Erro','Falha ao aprovar','error');
+  toast('✅ Ajuste aprovado','Ponto do colaborador corrigido','success');
+  carregarComDebounce();
+}
+
+function openRejeitar(id){
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-3">❌ Rejeitar Ajuste</h3>
+    <label class="lbl">Motivo da recusa *</label>
+    <textarea id="motivoRejAjuste" class="inp" rows="3" placeholder="Explique por que o ajuste foi rejeitado..."></textarea>
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2.5 rounded-lg text-sm">Cancelar</button>
+      <button onclick="confirmarRejeitar('${id}')" class="btn-danger flex-1 px-4 py-2.5 rounded-lg text-sm font-bold">✕ Rejeitar</button>
+    </div>`);
+}
+
+async function confirmarRejeitar(id){
+  const motivo=$('#motivoRejAjuste').value.trim();
+  if(motivo.length<3)return toast('Motivo obrigatório','Descreva o motivo','error');
+  const res=await sb.from('ajustes_ponto').update({
+    status:'rejeitado',
+    decidido_por:session.user.nome,
+    decidido_em:new Date().toISOString(),
+    observacao_rh:motivo,
+    atualizado_em:new Date().toISOString()
+  }).eq('id',id);
+  if(res.error)return toast('Erro','Falha ao rejeitar','error');
+  closeModal();
+  toast('❌ Ajuste rejeitado','O colaborador será notificado','warn');
+  carregarComDebounce();
+}
+
+function verDetalhes(id){
+  const a=ajustes.find(x=>x.id===id);
+  if(!a)return;
+  const nome=(a.colaboradores?.nome)||'—';
+  const badges={
+    pendente:'bg-amber-400/10 text-amber-300 border-amber-400/30',
+    aprovado:'bg-emerald-400/10 text-emerald-300 border-emerald-400/30',
+    rejeitado:'bg-rose-400/10 text-rose-300 border-rose-400/30'
+  };
+  const dotClass=a.status==='aprovado'?'approved':(a.status==='rejeitado'?'rejected':'pending');
+  
+  let html=`<div class="flex items-center justify-between mb-4">
+    <h3 class="font-display font-bold text-slate-100">Detalhes do Ajuste</h3>
+    <span class="badge border ${badges[a.status]||''}">${a.status}</span>
+  </div>`;
+  
+  html+=`<div class="flex items-center gap-3 mb-5">
+    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 grid place-items-center font-bold text-white">${iniciais(nome)}</div>
+    <div><p class="font-semibold text-slate-100">${nome}</p><p class="text-xs text-slate-500">${a.colaboradores?.matricula||''} · ${a.colaboradores?.dept||''}</p></div>
+  </div>`;
+  
+  html+=`<div class="grid grid-cols-2 gap-3 mb-4">
+    <div class="panel !rounded-lg p-3"><p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Data</p><p class="text-slate-200 font-semibold">${fmtISO(a.data)}</p></div>
+    <div class="panel !rounded-lg p-3"><p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Tipo</p><p class="text-slate-200 font-semibold">${TIPO_LABELS[a.tipo]||a.tipo}</p></div>
+    <div class="panel !rounded-lg p-3"><p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Horário Original</p><p class="text-slate-200 font-semibold font-mono">${a.horario_original?a.horario_original.substring(0,5):'—'}</p></div>
+    <div class="panel !rounded-lg p-3"><p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Horário Ajustado</p><p class="text-amber-300 font-bold font-mono">${a.horario_ajustado?a.horario_ajustado.substring(0,5):'—'}</p></div>
+  </div>`;
+  
+  html+=`<div class="mb-4"><p class="text-[10px] uppercase text-slate-500 font-bold mb-2">Motivo do colaborador</p>
+    <div class="panel !rounded-lg p-3 text-sm text-slate-300">${a.motivo||'—'}</div></div>`;
+  
+  if(a.observacao_rh){
+    html+=`<div class="mb-4"><p class="text-[10px] uppercase text-slate-500 font-bold mb-2">Observação do RH</p>
+      <div class="panel !rounded-lg p-3 text-sm text-slate-300">${a.observacao_rh}</div></div>`;
+  }
+  
+  // Timeline
+  html+=`<div class="mt-5"><p class="text-[10px] uppercase text-slate-500 font-bold mb-3">Histórico</p>`;
+  html+=`<div class="timeline-item"><div class="timeline-dot pending"></div><p class="text-xs text-slate-400">Solicitação criada</p><p class="text-[11px] text-slate-500">${fmtDataHora(a.criado_em)} por ${a.criado_por||'colaborador'}</p></div>`;
+  if(a.decidido_em){
+    const dotDecidido=a.status==='aprovado'?'approved':'rejected';
+    html+=`<div class="timeline-item"><div class="timeline-dot ${dotDecidido}"></div><p class="text-xs text-slate-400">${a.status==='aprovado'?'Aprovado':'Rejeitado'} por ${a.decidido_por}</p><p class="text-[11px] text-slate-500">${fmtDataHora(a.decidido_em)}</p></div>`;
+  }
+  html+=`</div>`;
+  
+  html+=`<button onclick="closeModal()" class="btn-ghost w-full px-4 py-2.5 rounded-lg text-sm mt-4">Fechar</button>`;
+  openModal(html);
+}
+
+// ═══════════════════════════════════════════
+// NOVO AJUSTE (RH)
+// ═══════════════════════════════════════════
+function openNovoAjuste(){
+  if(!colaboradores.length){toast('Atenção','Cadastre colaboradores primeiro','warn');return}
+  let opts=colaboradores.map(c=>`<option value="${c.id}">${c.nome} (${c.matricula||'—'})</option>`).join('');
+  
+  openModal(`<h3 class="font-display font-bold text-slate-100 mb-1">📝 Novo Ajuste de Ponto</h3>
+    <p class="text-xs text-slate-500 mb-5">Crie um ajuste em nome de um colaborador.</p>
+    <div class="space-y-4">
+      <div><label class="lbl">Colaborador *</label><select id="ajColab" class="inp">${opts}</select></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="lbl">Data *</label><input type="date" id="ajData" class="inp" value="${hojeISO()}"></div>
+        <div><label class="lbl">Tipo *</label><select id="ajTipo" class="inp">
+          <option value="entrada">🟢 Entrada</option>
+          <option value="saida">🔴 Saída</option>
+          <option value="almoco_saida">🍽️ Saída Almoço</option>
+          <option value="almoco_retorno">🍽️ Retorno Almoço</option>
+        </select></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="lbl">Horário Original</label><input type="time" id="ajOrig" class="inp"></div>
+        <div><label class="lbl">Horário Correto *</label><input type="time" id="ajAjust" class="inp"></div>
+      </div>
+      <div><label class="lbl">Motivo *</label><textarea id="ajMotivo" class="inp" rows="2" placeholder="Descreva o motivo do ajuste..."></textarea></div>
+    </div>
+    <div class="flex gap-2 mt-5">
+      <button onclick="closeModal()" class="btn-ghost flex-1 px-4 py-2.5 rounded-lg text-sm">Cancelar</button>
+      <button onclick="salvarAjuste()" class="btn-chrome flex-1 px-4 py-2.5 rounded-lg text-sm">Salvar Ajuste</button>
+    </div>`);
+}
+
+async function salvarAjuste(){
+  const cid=$('#ajColab').value;
+  const data=$('#ajData').value;
+  const tipo=$('#ajTipo').value;
+  const orig=$('#ajOrig').value;
+  const ajust=$('#ajAjust').value;
+  const motivo=$('#ajMotivo').value.trim();
+  
+  if(!data||!ajust||!motivo){
+    return toast('Campos obrigatórios','Preencha data, horário correto e motivo','error');
+  }
+  
+  const res=await sb.from('ajustes_ponto').insert({
+    empresa_id:session.empresa.id,
+    colaborador_id:cid,
+    data:data,
+    tipo:tipo,
+    horario_original:orig?orig+':00':null,
+    horario_ajustado:ajust+':00',
+    motivo:motivo,
+    status:'aprovado',
+    decidido_por:session.user.nome,
+    decidido_em:new Date().toISOString(),
+    criado_por:'rh'
+  });
+  
+  if(res.error)return toast('Erro',res.error.message,'error');
+  closeModal();
+  toast('✅ Ajuste criado','Já aprovado automaticamente','success');
+  carregarComDebounce();
+}
+
+// ═══════════════════════════════════════════
+// MODAL + TOAST + REALTIME
+// ═══════════════════════════════════════════
+function openModal(html){$('#modalContent').innerHTML=html;$('#modal').classList.remove('hidden')}
+function closeModal(){$('#modal').classList.add('hidden')}
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+
+function toast(titulo,msg,tipo='info'){
+  const colors={success:'border-emerald-400 bg-emerald-400',error:'border-rose-400 bg-rose-400',info:'border-sky-400 bg-sky-400',warn:'border-amber-400 bg-amber-400'};
+  const el=document.createElement('div');
+  const cls=colors[tipo]||colors.info;
+  el.className='animate-toast-in panel !rounded-xl border-l-4 '+cls.split(' ')[0]+' overflow-hidden';
+  el.innerHTML=`<div class="flex items-start gap-3 px-4 py-3"><div class="flex-1 min-w-0"><p class="text-sm font-bold text-slate-100">${titulo}</p><p class="text-xs text-slate-400 mt-0.5">${msg}</p></div><button onclick="this.closest('div').parentElement.remove()" class="text-slate-600 hover:text-slate-300">×</button></div><div class="h-0.5 ${cls.split(' ')[1]} toast-bar"></div>`;
+  $('#toastRoot').appendChild(el);
+  setTimeout(()=>el.remove(),4000);
+}
+
+function subscribeRealtime(){
+  sb.channel('ajustes-'+session.empresa.id)
+    .on('postgres_changes',{event:'*',schema:'public',table:'ajustes_ponto',filter:`empresa_id=eq.${session.empresa.id}`},()=>{
+      console.log('Mudança detectada, recarregando...');
+      carregarComDebounce();
+    })
+    .subscribe();
+}
+
+function tick(){const d=new Date();$('#clock').textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+setInterval(tick,1000);tick();
+
+// Event listeners
+if($('#buscaAjuste'))$('#buscaAjuste').addEventListener('input',renderTabela);
+if($('#filtroMes'))$('#filtroMes').addEventListener('change',renderTabela);
+
+// ═══ INIT ═══
+(async function(){
+  if(!verificarSessao())return;
+  $('#headerEmpresa').textContent=session.empresa.nome;
+  $('#userName').textContent=session.user.nome||'—';
+  $('#userInit').textContent=iniciais(session.user.nome||'RH');
+  if(!$('#filtroMes').value)$('#filtroMes').value=mesAtual();
+  try{
+    await carregarTudo();
+    subscribeRealtime();
+    $('#loadingScreen').classList.add('hidden');
+    $('#appShell').classList.remove('hidden');
+  }catch(e){
+    console.error(e);
+    $('#loadingMsg').textContent='Erro ao carregar. Recarregue a página.';
+  }
+})();
+</script>
+</body>
+</html>
